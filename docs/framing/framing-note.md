@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.6, 26 November 2026
+Ruben · version 2.7, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -32,6 +32,26 @@ Two consequences are accepted as part of the design:
 - **The mind does not grow.** The model is fixed, so Ipse does not become more intelligent with experience. What grows is its knowledge of its body and its know-how, in written form. Its ceiling is that of the model; when a better model becomes available, the mind can be replaced and everything Ipse has written is kept.
 - **Prior knowledge provides hypotheses, reality decides.** Discovery is reasoned rather than random: a few trials suggest "this resembles two driven wheels", and the suggestion is then verified. Verification is required precisely because a confident adult can be wrong about an unfamiliar body.
 
+## How it works
+
+The architecture is simple and rests on three parts.
+
+1. **A continuous log.** Everything that comes in is recorded as it happens: what the senses perceive, the levels of the instincts, and the commands sent. The log is raw and complete.
+2. **The language model.** It reads the log, analyses it, improves what it has written, and tests its improvements by running experiments. The results of those experiments enter the log in turn.
+3. **A memory.** It draws on the log, but its purpose is different: to understand the environment and to retain what is essential and relevant. The log records everything that happened; the memory holds what the model has understood and chosen to keep.
+
+```
+senses, instincts, commands ──► log ──► language model ──► experiments
+                                 ▲            │                 │
+                                 │            ▼                 │
+                                 │         memory               │
+                                 └──────────────────────────────┘
+```
+
+The log is what makes the principle "observed, not declared" practical: time and results are read from the record of what happened, not from what the model reports about itself. For the same reason, the log is written continuously by the system and is not something the model edits.
+
+Because the log grows without end while storage is finite, sleep condenses it: what matters is carried into memory, and the oldest raw records are the first to go.
+
 ## What is fixed
 
 ### Linux
@@ -46,7 +66,7 @@ The model is multimodal and has open weights, so that any robot can embed it. Th
 
 ### The reflection loop
 
-The model writes to itself. At each turn it receives its previous thought, the current levels of its instincts, and what its senses have captured, even when unclear; it then writes its next thought or decides to act. A minimal fixed mechanism relaunches it at each turn.
+The model writes to itself. At each turn it receives its previous thought and the recent content of the log, that is, the current levels of its instincts and what its senses have captured, even when unclear; it then writes its next thought or decides to act. A minimal fixed mechanism relaunches it at each turn.
 
 A model retains only a limited amount of text. What matters must therefore be written to memory, which sleep later sorts.
 
@@ -86,7 +106,7 @@ Everything the language model writes can be rewritten by it:
 - the **body description**: what each channel does, established by experiment;
 - the **code**: drivers and the control interface derived from the description;
 - the **skills**: gestures that succeeded and were kept;
-- the **memory**: the record of what was tried and what resulted.
+- the **memory**: what the model has understood of its body and its environment, and has chosen to retain as essential and relevant.
 
 Self-improvement means changing these, never the three fixed elements.
 
@@ -133,7 +153,7 @@ To attribute a response to a channel:
 
 A link is learned from repetition, in four steps:
 
-1. **A log.** At each movement, Ipse records what it commanded, what its senses perceived just before, and what they perceive just after.
+1. **The log.** For each movement, the continuous log holds what was commanded, what the senses perceived just before, and what they perceive just after.
 2. **Repetitions.** A single occurrence proves nothing. The same movement is repeated many times, at randomly drawn moments, and sometimes deliberately withheld for comparison.
 3. **A count.** For each pair of one command and one sense: when the command was sent, did the sense change? When it was not sent, did the sense change anyway?
 4. **A table.** Each row is a link that strengthens or fades.
