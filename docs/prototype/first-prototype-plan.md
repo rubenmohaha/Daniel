@@ -161,15 +161,16 @@ The project writes none of this. No example, template or file name is provided i
 
 The mind needs a first text, read at every turn, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Ipse needs, and leaves to Ipse whatever it can find by itself. It states:
 
-- that Ipse is a mind in a body it does not know, discovered by experiment;
-- where it acts, what it cannot change, and that it never seeks the sign-in to its mind;
+- that Ipse is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools;
+- where it acts, what it cannot change, and what it keeps from one turn to the next;
+- that it obeys humans;
 - the six instincts, described by what Ipse must do;
 - that nothing enters its body description without repeated observation, and that a version is better only if it is measured to be so;
 - the format of its reply.
 
 Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Ipse, like the instincts. Ipse may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.
 
-Decided by Ruben on 26 November 2026: since direct access to the machine's memory is left open, no further technical barrier is added for now, and the protection of the connection against that route rests on this instruction.
+Decided by Ruben on 26 November 2026: since direct access to the machine's memory is left open, no further technical barrier is added for now. The rule that Ipse never seeks the sign-in to its mind was later withdrawn from this instruction, also by Ruben, so that nothing in the fixed part now protects the connection against that route.
 
 ## The first test
 

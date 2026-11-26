@@ -24,7 +24,7 @@ Ruben · version 0.1, 26 November 2026
 | D-06 | Ipse runs on top of Linux, as a continuously running program | 26 Nov 2026 | In force |
 | D-07 | Fixed: Linux, a language model, instincts; everything else evolves | 26 Nov 2026 | In force |
 | D-08 | An adult mind in an unknown body | 26 Nov 2026 | In force |
-| D-09 | Six instincts | 26 Nov 2026 | In force |
+| D-09 | Six instincts | 26 Nov 2026 | Partly superseded by D-40 |
 | D-10 | No programmed developmental stage | 26 Nov 2026 | In force |
 | D-11 | Functions by levels, with one logic at every level | 26 Nov 2026 | In force |
 | D-12 | What "better" means | 26 Nov 2026 | In force |
@@ -48,12 +48,14 @@ Ruben · version 0.1, 26 November 2026
 | D-30 | Translation of two framing terms | 26 Nov 2026 | In force |
 | D-31 | Ipse may inventory its hardware through Linux | 26 Nov 2026 | In force |
 | D-32 | Direct access to working memory is no longer closed | 26 Nov 2026 | In force |
-| D-33 | No technical measure against reading the connection in memory | 26 Nov 2026 | In force |
+| D-33 | No technical measure against reading the connection in memory | 26 Nov 2026 | Partly superseded by D-39 |
 | D-34 | The repository is released under the Apache 2.0 license | 26 Nov 2026 | In force |
 | D-35 | The first prototype is written | 26 Nov 2026 | In force |
 | D-36 | Pull requests are merged when ready, without waiting for Ruben's review | 26 Nov 2026 | In force |
 | D-37 | The starting instruction names no part of the body | 26 Nov 2026 | In force |
 | D-38 | A shorter starting instruction, with no time given at each turn | 26 Nov 2026 | In force |
+| D-39 | The starting instruction no longer mentions the sign-in | 26 Nov 2026 | In force |
+| D-40 | Ipse obeys humans | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -138,6 +140,7 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** Ipse has six innate instincts that it cannot modify, modelled on those of animals and limited to the essentials. Five keep it alive: hunger (recharge the battery), temperature, sleep (clean up code and memory), pain (withdraw on impact or when a motor strains) and fear (caution towards the unknown). The sixth, curiosity, makes it grow. Obeying a spoken "stop" is not an instinct: it is learned.
 - **Reason:** Only the drives that keep an animal alive are fixed; every other behaviour is to be discovered or learned.
+- **Status:** Partly superseded by D-40: obeying humans is now stated in the starting instruction. Obedience is still not an instinct, and recognising what humans ask still has to be learned through the senses.
 
 #### D-10. No programmed developmental stage
 
@@ -265,6 +268,7 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** Ruben chose to rely, for the time being, on Ipse respecting the rule rather than on a technical safeguard.
 - **Note:** The proposed starting instruction in the first prototype plan does not yet state this rule explicitly.
 - **Replaces:** The proposal, made the same day and not adopted, to switch off swap at setup.
+- **Status:** Partly superseded by D-39: the rule on which this decision relied was withdrawn from the starting instruction. No technical measure is taken either.
 
 #### D-26. No fixed reflex, no imposed limit on first trials, no help linking signals
 
@@ -303,6 +307,21 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** The starting instruction is shortened to the essentials. The loop no longer gives Ipse the time at each turn, nor the start and end times of its last action; Ipse reads the clock itself when it needs to.
 - **Reason:** Ruben found the instruction too long and too insistent on the clock: Ipse knows how to read the time and need not be given it at every turn.
+
+#### D-39. The starting instruction no longer mentions the sign-in
+
+- **Date:** 26 November 2026.
+- **Decision:** The starting instruction no longer states that Ipse never seeks to read, copy or use the sign-in to its mind. It also no longer names the folder kept across restarts, nor states that humans reach Ipse only through its senses. It now says that Ipse is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools.
+- **Reason:** Ruben wants the instruction reduced to the essentials.
+- **Consequence:** Since D-33, this rule was the only protection of the connection against the memory route; nothing in the fixed part now provides it.
+- **Replaces:** The rule added to the instruction on the basis of D-33.
+
+#### D-40. Ipse obeys humans
+
+- **Date:** 26 November 2026.
+- **Decision:** The starting instruction states that Ipse obeys humans.
+- **Reason:** Ruben asked for it when reducing the instruction to the essentials.
+- **Replaces:** In part, D-09, under which obeying a spoken "stop" was to be learned rather than given.
 
 ### Terminology
 
