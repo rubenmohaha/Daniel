@@ -9,6 +9,7 @@ The project is in a research phase. This repository contains no code: it gathers
 ## Principles
 
 - **The body is discovered, not described.** The robot exposes only anonymous motor channels, their bounds, and sensor streams. The system itself establishes the body description and the control interface.
+- **An adult mind in an unknown body.** The built-in language model already knows a great deal about the world; what it does not know is its own body. The mind does not grow: what grows is its written knowledge of its body and its know-how.
 - **Three things are fixed.** Linux, a built-in language model, and a small set of instincts modelled on those of animals: hunger, temperature, sleep, pain, fear and curiosity.
 - **Everything else evolves.** The body description, code, skills and memory are written by the model and can be rewritten by it. This is where self-improvement happens.
 - **Humans communicate through the senses.** They do not intervene inside the system; they relate to it as a teacher does, through voice, hearing and other perceivable signals.

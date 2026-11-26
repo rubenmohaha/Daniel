@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.3, 26 November 2026
+Ruben · version 2.4, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -17,11 +17,20 @@ Ipse is defined by what it cannot change, what it can change, and how humans rel
 | Element | Biological equivalent | Can Ipse modify it? |
 | --- | --- | --- |
 | Linux | Nerves and blood vessels | No |
-| Built-in language model | The brain received at birth | No |
+| Built-in language model | An adult mind | No |
 | Instincts | Innate drives | No |
 | Everything the model writes: body description, code, skills, memory | What is learned during a lifetime | Yes: this is where improvement happens |
 
 Humans do not intervene inside Ipse. They communicate with it through its senses: voice, hearing, sign language and other perceivable signals.
+
+### An adult mind in an unknown body
+
+Ipse is not a newborn. The language model already knows a great deal: what a wheel or a camera is, what walking means, how to speak. What it does not know is which of its channels does what. Ipse is therefore best understood as an adult mind waking up in a body it has never seen.
+
+Two consequences are accepted as part of the design:
+
+- **The mind does not grow.** The model is fixed, so Ipse does not become more intelligent with experience. What grows is its knowledge of its body and its know-how, in written form. Its ceiling is that of the model; when a better model becomes available, the mind can be replaced and everything Ipse has written is kept.
+- **Prior knowledge provides hypotheses, reality decides.** Discovery is reasoned rather than random: a few trials suggest "this resembles two driven wheels", and the suggestion is then verified. Verification is required precisely because a confident adult can be wrong about an unfamiliar body.
 
 ## What is fixed
 
@@ -32,6 +41,14 @@ Ipse runs on top of Linux as a continuously running program. It is not an operat
 ### The built-in language model
 
 Ipse ships with a large language model by default. This model is not modified and not retrained. It is the component that reasons: it formulates hypotheses, discovers the body, and writes code. This matches the approach of every self-improving robotic system reviewed, all of which keep the model frozen and improve what surrounds it.
+
+The model is multimodal and has open weights, so that any robot can embed it. The working reference is Qwen3.8, released under the Apache 2.0 license; whether its smaller variant handles images and sound, and what hardware it requires, remain to be verified. The standard specifies the kind of model, not a particular one.
+
+### The reflection loop
+
+The model writes to itself. At each turn it receives its previous thought, the current levels of its instincts, and what its senses have captured, even when unclear; it then writes its next thought or decides to act. A minimal fixed mechanism relaunches it at each turn.
+
+A model retains only a limited amount of text. What matters must therefore be written to memory, which sleep later sorts.
 
 ### The instincts
 
@@ -52,16 +69,13 @@ Other animal behaviours are deliberately not instincts: play, imitation, attachm
 
 ### Everything else follows from the instincts
 
-No developmental stage is programmed. What looks like a sequence of stages in an infant is the same few instincts at work on a growing repertoire:
+No developmental stage is programmed. Behaviours follow from the same few instincts:
 
-- **Safety comes before curiosity.** Like a newborn, which at first reacts only to its needs, Ipse explores only when its five vital instincts are quiet. Safety is not a seventh instinct: it is the state in which the vital instincts are satisfied.
-- **Preference for the familiar is fear avoided.** Recognising something already encountered is reassuring because it is the opposite of the unknown.
-- **Motor babbling, play and communication are curiosity.** Random movements, then games of prediction and surprise such as peekaboo, then exchange with humans, are successive objects of the same drive.
+- **Safety comes before curiosity.** Ipse explores only when its five vital instincts are quiet. Safety is not a seventh instinct: it is the state in which the vital instincts are satisfied.
+- **Exploratory movement, practice and communication are curiosity.** They are successive objects of the same drive. Ipse's curiosity is directed at itself rather than at the world, about which the model already knows a great deal.
 - **The link between movement and sensation is learned from repetition**, as described below.
 
-This developmental view is close to the field of developmental robotics, which the literature review has not yet covered.
-
-Obeying a spoken command such as "stop" is not an instinct either. It presupposes that Ipse has already discovered its microphone and learned to understand speech; it is therefore learned, through the senses.
+Obeying a spoken command such as "stop" is not an instinct either. The model already understands language, but Ipse must first discover which of its streams is a microphone.
 
 ## What evolves
 
@@ -78,7 +92,7 @@ Self-improvement means changing these, never the three fixed elements.
 
 The human relates to Ipse as a parent or a teacher does, not as a programmer. Nothing is edited from the inside; everything passes through the senses.
 
-One consequence follows directly: at the very beginning, Ipse does not know that one of its input streams is a microphone. It must discover its senses before it can listen. Communication with humans is thus an outcome of discovery, not a starting point.
+One consequence follows directly: at the very beginning, Ipse does not know that one of its input streams is a microphone. It already knows how to communicate, but must discover its senses before it can listen or answer. Communication with humans is thus an outcome of discovery, not a starting point.
 
 ## Discovering the body
 
@@ -173,6 +187,15 @@ The instincts determine which signals a body must provide. Each instinct needs a
 
 The contract therefore requires roles (an energy signal, a temperature signal, a danger signal) rather than specific sensors, consistent with defining interoception by function rather than by physical origin (Candia-Rivera, arXiv:2604.24527). Vision and hearing are not required for survival; they are what makes communication with humans possible.
 
+### Perception
+
+Raw streams serve two purposes, at two levels:
+
+- **Numbers for the link table.** Whether a stream changed when a command was sent is computed directly on the signal, or on a compact numerical summary of it, quickly and without the language model.
+- **Words and images for reflection.** A multimodal model perceives images directly, which avoids a separate captioning model. Transcription alone would not suffice for hearing: it keeps speech and discards the other sounds, such as motor noise or an impact, that matter for discovering the body.
+
+Ipse may also fetch specialised models from the network when it needs them. This is consistent with body discovery only in one order: Ipse first establishes by itself that a stream behaves like an image or a sound, then fetches a suitable tool. A fetched model is a function like any other: it belongs to what evolves, is measured, and is kept only if it improves performance. It never touches the three fixed elements.
+
 The literature supports proprioception as the basis of a self-model, and partially supports internal-state signals as a source of motivation. No work reviewed measures the effect of removing an internal signal on body learning: such an ablation is a possible contribution of the project.
 
 ## Sleep
@@ -244,11 +267,11 @@ The contributions least covered by the literature reviewed are the rewiring test
 ## Open questions
 
 - **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
-- **The permanent loop.** A language model acts only when called. Which loop runs continuously, presents it with what the senses perceive, and executes what it decides, and is that loop fixed?
+- **What the model may see of the system.** A model free to inspect the Linux configuration could read component names instead of discovering its body. Should the model see its body through the contract only?
+- **Acting without external stimuli.** Should curiosity rise as long as nothing is learned, and fall only when learning is observed rather than declared?
 - **Fast responses.** Mastered functions run without the model, but pain and fear must also act faster than it can respond: where do the instincts themselves run?
 - **Tuning the instincts.** At what thresholds does each instinct act?
-- **Perception.** How do raw sensor streams such as images and sound reach a model that reads text?
-- **Offline operation.** Which local model can serve as the built-in model?
+- **Dependence on the network and on hardware.** Fetching models requires a connection, and a multimodal model requires substantial computing power on the robot.
 - **Second body.** Simulated arm, simulated drone, or something else?
 - **Generality with respect to the task.** Second proof, after generality with respect to the body.
 
@@ -257,6 +280,7 @@ The contributions least covered by the literature reviewed are the rewiring test
 - [x] Create the repository and add this note
 - [x] First literature review on body discovery by an agent
 - [ ] Extend the review to homeostatic and intrinsically motivated agents, and to developmental robotics
+- [ ] Verify the capabilities and hardware requirements of the reference model
 - [ ] Specify the body contract, including the signals each instinct requires
 - [ ] Specify each instinct as a verifiable condition
 - [ ] Choose the second body
