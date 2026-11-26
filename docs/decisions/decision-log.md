@@ -16,8 +16,8 @@ Ruben · version 0.1, 26 November 2026
 
 | No. | Decision | Date | Status |
 | --- | --- | --- | --- |
-| D-01 | Research phase only, no code | 26 Nov 2026 | In force |
-| D-02 | The repository is the reference, changed through reviewed pull requests | 26 Nov 2026 | In force |
+| D-01 | Research phase only, no code | 26 Nov 2026 | Superseded by D-35 |
+| D-02 | The repository is the reference, changed through reviewed pull requests | 26 Nov 2026 | Partly superseded by D-36 |
 | D-03 | Repository content is in English, with a professional tone | 26 Nov 2026 | In force |
 | D-04 | The repository stays public | 26 Nov 2026 | In force |
 | D-05 | Objective: a standard for robot self-improvement | 26 Nov 2026 | In force |
@@ -50,6 +50,8 @@ Ruben · version 0.1, 26 November 2026
 | D-32 | Direct access to working memory is no longer closed | 26 Nov 2026 | In force |
 | D-33 | No technical measure against reading the connection in memory | 26 Nov 2026 | In force |
 | D-34 | The repository is released under the Apache 2.0 license | 26 Nov 2026 | In force |
+| D-35 | The first prototype is written | 26 Nov 2026 | In force |
+| D-36 | Pull requests are merged when ready, without waiting for Ruben's review | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -60,12 +62,14 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** The project is in a research phase. No code is written for now.
 - **Reason:** The model must be framed and reviewed before anything is built.
+- **Status:** Superseded by D-35: the research-only phase has ended.
 
 #### D-02. The repository is the reference, changed through reviewed pull requests
 
 - **Date:** 26 November 2026.
 - **Decision:** The repository is the project's reference location. It is built in three steps: the framing note and the literature review, then the specification (including the first prototype plan), then this decision log. Every change goes through a pull request that Ruben reviews.
 - **Reason:** A single reviewed source avoids divergent versions of the documents.
+- **Status:** Partly superseded by D-36: the repository remains the reference and every change still goes through a pull request, but Ruben no longer reviews each one before it is merged.
 
 #### D-03. Repository content is in English, with a professional tone
 
@@ -84,6 +88,20 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** The repository remains under the Apache 2.0 license, rather than the MIT license that was also considered.
 - **Reason:** Apache 2.0 includes an explicit patent grant, which is useful for a project that aims to propose a standard.
+
+#### D-35. The first prototype is written
+
+- **Date:** 26 November 2026.
+- **Decision:** The project moves from research to writing the first prototype, following the first prototype plan. Only the fixed part is written by the project.
+- **Reason:** Ruben confirmed that the framing and the plan were sufficient to start building.
+- **Replaces:** Research phase only, no code (D-01).
+
+#### D-36. Pull requests are merged when ready, without waiting for Ruben's review
+
+- **Date:** 26 November 2026.
+- **Decision:** Every change still goes through a pull request, but each pull request is merged as soon as it is ready, without waiting for Ruben's review. Ruben is told in one line what has entered the main branch.
+- **Reason:** Ruben asked for pull requests to be merged automatically, for the open ones and all the following ones.
+- **Replaces:** The review of every pull request by Ruben before merging (D-02).
 
 ### The model
 
