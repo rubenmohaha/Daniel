@@ -163,8 +163,8 @@ The mind needs a first text, read at every turn, telling it what it is and where
 
 - that Ipse is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools;
 - where it acts, what it cannot change, and what it keeps from one turn to the next;
-- that it obeys humans;
-- the six instincts, described by what Ipse must do;
+- that it is free to use the robot as it wishes to serve humans, and obeys them;
+- the six instincts, described by what Ipse must do, with health in place of temperature;
 - that nothing enters its body description without repeated observation, and that a version is better only if it is measured to be so;
 - the format of its reply.
 
