@@ -40,13 +40,14 @@ Ruben · version 0.1, 26 November 2026
 | D-22 | Nothing is known about the robot beyond three conditions | 26 Nov 2026 | In force |
 | D-23 | Blocking access from Ruben's account is a coma | 26 Nov 2026 | In force |
 | D-24 | Ipse is administrator inside a Docker container | 26 Nov 2026 | In force |
-| D-25 | Every device is opened to the container, with stated exceptions | 26 Nov 2026 | In force |
+| D-25 | Every device is opened to the container, with stated exceptions | 26 Nov 2026 | Partly superseded by D-32 |
 | D-26 | No fixed reflex, no imposed limit on first trials, no help linking signals | 26 Nov 2026 | In force |
 | D-27 | The starting instruction is fixed | 26 Nov 2026 | In force |
 | D-28 | No time limit for the first test | 26 Nov 2026 | In force |
 | D-29 | No remote reading: Ruben reads on the robot | 26 Nov 2026 | In force |
 | D-30 | Translation of two framing terms | 26 Nov 2026 | In force |
 | D-31 | Ipse may inventory its hardware through Linux | 26 Nov 2026 | In force |
+| D-32 | Direct access to working memory is no longer closed | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -219,7 +220,15 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** Every device that Linux exposes is handed to the container without the project knowing what it is, except the disk that holds Linux and the connection to Ruben's account, and the machine's working memory. No further category of device is excluded for now.
 - **Reason:** The fixed part keeps no prior knowledge of the hardware; the weaknesses this implies are accepted for the first prototype.
-- **Note:** The exclusion of working memory rests on Ruben's words "and the memory too", read as closing direct access to the machine's working memory. This reading is to be confirmed.
+- **Note:** The exclusion of working memory rested on Ruben's words "and the memory too", read as closing direct access to the machine's working memory.
+- **Status:** Partly superseded by D-32: the exclusion of working memory is withdrawn. The exclusion of the system disk remains.
+
+#### D-32. Direct access to working memory is no longer closed
+
+- **Date:** 26 November 2026.
+- **Decision:** For now, the constraint closing Ipse's direct access to the machine's working memory is removed. Only the disk that holds Linux and the connection remains excluded from the devices handed to the container.
+- **Reason:** Ruben chose to remove the constraint for the time being. As a consequence, the wall no longer prevents Ipse from reading the connection while it is in use through that device; this weakness is accepted along with those already listed in the first prototype plan.
+- **Replaces:** The exclusion of working memory in D-25.
 
 #### D-26. No fixed reflex, no imposed limit on first trials, no help linking signals
 
