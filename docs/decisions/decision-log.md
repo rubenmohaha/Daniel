@@ -57,6 +57,8 @@ Ruben · version 0.1, 26 November 2026
 | D-39 | The starting instruction no longer mentions the sign-in | 26 Nov 2026 | In force |
 | D-40 | Ipse obeys humans | 26 Nov 2026 | In force |
 | D-41 | Health replaces temperature; Ipse is free to use the robot to serve humans | 26 Nov 2026 | In force |
+| D-42 | The mind acts through tools, without a reply format | 26 Nov 2026 | In force |
+| D-43 | The starting instruction no longer defines a better version | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -330,6 +332,20 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** The temperature instinct is replaced by a health instinct: Ipse takes care of the health of its robot. The starting instruction also states that Ipse is free to use the robot as it wishes to serve humans.
 - **Reason:** Ruben considers health a better description than temperature alone, and wants Ipse to know that the robot is at its disposal for the service of humans.
 - **Replaces:** The temperature instinct of D-09.
+
+#### D-42. The mind acts through tools, without a reply format
+
+- **Date:** 26 November 2026.
+- **Decision:** The starting instruction no longer imposes a reply format. The mind acts through two tools of the fixed part, which run a command or write a file inside Ipse's container and nowhere else. Each waking lasts as long as the mind wishes; its last words are given back at the next waking.
+- **Reason:** Ruben saw no need to make the mind reply in a fixed format.
+- **Replaces:** The reply in JSON, with one action and a waiting time per turn.
+
+#### D-43. The starting instruction no longer defines a better version
+
+- **Date:** 26 November 2026.
+- **Decision:** The sentence stating that a version is better only if it does the same task faster or more precisely, as measured and never by impression, is removed from the starting instruction.
+- **Reason:** Ruben wants the instruction reduced to the essentials.
+- **Note:** The criterion itself (D-12) is not withdrawn; it is no longer given to Ipse in advance.
 
 ### Terminology
 
