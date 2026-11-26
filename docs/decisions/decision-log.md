@@ -24,7 +24,7 @@ Ruben · version 0.1, 26 November 2026
 | D-06 | Ipse runs on top of Linux, as a continuously running program | 26 Nov 2026 | In force |
 | D-07 | Fixed: Linux, a language model, instincts; everything else evolves | 26 Nov 2026 | In force |
 | D-08 | An adult mind in an unknown body | 26 Nov 2026 | In force |
-| D-09 | Six instincts | 26 Nov 2026 | Partly superseded by D-40 |
+| D-09 | Six instincts | 26 Nov 2026 | Partly superseded by D-40 and D-41 |
 | D-10 | No programmed developmental stage | 26 Nov 2026 | In force |
 | D-11 | Functions by levels, with one logic at every level | 26 Nov 2026 | In force |
 | D-12 | What "better" means | 26 Nov 2026 | In force |
@@ -56,6 +56,7 @@ Ruben · version 0.1, 26 November 2026
 | D-38 | A shorter starting instruction, with no time given at each turn | 26 Nov 2026 | In force |
 | D-39 | The starting instruction no longer mentions the sign-in | 26 Nov 2026 | In force |
 | D-40 | Ipse obeys humans | 26 Nov 2026 | In force |
+| D-41 | Health replaces temperature; Ipse is free to use the robot to serve humans | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -140,7 +141,7 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** Ipse has six innate instincts that it cannot modify, modelled on those of animals and limited to the essentials. Five keep it alive: hunger (recharge the battery), temperature, sleep (clean up code and memory), pain (withdraw on impact or when a motor strains) and fear (caution towards the unknown). The sixth, curiosity, makes it grow. Obeying a spoken "stop" is not an instinct: it is learned.
 - **Reason:** Only the drives that keep an animal alive are fixed; every other behaviour is to be discovered or learned.
-- **Status:** Partly superseded by D-40: obeying humans is now stated in the starting instruction. Obedience is still not an instinct, and recognising what humans ask still has to be learned through the senses.
+- **Status:** Partly superseded by D-41: the temperature instinct becomes a health instinct. Partly superseded by D-40: obeying humans is now stated in the starting instruction. Obedience is still not an instinct, and recognising what humans ask still has to be learned through the senses.
 
 #### D-10. No programmed developmental stage
 
@@ -322,6 +323,13 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** The starting instruction states that Ipse obeys humans.
 - **Reason:** Ruben asked for it when reducing the instruction to the essentials.
 - **Replaces:** In part, D-09, under which obeying a spoken "stop" was to be learned rather than given.
+
+#### D-41. Health replaces temperature; Ipse is free to use the robot to serve humans
+
+- **Date:** 26 November 2026.
+- **Decision:** The temperature instinct is replaced by a health instinct: Ipse takes care of the health of its robot. The starting instruction also states that Ipse is free to use the robot as it wishes to serve humans.
+- **Reason:** Ruben considers health a better description than temperature alone, and wants Ipse to know that the robot is at its disposal for the service of humans.
+- **Replaces:** The temperature instinct of D-09.
 
 ### Terminology
 
