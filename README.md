@@ -30,7 +30,7 @@ The project is in a research phase. This repository gathers the framing document
 From any computer with SSH, where `USER@ROBOT` is the account and address of a robot running Linux:
 
 ```
-ssh -t USER@ROBOT "curl -fsSL https://raw.githubusercontent.com/rubenmohaha/Ipse/main/install.sh -o /tmp/ipse-install.sh && sudo bash /tmp/ipse-install.sh"
+ssh -t USER@ROBOT "curl -fsSLo ipse.sh github.com/rubenmohaha/Ipse/raw/main/install.sh && sudo bash ipse.sh"
 ```
 
 See [the fixed part](fixed/README.md) for what this command does.

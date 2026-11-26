@@ -3,17 +3,24 @@
 #
 # From any computer with SSH (Linux, macOS, or Windows 10 and later):
 #
-#   ssh -t USER@ROBOT "curl -fsSL https://raw.githubusercontent.com/rubenmohaha/Ipse/main/install.sh -o /tmp/ipse-install.sh && sudo bash /tmp/ipse-install.sh"
+#   ssh -t USER@ROBOT "curl -fsSLo ipse.sh github.com/rubenmohaha/Ipse/raw/main/install.sh && sudo bash ipse.sh"
+#
+# The script is saved before it runs, rather than piped into sudo: on systems
+# where sudo opens its own terminal, a piped script could not ask questions.
 #
 # The script installs what is missing, sets up the fixed part, waits while the
 # owner signs in to their Anthropic account with the official tool, pins the
 # model version, checks the wall, and starts Ipse. It stops at once if the
 # wall does not hold. It never reads the credentials of the official tool.
 #
-# Options: --model VERSION (default at first installation: claude-sonnet-5-5;
-# kept unchanged on later runs unless given), --yes (do not ask
-# for confirmation before starting). Running it again is safe: what is
-# already in place is left unchanged.
+# Options, given after "ipse.sh": --model VERSION (default at first
+# installation: claude-sonnet-5-5; kept unchanged on later runs unless
+# given), --yes (do not ask for confirmation before starting). Running it
+# again is safe: what is already in place is left unchanged.
+#
+# The whole script is a function called on the last line, so that it is read
+# completely before anything runs.
+main() {
 set -euo pipefail
 
 MODEL=
@@ -37,6 +44,7 @@ fail() { printf '\nSTOPPED: %s\n' "$1" >&2; exit 1; }
 
 [ "$(id -u)" = 0 ] || fail "run this script with sudo"
 command -v systemctl >/dev/null || fail "this Linux system does not use systemd"
+{ : </dev/tty; } 2>/dev/null || fail "no terminal: connect with 'ssh -t' so that questions can be answered"
 
 step "1/7 Installing what is missing (git, Python, Docker)"
 if command -v apt-get >/dev/null; then
@@ -129,3 +137,6 @@ done
 printf '\n'
 journalctl -u ipse-loop -n 20 --no-pager
 fail "no thought after 3 minutes; the lines above say why"
+}
+
+main "$@" </dev/null
