@@ -6,7 +6,7 @@ Ruben · version 0.1, 26 November 2026
 
 ## How this log is kept
 
-- One entry per settled question, numbered in the order in which entries are added.
+- One entry per settled question, numbered in the order in which entries are added and grouped by subject.
 - Each entry gives the decision, its date, the reason in one or two sentences, and the earlier choice it replaces, if any.
 - Entries are never deleted. When a decision is reversed, the earlier entry is kept and marked as superseded, and the new entry refers to it. A proposal withdrawn before it was decided is mentioned in the entry that replaces it, not given an entry of its own.
 - Where a decision rests on an interpretation of Ruben's words that he has not yet confirmed, the entry says so.
@@ -46,6 +46,7 @@ Ruben · version 0.1, 26 November 2026
 | D-28 | No time limit for the first test | 26 Nov 2026 | In force |
 | D-29 | No remote reading: Ruben reads on the robot | 26 Nov 2026 | In force |
 | D-30 | Translation of two framing terms | 26 Nov 2026 | In force |
+| D-31 | Ipse may inventory its hardware through Linux | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -160,6 +161,13 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** An open-weights multimodal model that any robot could in principle embed.
 - **Note:** The smallest open variant is the 27B model, which handles images and video but not sound, and requires about 17 to 20 GB of graphics memory once compressed. The hardware this implies for the standard is not decided.
 
+#### D-31. Ipse may inventory its hardware through Linux
+
+- **Date:** 26 November 2026.
+- **Decision:** Being an adult mind, Ipse knows how to use Linux and may use it to find out what is connected. The inventory provides hypotheses and experiment confirms them: nothing enters the body description without having been observed. Where Linux reports nothing, as with raw inputs and outputs on a board such as a Raspberry Pi, Ipse tests its outputs and looks for the stimuli that come back. The project's commitment becomes: no human-written description of the robot.
+- **Reason:** An adult knows how to look at what it has before using it; what Linux cannot report, such as which motor turns which wheel, can still only be learned by trying.
+- **Replaces:** The stricter reading of "the body is discovered, not described", under which the model would not read the hardware configuration at all.
+
 ### First prototype
 
 #### D-18. First prototype at minimal cost
@@ -261,7 +269,6 @@ The following points appear in the documents or in discussions but have not been
 
 ### Open
 
-- **Inventory through Linux.** The framing note allows Ipse to inventory what Linux reports, as hypotheses to be confirmed by experiment; whether the model should instead be prevented from reading the hardware configuration has not been explicitly settled.
 - **Curiosity rising with boredom**, as long as nothing is learned.
 - **Fetching perception models from the network** according to need, as proposed by Ruben; how far this goes is not settled.
 - **"Doing good" and "respecting the law".** Values mentioned by Ruben, not yet classified.
