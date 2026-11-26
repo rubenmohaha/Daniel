@@ -37,4 +37,4 @@ See [the fixed part](fixed/README.md) for what this command does.
 
 ## License
 
-This repository is released under the Apache 2.0 license. See [LICENSE](LICENSE).
+Copyright 2026 Ruben Moha. This repository is released under the Apache 2.0 license. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
