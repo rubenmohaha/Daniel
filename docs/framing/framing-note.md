@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.2, 26 November 2026
+Ruben · version 2.3, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -50,6 +50,17 @@ The first five are sufficient for survival but admit a trivial strategy: remaini
 
 Other animal behaviours are deliberately not instincts: play, imitation, attachment, returning to the charging base, signalling, self-inspection. Ipse can discover or learn them, precisely because the six instincts push it to. Returning to its base, for instance, need not be innate: hunger is enough for it to be learned.
 
+### Everything else follows from the instincts
+
+No developmental stage is programmed. What looks like a sequence of stages in an infant is the same few instincts at work on a growing repertoire:
+
+- **Safety comes before curiosity.** Like a newborn, which at first reacts only to its needs, Ipse explores only when its five vital instincts are quiet. Safety is not a seventh instinct: it is the state in which the vital instincts are satisfied.
+- **Preference for the familiar is fear avoided.** Recognising something already encountered is reassuring because it is the opposite of the unknown.
+- **Motor babbling, play and communication are curiosity.** Random movements, then games of prediction and surprise such as peekaboo, then exchange with humans, are successive objects of the same drive.
+- **The link between movement and sensation is learned from repetition**, as described below.
+
+This developmental view is close to the field of developmental robotics, which the literature review has not yet covered.
+
 Obeying a spoken command such as "stop" is not an instinct either. It presupposes that Ipse has already discovered its microphone and learned to understand speech; it is therefore learned, through the senses.
 
 ## What evolves
@@ -67,7 +78,7 @@ Self-improvement means changing these, never the three fixed elements.
 
 The human relates to Ipse as a parent or a teacher does, not as a programmer. Nothing is edited from the inside; everything passes through the senses.
 
-One consequence follows directly: at the very beginning, Ipse does not know that one of its input streams is a microphone. It must discover its senses before it can listen. Communication with humans is thus a stage of discovery, not a starting point.
+One consequence follows directly: at the very beginning, Ipse does not know that one of its input streams is a microphone. It must discover its senses before it can listen. Communication with humans is thus an outcome of discovery, not a starting point.
 
 ## Discovering the body
 
@@ -100,7 +111,54 @@ To attribute a response to a channel:
 
 ### The link table
 
-A link is a hypothesis that strengthens. Each row records the outputs involved, the input that responds, the observed delay, the magnitude of the effect, and the number of trials that confirmed and refuted it. Confirmed links make up the body description. Combinations whose effect is not the sum of their isolated effects are the first gestures, and are given a name among the skills.
+A link is learned from repetition, in four steps:
+
+1. **A log.** At each movement, Ipse records what it commanded, what its senses perceived just before, and what they perceive just after.
+2. **Repetitions.** A single occurrence proves nothing. The same movement is repeated many times, at randomly drawn moments, and sometimes deliberately withheld for comparison.
+3. **A count.** For each pair of one command and one sense: when the command was sent, did the sense change? When it was not sent, did the sense change anyway?
+4. **A table.** Each row is a link that strengthens or fades.
+
+| Command | Sense that responds | Delay | Confirmed | Refuted | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| Channel 3 | Stream 7 | 0.2 s | 18 | 2 | Solid link |
+| Channel 3 | Stream 2 | 1 s | 9 | 11 | Coincidence |
+| Channel 5 | Stream 1 | 0.1 s | 20 | 0 | Certain link |
+
+The log and the count are mechanical and fast; they do not involve the language model. The model reads the table from time to time, formulates hypotheses, chooses the next experiment, and writes the body description from the solid links.
+
+Curiosity directs Ipse to the rows that are still uncertain. When a link that was certain suddenly starts to fail, the body has changed: this is the situation the rewiring test creates.
+
+## One logic at every level
+
+An action may be simple or complex, but the logic is the same at every level: try, observe, count, keep the better. Only the level of control differs. Moving an arm can be measured; so can going from point A to point B, which involves many steps that cannot all be known in advance.
+
+### Functions
+
+Every function, whatever its level, is described in the same way:
+
+- what it seeks to obtain;
+- how it proceeds, that is, which simpler functions it calls;
+- its observed measures: time, precision, number of trials;
+- its previous versions.
+
+Functions stack, each calling the level below:
+
+```
+go from A to B
+ ├─ walk
+ │   ├─ place a foot
+ │   │   └─ commands on channels
+ │   └─ keep balance
+ └─ climb stairs   (not yet learned)
+```
+
+The link table is the lowest level: a command is sent, and something happens. Above it, the structure is the same, with functions in place of commands. As functions accumulate, calls are made at an ever higher level.
+
+### Consequences
+
+- **What is mastered becomes automatic.** A reliable function runs without the language model, as a person walks without thinking about walking. The model attends only to the highest level and to what fails.
+- **Nothing needs to be planned in advance.** To reach a goal, Ipse composes what it already knows how to do. Where a function is missing, it fails, and that is where curiosity sends it.
+- **Every improvement is recorded at its own level, and confirmed above.** A faster step may make walking faster, or unbalance it. When a function changes, the functions that call it are measured again, and the previous version is kept if the level above degrades.
 
 ### Senses
 
@@ -186,7 +244,10 @@ The contributions least covered by the literature reviewed are the rewiring test
 ## Open questions
 
 - **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
-- **Reflexes.** A large model decides too slowly for pain and fear responses: which fast layer carries them?
+- **The permanent loop.** A language model acts only when called. Which loop runs continuously, presents it with what the senses perceive, and executes what it decides, and is that loop fixed?
+- **Fast responses.** Mastered functions run without the model, but pain and fear must also act faster than it can respond: where do the instincts themselves run?
+- **Tuning the instincts.** At what thresholds does each instinct act?
+- **Perception.** How do raw sensor streams such as images and sound reach a model that reads text?
 - **Offline operation.** Which local model can serve as the built-in model?
 - **Second body.** Simulated arm, simulated drone, or something else?
 - **Generality with respect to the task.** Second proof, after generality with respect to the body.
@@ -195,7 +256,7 @@ The contributions least covered by the literature reviewed are the rewiring test
 
 - [x] Create the repository and add this note
 - [x] First literature review on body discovery by an agent
-- [ ] Extend the review to homeostatic and intrinsically motivated agents
+- [ ] Extend the review to homeostatic and intrinsically motivated agents, and to developmental robotics
 - [ ] Specify the body contract, including the signals each instinct requires
 - [ ] Specify each instinct as a verifiable condition
 - [ ] Choose the second body
