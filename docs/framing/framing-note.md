@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.0, 26 November 2026
+Ruben · version 2.1, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -127,6 +127,18 @@ The day adds, the night removes. During activity, Ipse acts, makes mistakes and 
 
 The literature reviewed supports the waking check: *Let Them Sleep* (arXiv:2610.25561) prunes an agent's memory without a non-regression test and ends 19.5 points below the baseline in an adverse case. No work reviewed adopts a cleaned-up version on the condition of identical behaviour.
 
+## What "better" means
+
+A version is better if it completes the same task in less time.
+
+This single criterion is deliberately simple and measurable. Three conditions give it meaning:
+
+- **The task must be completed.** A faster attempt that fails is not an improvement.
+- **The instincts still apply.** They are fixed and cannot be traded for speed: a version that goes faster by ignoring pain or fear is not available to Ipse.
+- **The comparison is repeated.** Task time varies from one trial to the next, so a version is compared over several repetitions rather than a single run.
+
+The same criterion applies to body discovery itself: the time needed to rediscover the body after a change is a task time like any other.
+
 ## Demonstration and success criterion
 
 The first proof to deliver is generality with respect to the body: the same code discovers two very different bodies without a single body-specific line.
@@ -170,9 +182,8 @@ The contributions least covered by the literature reviewed are the rewiring test
 
 ## Open questions
 
-- **Judging an improvement.** When Ipse rewrites its own code, what establishes that the new version is better, and what prevents it from gaming that measure? The instincts provide fixed drives, not yet a fixed judge.
+- **Measuring task time.** Who defines the reference tasks and who measures the time, given that Ipse writes its own code and could otherwise shorten the measurement rather than the task?
 - **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
-- **Stopping the robot before it can listen.** Until Ipse has learned to understand speech, a physical means of cutting motor power, external to Ipse, appears necessary.
 - **Reflexes.** A large model decides too slowly for pain and fear responses: which fast layer carries them?
 - **Offline operation.** Which local model can serve as the built-in model?
 - **Second body.** Simulated arm, simulated drone, or something else?
