@@ -4,7 +4,7 @@ Ipse is a research project on robot self-improvement. It aims to propose a stand
 
 ## Status
 
-The project is in a research phase. This repository contains no code: it gathers the framing documents, the literature review and, in due course, the specification of the standard.
+The project is in a research phase. This repository gathers the framing documents, the literature review, the plan of the first prototype and its fixed part, and, in due course, the specification of the standard.
 
 ## Principles
 
@@ -22,6 +22,7 @@ The project is in a research phase. This repository contains no code: it gathers
 | [Framing note](docs/framing/framing-note.md) | Objective, fixed and evolving elements, instincts, body discovery, demonstration protocol, open questions |
 | [Literature review](docs/literature-review/literature-review.md) | Closest related work, corrections made to the framing note, positioning, and remaining reading |
 | [First prototype plan](docs/prototype/first-prototype-plan.md) | Fixed part written by the project, what Ipse writes, setup, first test, known limits and open questions |
+| [Fixed part of the first prototype](fixed/README.md) | The loop, the starting instruction, Ipse's container, setup and tests |
 | [Decision log](docs/decisions/decision-log.md) | Questions settled so far, with their date, reason and the earlier choices they replace |
 
 ## License

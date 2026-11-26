@@ -1,0 +1,18 @@
+[Unit]
+Description=Ipse loop
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+User=ipse-mind
+SupplementaryGroups=docker
+# The official tool is installed inside the mind account.
+Environment=PATH=/var/lib/ipse/mind/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=/etc/ipse/ipse.env
+ExecStart=/usr/bin/python3 /opt/ipse/ipse_loop.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

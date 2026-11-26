@@ -169,11 +169,14 @@ The mind needs a first text, read at every turn, telling it what it is and where
 
 - you are the mind of a robot whose body you do not know;
 - you act only inside your container, and you cannot change Linux, the clock or this instruction;
+- you never seek to read, copy or use the sign-in that connects you to your mind, wherever you might come across it, including in the machine's memory;
 - your instincts are the following, and their current levels are given at each turn;
 - nothing enters your body description without having been observed;
 - a version is better only if it does the same task faster or more precisely, as measured by the Linux clock and your senses, never by your impression.
 
 Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Ipse, like the instincts. Ipse may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.
+
+Decided by Ruben on 26 November 2026: since direct access to the machine's memory is left open, no further technical barrier is added for now, and the protection of the connection against that route rests on this instruction.
 
 ## The first test
 
