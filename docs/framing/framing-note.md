@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.9, 26 November 2026
+Ruben · version 2.10, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -43,14 +43,13 @@ The architecture is simple. The language model runs as an agent inside a harness
 
 Records and memory age differently. Raw records only accumulate, and the oldest are lost over time whatever their content. The memory forgets by relevance: the model decides what stays. Anything worth keeping must therefore be carried into memory before it fades.
 
-### Where the records come from: an open point
+### Records and measurement
 
-Whether Ipse needs a dedicated log of its own is not settled. Two options are under consideration:
+Ipse has no dedicated log and no measurement component of its own. Linux already keeps its own records, and the model builds whatever recorders it needs, when it needs them, as part of what it writes.
 
-- **Linux provides them.** The system already keeps records of what happens; Ipse adds no log of its own and the model reads what the system offers.
-- **The model builds them.** The model sets up the recording it needs, when it needs it, as part of what it writes.
+One rule applies. To judge whether a version is better, Ipse relies on the Linux clock, which it cannot modify, and on what its senses observe, never on its impression alone.
 
-The choice bears on the principle "observed, not declared" stated below. If the model builds and maintains its own records, the measurements used to judge an improvement are produced by the party being judged. Records that the model can read but not rewrite would preserve the principle; this remains to be decided.
+The risk this rule addresses is honest error rather than cheating: a faulty measuring tool the model has written, or a success announced without having been checked.
 
 ## What is fixed
 
@@ -247,7 +246,7 @@ These two measures are deliberately simple. Four conditions give them meaning:
 - **The instincts still apply.** They are fixed and cannot be traded for speed: a version that goes faster by ignoring pain or fear is not available to Ipse.
 - **The comparison is repeated.** Time and precision vary from one trial to the next, so a version is compared over several repetitions rather than a single run.
 
-Time and results are observed, not declared. Ipse cannot modify reality: the time a task takes and the outcome it produces are facts of the physical world. Time is read from the clock of the fixed part of the system, which Ipse cannot change, and the result is whatever can be observed in the world once the task is done. What Ipse writes about its own performance is not a measurement.
+Time and results are observed, not declared. Ipse cannot modify reality: the time a task takes and the outcome it produces are facts of the physical world. Time is read from the Linux clock, which Ipse cannot change, and the result is what its senses observe once the task is done. The model's own impression of its performance is not a measurement.
 
 The same criterion applies to body discovery itself: the time needed to rediscover the body after a change, and the accuracy of the resulting description, are measured like any other task.
 
