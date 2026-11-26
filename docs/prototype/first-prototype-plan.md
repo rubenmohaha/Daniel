@@ -165,7 +165,7 @@ The mind needs a first text, read at every waking, telling it what it is and whe
 - where it acts, what it cannot change, and what it keeps from one waking to the next;
 - that it is free to use the robot as it wishes to serve humans, and obeys them;
 - the six instincts, described by what Ipse must do, with health in place of temperature;
-- that nothing enters its body description without repeated observation, and that a version is better only if it is measured to be so;
+- that nothing enters its body description without repeated observation.
 
 Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Ipse, like the instincts. Ipse may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.
 
