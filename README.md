@@ -9,15 +9,16 @@ The project is in a research phase. This repository contains no code: it gathers
 ## Principles
 
 - **The body is discovered, not described.** The robot exposes only anonymous motor channels, their bounds, and sensor streams. The system itself establishes the body description and the control interface.
-- **A fixed foundation evaluates every version.** Self-improvement is bounded by a foundation that only a human may modify, which applies a veto (safety, honesty) before any scoring (reliability, performance).
-- **A day/night cycle.** Learning happens during operation; rest simplifies the code, and a simplified version is adopted only if its behaviour is unchanged.
+- **Three things are fixed.** Linux, a built-in language model, and a small set of instincts modelled on those of animals: hunger, temperature, sleep, pain, fear and curiosity.
+- **Everything else evolves.** The body description, code, skills and memory are written by the model and can be rewritten by it. This is where self-improvement happens.
+- **Humans communicate through the senses.** They do not intervene inside the system; they relate to it as a teacher does, through voice, hearing and other perceivable signals.
 - **The same code on different bodies.** The success criterion is the discovery of two very different bodies without any code change, including recovery after motor cables are swapped.
 
 ## Documents
 
 | Document | Content |
 | --- | --- |
-| [Framing note](docs/framing/framing-note.md) | Hypothesis, three-layer architecture, evaluation criteria, demonstration protocol, open questions |
+| [Framing note](docs/framing/framing-note.md) | Objective, fixed and evolving elements, instincts, body discovery, demonstration protocol, open questions |
 | [Literature review](docs/literature-review/literature-review.md) | Closest related work, corrections made to the framing note, positioning, and remaining reading |
 
 ## License

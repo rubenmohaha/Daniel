@@ -2,7 +2,7 @@
 
 Version of 26 November 2026
 
-> Status: exploratory review, carried out during the project's research phase. It covers version 1.0 of the [framing note](../framing/framing-note.md); the corrections it recommends are incorporated in version 1.1. The limitations of the method are described in the penultimate section.
+> Status: exploratory review, carried out during the project's research phase. It covers version 1.0 of the [framing note](../framing/framing-note.md); the corrections it recommends were incorporated in version 1.1. Version 2.0 of the note has since replaced the three-layer architecture (generated layer, reasoning core, fixed foundation) discussed here with a simpler model; the findings on related work remain applicable. The limitations of the method are described in the penultimate section.
 
 ## Summary
 
