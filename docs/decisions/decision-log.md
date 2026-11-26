@@ -52,6 +52,7 @@ Ruben · version 0.1, 26 November 2026
 | D-34 | The repository is released under the Apache 2.0 license | 26 Nov 2026 | In force |
 | D-35 | The first prototype is written | 26 Nov 2026 | In force |
 | D-36 | Pull requests are merged when ready, without waiting for Ruben's review | 26 Nov 2026 | In force |
+| D-37 | The starting instruction names no part of the body | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -288,6 +289,13 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** There is no repository for Ipse and no remote reading. Ruben reads directly on the robot the exchanges with the mind, stored outside the container, and what Ipse has written in its container.
 - **Reason:** It avoids adding a channel out of the robot for the first prototype.
 - **Replaces:** The remote reading proposed earlier the same day, through a read-only private repository with a short status page, which had been added to the first prototype plan and was then withdrawn.
+
+#### D-37. The starting instruction names no part of the body
+
+- **Date:** 26 November 2026.
+- **Decision:** The starting instruction names no part of the body and no type of body, such as a battery, a motor or a robot. Each instinct is described by what Ipse must do, not by the organ that signals it. The loop no longer passes Linux's battery, temperature, memory and storage readings to Ipse as instinct levels.
+- **Reason:** Ruben found that the instruction gave too much information about the body, contrary to the principle that the body is discovered, not described.
+- **Interpretation:** Withdrawing the readings passed by the loop is the simplest reading of Ruben's remark, which concerned the instruction; it awaits his confirmation.
 
 ### Terminology
 
