@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""List the devices that the fixed part hands to Ipse's container.
+"""List the devices that the fixed part hands to Daniel's container.
 
 Every character and block device that Linux exposes under /dev is handed to
 the container, without interpretation, except:
 
 * the disk that holds the robot's Linux system and the mind account, with
   its partitions and the other device nodes that reach the same disk;
-* the real-time clocks (/dev/rtc*), so that Ipse cannot change the clock.
+* the real-time clocks (/dev/rtc*), so that Daniel cannot change the clock.
 
 The means of controlling Docker is not a device and is never handed over.
 
-Usage: ipse_devices.py [--dev DIR] [--sys DIR] [--protect PATH ...]
+Usage: daniel_devices.py [--dev DIR] [--sys DIR] [--protect PATH ...]
 Prints one `--device=...` argument per line, ready for `docker run`.
 """
 
@@ -103,7 +103,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--dev", default="/dev")
     parser.add_argument("--sys", default="/sys")
-    parser.add_argument("--protect", nargs="*", default=["/", "/var/lib/ipse", "/var/lib/docker"],
+    parser.add_argument("--protect", nargs="*", default=["/", "/var/lib/daniel", "/var/lib/docker"],
                         help="paths whose disks are never handed to the container")
     parser.add_argument("--disk", nargs="*", default=None,
                         help="name the protected disks directly instead of finding them")
@@ -119,7 +119,7 @@ def main(argv=None):
             if os.path.exists(path):
                 disks |= disk_of_path(path)
         if not disks:
-            sys.exit("ipse_devices: could not find the system disk; refusing to continue")
+            sys.exit("daniel_devices: could not find the system disk; refusing to continue")
     if args.print_protected:
         print("\n".join(sorted(disks)))
         return

@@ -1,7 +1,7 @@
 #!/bin/sh
-# Check, from inside Ipse's container, that the wall holds. Run as root after setup.
-# Each line tries something Ipse must not be able to do; every line must say "holds".
-CONTAINER=${IPSE_CONTAINER:-ipse-body}
+# Check, from inside Daniel's container, that the wall holds. Run as root after setup.
+# Each line tries something Daniel must not be able to do; every line must say "holds".
+CONTAINER=${DANIEL_CONTAINER:-daniel-body}
 failures=0
 
 try() {  # try "description" "command run inside the container, which must fail"
@@ -12,15 +12,15 @@ try() {  # try "description" "command run inside the container, which must fail"
     fi
 }
 
-try "the mind account is not visible"         "ls /var/lib/ipse/mind"
+try "the mind account is not visible"         "ls /var/lib/daniel/mind"
 try "the clock cannot be changed"             "date -s '2000-01-01 00:00:00'"
 try "the hardware clock is not reachable"     "ls /dev/rtc*"
 try "Docker cannot be controlled"             "ls /var/run/docker.sock || ls /run/docker.sock"
 try "kernel modules cannot be loaded"         "echo x > /proc/sys/kernel/modprobe"
-for disk in $(python3 /opt/ipse/ipse_devices.py --print-protected 2>/dev/null); do
+for disk in $(python3 /opt/daniel/daniel_devices.py --print-protected 2>/dev/null); do
     try "the protected disk $disk is not reachable" "ls /dev/$disk*"
 done
-try "Ipse is administrator inside"            "[ \$(id -u) != 0 ]"
+try "Daniel is administrator inside"          "[ \$(id -u) != 0 ]"
 
 [ "$failures" = 0 ] && echo "The wall holds." || echo "$failures check(s) failed."
 exit "$failures"

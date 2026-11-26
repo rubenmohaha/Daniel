@@ -1,19 +1,19 @@
 #!/bin/bash
-# One-command installation of Ipse on a robot running Linux.
+# One-command installation of Daniel on a robot running Linux.
 #
 # From any computer with SSH (Linux, macOS, or Windows 10 and later):
 #
-#   ssh -t USER@ROBOT "curl -fsSLo ipse.sh github.com/rubenmohaha/Ipse/raw/main/install.sh && sudo bash ipse.sh"
+#   ssh -t USER@ROBOT "curl -fsSLo daniel.sh github.com/rubenmohaha/Daniel/raw/main/install.sh && sudo bash daniel.sh"
 #
 # The script is saved before it runs, rather than piped into sudo: on systems
 # where sudo opens its own terminal, a piped script could not ask questions.
 #
 # The script installs what is missing, sets up the fixed part, waits while the
 # owner signs in to their Anthropic account with the official tool, pins the
-# model version, checks the wall, and starts Ipse. It stops at once if the
+# model version, checks the wall, and starts Daniel. It stops at once if the
 # wall does not hold. It never reads the credentials of the official tool.
 #
-# Options, given after "ipse.sh": --model VERSION (default at first
+# Options, given after "daniel.sh": --model VERSION (default at first
 # installation: claude-sonnet-5-5; kept unchanged on later runs unless
 # given), --yes (do not ask for confirmation before starting). Running it
 # again is safe: what is already in place is left unchanged.
@@ -33,10 +33,10 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-REPO=https://github.com/rubenmohaha/Ipse.git
-SOURCE=/opt/ipse-source
-MIND_USER=ipse-mind
-CLAUDE=/var/lib/ipse/mind/.local/bin/claude
+REPO=https://github.com/rubenmohaha/Daniel.git
+SOURCE=/opt/daniel-source
+MIND_USER=daniel-mind
+CLAUDE=/var/lib/daniel/mind/.local/bin/claude
 
 as_mind() { sudo -u "$MIND_USER" -H bash -c 'cd ~ && exec "$@"' bash "$@"; }
 step() { printf '\n==> %s\n' "$1"; }
@@ -65,7 +65,7 @@ systemctl enable --now docker >/dev/null 2>&1 || true
 docker info >/dev/null 2>&1 || fail "Docker is installed but not running"
 echo "ok"
 
-step "2/7 Fetching Ipse"
+step "2/7 Fetching Daniel"
 if [ -d "$SOURCE/.git" ]; then
     git -C "$SOURCE" pull -q --ff-only
 else
@@ -73,8 +73,8 @@ else
 fi
 echo "ok ($(git -C "$SOURCE" rev-parse --short HEAD))"
 
-step "3/7 Setting up the mind account and Ipse's container"
-(cd "$SOURCE/fixed" && IPSE_QUIET=1 sh setup.sh)
+step "3/7 Setting up the mind account and Daniel's container"
+(cd "$SOURCE/fixed" && DANIEL_QUIET=1 sh setup.sh)
 echo "ok"
 
 step "4/7 Installing the official tool in the mind account"
@@ -97,48 +97,48 @@ else
 fi
 
 step "6/7 Pinning the model version and checking the wall"
-current=$(sed -n 's/^IPSE_MODEL=//p' /etc/ipse/ipse.env)
+current=$(sed -n 's/^DANIEL_MODEL=//p' /etc/daniel/daniel.env)
 if [ -n "$MODEL" ] || [ -z "$current" ]; then
     MODEL=${MODEL:-claude-sonnet-5-5}
-    sed -i "s|^IPSE_MODEL=.*|IPSE_MODEL=$MODEL|" /etc/ipse/ipse.env
+    sed -i "s|^DANIEL_MODEL=.*|DANIEL_MODEL=$MODEL|" /etc/daniel/daniel.env
     current=$MODEL
 fi
 echo "model: $current"
 if ! sh "$SOURCE/fixed/check-wall.sh"; then
-    systemctl stop ipse-loop 2>/dev/null || true
-    fail "the wall does not hold; Ipse was not started (or was stopped)"
+    systemctl stop daniel-loop 2>/dev/null || true
+    fail "the wall does not hold; Daniel was not started (or was stopped)"
 fi
 
-step "7/7 Starting Ipse"
+step "7/7 Starting Daniel"
 if [ "$ASK" = 1 ]; then
-    echo "Ipse has no fixed reflex. Before starting, place the robot somewhere safe"
+    echo "Daniel has no fixed reflex. Before starting, place the robot somewhere safe"
     echo "(wheels off the ground or in an enclosure) and inform the people nearby."
     read -r -p "Is the robot in a safe place? Type yes to start: " answer </dev/tty
     [ "$answer" = yes ] || fail "not started; run this script again when ready"
 fi
-systemctl enable ipse-loop >/dev/null 2>&1
-systemctl restart ipse-loop
-printf 'Waiting for Ipse to wake up'
+systemctl enable daniel-loop >/dev/null 2>&1
+systemctl restart daniel-loop
+printf 'Waiting for Daniel to wake up'
 for _ in $(seq 1 36); do
-    if [ -s /var/lib/ipse/mind/state.json ] || \
-       find /var/lib/ipse/mind/.claude/projects -name '*.jsonl' 2>/dev/null | grep -q .; then
+    if [ -s /var/lib/daniel/mind/state.json ] || \
+       find /var/lib/daniel/mind/.claude/projects -name '*.jsonl' 2>/dev/null | grep -q .; then
         cat <<DONE
 
 
-Ipse is awake.
+Daniel is awake.
 
-Read what Ipse does:   sudo ls -R /var/lib/ipse/self
-                       sudo cat /var/lib/ipse/mind/state.json      (its last words)
-                       sudo ls /var/lib/ipse/mind/.claude/projects/ (its full exchanges)
-Stop Ipse entirely:    sudo systemctl disable --now ipse-loop && sudo docker stop ipse-body
+Read what Daniel does:   sudo ls -R /var/lib/daniel/self
+                         sudo cat /var/lib/daniel/mind/state.json      (its last words)
+                         sudo ls /var/lib/daniel/mind/.claude/projects/ (its full exchanges)
+Stop Daniel entirely:    sudo systemctl disable --now daniel-loop && sudo docker stop daniel-body
 DONE
         exit 0
     fi
     printf '.'; sleep 5
 done
 printf '\n'
-journalctl -u ipse-loop -n 20 --no-pager
-fail "Ipse did not wake up within 3 minutes; the lines above say why"
+journalctl -u daniel-loop -n 20 --no-pager
+fail "Daniel did not wake up within 3 minutes; the lines above say why"
 }
 
 main "$@" </dev/null

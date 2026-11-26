@@ -6,30 +6,30 @@ Ruben · version 2.12, 26 November 2026
 
 ## Objective
 
-Ipse must be able to discover itself and to improve itself.
+Daniel must be able to discover itself and to improve itself.
 
 The project aims to propose a standard and an algorithm, in the manner of an operating system, that give this ability to any robot. The body is not described to the system: the system discovers it.
 
 ## The model in brief
 
-Ipse is defined by what it cannot change, what it can change, and how humans relate to it.
+Daniel is defined by what it cannot change, what it can change, and how humans relate to it.
 
-| Element | Biological equivalent | Can Ipse modify it? |
+| Element | Biological equivalent | Can Daniel modify it? |
 | --- | --- | --- |
 | Linux | Nerves and blood vessels | No |
 | Built-in language model | An adult mind | No |
 | Instincts | Innate drives | No |
 | Everything the model writes: body description, code, skills, memory | What is learned during a lifetime | Yes: this is where improvement happens |
 
-Humans do not intervene inside Ipse. They communicate with it through its senses: voice, hearing, sign language and other perceivable signals.
+Humans do not intervene inside Daniel. They communicate with it through its senses: voice, hearing, sign language and other perceivable signals.
 
 ### An adult mind in an unknown body
 
-Ipse is not a newborn. The language model already knows a great deal: what a wheel or a camera is, what walking means, how to speak. What it does not know is which of its channels does what. Ipse is therefore best understood as an adult mind waking up in a body it has never seen.
+Daniel is not a newborn. The language model already knows a great deal: what a wheel or a camera is, what walking means, how to speak. What it does not know is which of its channels does what. Daniel is therefore best understood as an adult mind waking up in a body it has never seen.
 
 Two consequences are accepted as part of the design:
 
-- **The mind does not grow.** The model is fixed, so Ipse does not become more intelligent with experience. What grows is its knowledge of its body and its know-how, in written form. Its ceiling is that of the model; when a better model becomes available, the mind can be replaced and everything Ipse has written is kept.
+- **The mind does not grow.** The model is fixed, so Daniel does not become more intelligent with experience. What grows is its knowledge of its body and its know-how, in written form. Its ceiling is that of the model; when a better model becomes available, the mind can be replaced and everything Daniel has written is kept.
 - **Prior knowledge provides hypotheses, reality decides.** Discovery is reasoned rather than random: a few trials suggest "this resembles two driven wheels", and the suggestion is then verified. Verification is required precisely because a confident adult can be wrong about an unfamiliar body.
 
 ## How it works
@@ -45,9 +45,9 @@ Records and memory age differently. Raw records only accumulate, and the oldest 
 
 ### Records and measurement
 
-Ipse has no dedicated log and no measurement component of its own. Linux already keeps its own records, and the model builds whatever recorders it needs, when it needs them, as part of what it writes.
+Daniel has no dedicated log and no measurement component of its own. Linux already keeps its own records, and the model builds whatever recorders it needs, when it needs them, as part of what it writes.
 
-One rule applies. To judge whether a version is better, Ipse relies on the Linux clock, which it cannot modify, and on what its senses observe, never on its impression alone.
+One rule applies. To judge whether a version is better, Daniel relies on the Linux clock, which it cannot modify, and on what its senses observe, never on its impression alone.
 
 The risk this rule addresses is honest error rather than cheating: a faulty measuring tool the model has written, or a success announced without having been checked.
 
@@ -55,11 +55,11 @@ The risk this rule addresses is honest error rather than cheating: a faulty meas
 
 ### Linux
 
-Ipse runs on top of Linux as a continuously running program. It is not an operating-system kernel; the term "operating system" describes its role with respect to the robot, not its technical nature. Linux carries signals between the body and the rest of the system, as nerves and vessels do, and Ipse cannot modify it.
+Daniel runs on top of Linux as a continuously running program. It is not an operating-system kernel; the term "operating system" describes its role with respect to the robot, not its technical nature. Linux carries signals between the body and the rest of the system, as nerves and vessels do, and Daniel cannot modify it.
 
 ### The built-in language model
 
-Ipse ships with a large language model by default. This model is not modified and not retrained. It is the component that reasons: it formulates hypotheses, discovers the body, and writes code. This matches the approach of every self-improving robotic system reviewed, all of which keep the model frozen and improve what surrounds it.
+Daniel ships with a large language model by default. This model is not modified and not retrained. It is the component that reasons: it formulates hypotheses, discovers the body, and writes code. This matches the approach of every self-improving robotic system reviewed, all of which keep the model frozen and improve what surrounds it.
 
 The model is multimodal and has open weights, so that any robot can embed it. The working reference is Qwen3.8, released under the Apache 2.0 license; whether its smaller variant handles images and sound, and what hardware it requires, remain to be verified. The standard specifies the kind of model, not a particular one.
 
@@ -71,9 +71,9 @@ A model retains only a limited amount of text. What matters must therefore be wr
 
 ### The instincts
 
-Instincts are modelled on those of animals and restricted to the essentials. Five keep Ipse alive; one makes it grow.
+Instincts are modelled on those of animals and restricted to the essentials. Five keep Daniel alive; one makes it grow.
 
-| Instinct | For Ipse | Without it |
+| Instinct | For Daniel | Without it |
 | --- | --- | --- |
 | Hunger | Recharge the battery | It shuts down |
 | Temperature | Slow down or stop when overheating | It damages its components |
@@ -82,21 +82,21 @@ Instincts are modelled on those of animals and restricted to the essentials. Fiv
 | Fear | Freeze, or proceed gently, when facing the unknown | It endangers itself before it has understood |
 | Curiosity | Go towards what it does not yet understand | It stays on its charger and never discovers anything |
 
-The limits of the computer that hosts Ipse belong to these vital instincts, in the same way as the battery. Working memory and disk space are finite resources of the body: their saturation is a fatigue signal that triggers sleep, and it restrains curiosity, since acquiring new code, data or models consumes storage.
+The limits of the computer that hosts Daniel belong to these vital instincts, in the same way as the battery. Working memory and disk space are finite resources of the body: their saturation is a fatigue signal that triggers sleep, and it restrains curiosity, since acquiring new code, data or models consumes storage.
 
 The first five are sufficient for survival but admit a trivial strategy: remaining plugged in and motionless. Curiosity is what drives body discovery and self-improvement, and is therefore kept as a sixth instinct of a different kind.
 
-Other animal behaviours are deliberately not instincts: play, imitation, attachment, returning to the charging base, signalling, self-inspection. Ipse can discover or learn them, precisely because the six instincts push it to. Returning to its base, for instance, need not be innate: hunger is enough for it to be learned.
+Other animal behaviours are deliberately not instincts: play, imitation, attachment, returning to the charging base, signalling, self-inspection. Daniel can discover or learn them, precisely because the six instincts push it to. Returning to its base, for instance, need not be innate: hunger is enough for it to be learned.
 
 ### Everything else follows from the instincts
 
 No developmental stage is programmed. Behaviours follow from the same few instincts:
 
-- **Safety comes before curiosity.** Ipse explores only when its five vital instincts are quiet. Safety is not a seventh instinct: it is the state in which the vital instincts are satisfied.
-- **Exploratory movement, practice and communication are curiosity.** They are successive objects of the same drive. Ipse's curiosity is directed at itself rather than at the world, about which the model already knows a great deal.
+- **Safety comes before curiosity.** Daniel explores only when its five vital instincts are quiet. Safety is not a seventh instinct: it is the state in which the vital instincts are satisfied.
+- **Exploratory movement, practice and communication are curiosity.** They are successive objects of the same drive. Daniel's curiosity is directed at itself rather than at the world, about which the model already knows a great deal.
 - **The link between movement and sensation is learned from repetition**, as described below.
 
-Obeying a spoken command such as "stop" is not an instinct either. The model already understands language, but Ipse must first discover which of its streams is a microphone.
+Obeying a spoken command such as "stop" is not an instinct either. The model already understands language, but Daniel must first discover which of its streams is a microphone.
 
 ## What evolves
 
@@ -111,17 +111,17 @@ Self-improvement means changing these, never the three fixed elements.
 
 ## The human
 
-The human relates to Ipse as a parent or a teacher does, not as a programmer. Nothing is edited from the inside; everything passes through the senses.
+The human relates to Daniel as a parent or a teacher does, not as a programmer. Nothing is edited from the inside; everything passes through the senses.
 
-One consequence follows directly: at the very beginning, Ipse does not know that one of its input streams is a microphone. It already knows how to communicate, but must discover its senses before it can listen or answer. Communication with humans is thus an outcome of discovery, not a starting point.
+One consequence follows directly: at the very beginning, Daniel does not know that one of its input streams is a microphone. It already knows how to communicate, but must discover its senses before it can listen or answer. Communication with humans is thus an outcome of discovery, not a starting point.
 
 ## Discovering the body
 
 ### The starting point
 
-No human writes a description of the robot for Ipse. This is the project's commitment: no manual, no adapter, no model of the body prepared in advance.
+No human writes a description of the robot for Daniel. This is the project's commitment: no manual, no adapter, no model of the body prepared in advance.
 
-Being an adult mind, Ipse knows how to use Linux, and may use it to find out what is connected: a camera, a microphone, a board driving four motors, a battery. This inventory is obtained in seconds, and it is legitimate, in the way a person looks at their hands before moving them.
+Being an adult mind, Daniel knows how to use Linux, and may use it to find out what is connected: a camera, a microphone, a board driving four motors, a battery. This inventory is obtained in seconds, and it is legitimate, in the way a person looks at their hands before moving them.
 
 What the system reports and what it does not must be distinguished:
 
@@ -130,9 +130,9 @@ What the system reports and what it does not must be distinguished:
 
 The rule follows: the inventory provides hypotheses, experiment confirms them. Nothing enters the body description without having been observed.
 
-Some bodies offer no inventory at all. On a board with raw inputs and outputs, such as a Raspberry Pi driving general-purpose pins, Linux says nothing about what is wired to them. Ipse must then test its outputs and look for the stimuli that come back. The method below covers both cases: with an inventory, it verifies; without one, it discovers.
+Some bodies offer no inventory at all. On a board with raw inputs and outputs, such as a Raspberry Pi driving general-purpose pins, Linux says nothing about what is wired to them. Daniel must then test its outputs and look for the stimuli that come back. The method below covers both cases: with an inventory, it verifies; without one, it discovers.
 
-The inventory step itself is not new. [Octopus Protocol](https://arxiv.org/abs/2605.09055) (May 2026) already has a coding agent enumerate the hardware through the operating system, identify each device and write the code that drives it, unattended. It identifies devices from their descriptors and from the web, however, and leaves a device it cannot name as unknown; its demonstration arm works thanks to a specification written by hand for that arm. Ipse's contribution begins where that work stops: establishing by experiment what each channel of a moving body does.
+The inventory step itself is not new. [Octopus Protocol](https://arxiv.org/abs/2605.09055) (May 2026) already has a coding agent enumerate the hardware through the operating system, identify each device and write the code that drives it, unattended. It identifies devices from their descriptors and from the web, however, and leaves a device it cannot name as unknown; its demonstration arm works thanks to a specification written by hand for that arm. Daniel's contribution begins where that work stops: establishing by experiment what each channel of a moving body does.
 
 Discovering a body from uninterpreted sensors and effectors has a precedent in Pierce and Kuipers (1997), who derive control laws from such a starting point. The intended contribution here is what is derived: a readable description, a generated control interface, and their repair.
 
@@ -142,19 +142,19 @@ The minimal element is a loop: act, perceive, compare with what was expected. Th
 
 ### Open bets
 
-Ipse can issue several actions at once and wait for one response or a sequence of responses. The basic unit is a bet: actions issued, an expected response, a timeout. Each bet ends confirmed, contradicted or expired. No response within the timeout is itself information: the link does not exist, or the body has changed.
+Daniel can issue several actions at once and wait for one response or a sequence of responses. The basic unit is a bet: actions issued, an expected response, a timeout. Each bet ends confirmed, contradicted or expired. No response within the timeout is itself information: the link does not exist, or the body has changed.
 
 To attribute a response to a channel:
 
 - **In isolation first, in combination later.** Each channel's effect is learned alone before combinations.
-- **Sign every action.** Each channel is excited with its own random sequence, and Ipse looks for which sequence appears in which input.
+- **Sign every action.** Each channel is excited with its own random sequence, and Daniel looks for which sequence appears in which input.
 - **Intervene.** Send the command at randomly drawn times, then withhold it, and compare.
 
 ### The link table
 
 A link is learned from repetition, in four steps:
 
-1. **A record.** For each movement, Ipse keeps what was commanded, what the senses perceived just before, and what they perceive just after.
+1. **A record.** For each movement, Daniel keeps what was commanded, what the senses perceived just before, and what they perceive just after.
 2. **Repetitions.** A single occurrence proves nothing. The same movement is repeated many times, at randomly drawn moments, and sometimes deliberately withheld for comparison.
 3. **A count.** For each pair of one command and one sense: when the command was sent, did the sense change? When it was not sent, did the sense change anyway?
 4. **A table.** Each row is a link that strengthens or fades.
@@ -167,7 +167,7 @@ A link is learned from repetition, in four steps:
 
 The record and the count are mechanical and fast; they do not involve the language model. The model reads the table from time to time, formulates hypotheses, chooses the next experiment, and writes the body description from the solid links.
 
-Curiosity directs Ipse to the rows that are still uncertain. When a link that was certain suddenly starts to fail, the body has changed: this is the situation the rewiring test creates.
+Curiosity directs Daniel to the rows that are still uncertain. When a link that was certain suddenly starts to fail, the body has changed: this is the situation the rewiring test creates.
 
 ## One logic at every level
 
@@ -198,7 +198,7 @@ The link table is the lowest level: a command is sent, and something happens. Ab
 ### Consequences
 
 - **What is mastered becomes automatic.** A reliable function runs without the language model, as a person walks without thinking about walking. The model attends only to the highest level and to what fails.
-- **Nothing needs to be planned in advance.** To reach a goal, Ipse composes what it already knows how to do. Where a function is missing, it fails, and that is where curiosity sends it.
+- **Nothing needs to be planned in advance.** To reach a goal, Daniel composes what it already knows how to do. Where a function is missing, it fails, and that is where curiosity sends it.
 - **Every improvement is recorded at its own level, and confirmed above.** A faster step may make walking faster, or unbalance it. When a function changes, the functions that call it are measured again, and the previous version is kept if the level above degrades.
 
 ### Senses
@@ -222,13 +222,13 @@ Raw streams serve two purposes, at two levels:
 - **Numbers for the link table.** Whether a stream changed when a command was sent is computed directly on the signal, or on a compact numerical summary of it, quickly and without the language model.
 - **Words and images for reflection.** A multimodal model perceives images directly, which avoids a separate captioning model. Transcription alone would not suffice for hearing: it keeps speech and discards the other sounds, such as motor noise or an impact, that matter for discovering the body.
 
-Ipse may also fetch specialised models from the network when it needs them. This is consistent with body discovery only in one order: Ipse first establishes by itself that a stream behaves like an image or a sound, then fetches a suitable tool. A fetched model is a function like any other: it belongs to what evolves, is measured, and is kept only if it improves performance. It never touches the three fixed elements.
+Daniel may also fetch specialised models from the network when it needs them. This is consistent with body discovery only in one order: Daniel first establishes by itself that a stream behaves like an image or a sound, then fetches a suitable tool. A fetched model is a function like any other: it belongs to what evolves, is measured, and is kept only if it improves performance. It never touches the three fixed elements.
 
 The literature supports proprioception as the basis of a self-model, and partially supports internal-state signals as a source of motivation. No work reviewed measures the effect of removing an internal signal on body learning: such an ablation is a possible contribution of the project.
 
 ## Sleep
 
-The day adds, the night removes. During activity, Ipse acts, makes mistakes and learns, and what it has written grows. During sleep, it stops and cleans up: code that is never called or never succeeds is removed, duplicates are merged, the rest is simplified.
+The day adds, the night removes. During activity, Daniel acts, makes mistakes and learns, and what it has written grows. During sleep, it stops and cleans up: code that is never called or never succeeds is removed, duplicates are merged, the rest is simplified.
 
 - **Rare does not mean useless.** A manoeuvre used once a month must be kept. What fails, or what is superseded, is removed.
 - **Archive rather than delete.** Anything removed by mistake must be restorable.
@@ -245,10 +245,10 @@ These two measures are deliberately simple. Four conditions give them meaning:
 
 - **One measure must not be traded for the other.** A version is better if it improves speed or precision without degrading the other. A version that is faster but less precise is different, not better.
 - **The task must be completed.** A faster attempt that fails is not an improvement.
-- **The instincts still apply.** They are fixed and cannot be traded for speed: a version that goes faster by ignoring pain or fear is not available to Ipse.
+- **The instincts still apply.** They are fixed and cannot be traded for speed: a version that goes faster by ignoring pain or fear is not available to Daniel.
 - **The comparison is repeated.** Time and precision vary from one trial to the next, so a version is compared over several repetitions rather than a single run.
 
-Time and results are observed, not declared. Ipse cannot modify reality: the time a task takes and the outcome it produces are facts of the physical world. Time is read from the Linux clock, which Ipse cannot change, and the result is what its senses observe once the task is done. The model's own impression of its performance is not a measurement.
+Time and results are observed, not declared. Daniel cannot modify reality: the time a task takes and the outcome it produces are facts of the physical world. Time is read from the Linux clock, which Daniel cannot change, and the result is what its senses observe once the task is done. The model's own impression of its performance is not a measurement.
 
 The same criterion applies to body discovery itself: the time needed to rediscover the body after a change, and the accuracy of the resulting description, are measured like any other task.
 
@@ -263,7 +263,7 @@ The first proof to deliver is generality with respect to the body: the same code
 
 Protocol:
 
-1. Ipse receives no description of the robot. It may inventory what Linux reports.
+1. Daniel receives no description of the robot. It may inventory what Linux reports.
 2. It sends small signed pulses on each channel and observes the changes.
 3. It formulates hypotheses and tests them.
 4. It writes its body description and a calibrated control interface.
@@ -282,7 +282,7 @@ The first prototype makes two practical choices in order to keep initial trials 
 
 Two consequences are specific to the prototype and are accepted as such:
 
-- **A hosted model is fixed only if its version is pinned.** The principle of a mind that Ipse cannot modify is respected, but the prototype should name an exact model version so that results remain comparable from one session to the next.
+- **A hosted model is fixed only if its version is pinned.** The principle of a mind that Daniel cannot modify is respected, but the prototype should name an exact model version so that results remain comparable from one session to the next.
 - **The robot depends on its connection.** Reasoning stops when the network does, and each turn carries the delay of a remote call. Whatever must act quickly, and whatever has been mastered, has to run on the robot itself.
 
 ## Related work and positioning
@@ -309,7 +309,7 @@ The contributions least covered by the literature reviewed are the rewiring test
 
 ## Open questions
 
-- **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
+- **Whom Daniel trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
 - **Limits of safe testing.** Earlier versions gave each output channel bounds fixed in advance. Without a human-written description, what keeps the first trials on an unknown output within safe limits, before pain can be felt?
 - **Acting without external stimuli.** Should curiosity rise as long as nothing is learned, and fall only when learning is observed rather than declared?
 - **Fast responses.** Mastered functions run without the model, but pain and fear must also act faster than it can respond: where do the instincts themselves run?

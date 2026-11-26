@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""The loop: the part of Ipse that runs continuously and that Ipse cannot modify.
+"""The loop: the part of Daniel that runs continuously and that Daniel cannot modify.
 
 The loop wakes the mind, again and again. Each time, it gives the mind the
 starting instruction and the last words the mind wrote before it stopped.
 The mind then acts as long as it wishes, with the body's tools (see
-ipse_body.py), which act inside Ipse's container only. When it stops, its
+daniel_body.py), which act inside Daniel's container only. When it stops, its
 last words are kept for the next waking, and the loop wakes it again.
 
 The mind is reached through Anthropic's official command-line tool, `claude`,
@@ -15,14 +15,14 @@ credentials of the official tool.
 The loop keeps only the mind's last words, so that a restart resumes where
 it stopped.
 
-Configuration, read from the environment (see ipse.env.example):
+Configuration, read from the environment (see daniel.env.example):
 
-  IPSE_MODEL       pinned model version, required
-  IPSE_CONTAINER   name of Ipse's container            (default: ipse-body)
-  IPSE_STATE_DIR   folder of the loop's state          (default: /var/lib/ipse/mind)
-  IPSE_INSTRUCTION path of the starting instruction    (default: next to this file)
-  IPSE_CLAUDE      command of the official tool        (default: claude)
-  IPSE_DOCKER      command of Docker                   (default: docker)
+  DANIEL_MODEL       pinned model version, required
+  DANIEL_CONTAINER   name of Daniel's container          (default: daniel-body)
+  DANIEL_STATE_DIR   folder of the loop's state          (default: /var/lib/daniel/mind)
+  DANIEL_INSTRUCTION path of the starting instruction    (default: next to this file)
+  DANIEL_CLAUDE      command of the official tool        (default: claude)
+  DANIEL_DOCKER      command of Docker                   (default: docker)
 """
 
 import json
@@ -41,22 +41,22 @@ BODY_TOOLS = "mcp__body__run,mcp__body__write"
 
 class Config:
     def __init__(self, env=os.environ):
-        self.model = env.get("IPSE_MODEL", "").strip()
+        self.model = env.get("DANIEL_MODEL", "").strip()
         if not self.model:
-            raise SystemExit("IPSE_MODEL is not set: the model version must be pinned at setup")
-        self.container = env.get("IPSE_CONTAINER", "ipse-body")
-        self.state_dir = env.get("IPSE_STATE_DIR", "/var/lib/ipse/mind")
-        self.instruction = env.get("IPSE_INSTRUCTION", os.path.join(HERE, "starting-instruction.md"))
-        self.claude = env.get("IPSE_CLAUDE", "claude")
-        self.docker = env.get("IPSE_DOCKER", "docker")
+            raise SystemExit("DANIEL_MODEL is not set: the model version must be pinned at setup")
+        self.container = env.get("DANIEL_CONTAINER", "daniel-body")
+        self.state_dir = env.get("DANIEL_STATE_DIR", "/var/lib/daniel/mind")
+        self.instruction = env.get("DANIEL_INSTRUCTION", os.path.join(HERE, "starting-instruction.md"))
+        self.claude = env.get("DANIEL_CLAUDE", "claude")
+        self.docker = env.get("DANIEL_DOCKER", "docker")
 
 
 def body_config(cfg):
     """The tools given to the mind: the body's, and nothing else."""
     return json.dumps({"mcpServers": {"body": {
         "command": sys.executable,
-        "args": [os.path.join(HERE, "ipse_body.py")],
-        "env": {"IPSE_CONTAINER": cfg.container, "IPSE_DOCKER": cfg.docker},
+        "args": [os.path.join(HERE, "daniel_body.py")],
+        "env": {"DANIEL_CONTAINER": cfg.container, "DANIEL_DOCKER": cfg.docker},
     }}})
 
 
@@ -124,7 +124,7 @@ def main():
             retry = RETRY_FIRST
         except RuntimeError as error:
             # Quota exhausted, network down, or access blocked from the account:
-            # Ipse can do nothing until the mind answers again.
+            # Daniel can do nothing until the mind answers again.
             print(f"{error}; next attempt in {retry} s", file=sys.stderr, flush=True)
             time.sleep(retry)
             retry = min(retry * 2, RETRY_MAX)

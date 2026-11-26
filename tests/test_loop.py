@@ -14,8 +14,8 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "fixed"))
-import ipse_body  # noqa: E402
-import ipse_loop  # noqa: E402
+import daniel_body  # noqa: E402
+import daniel_loop  # noqa: E402
 
 HAVE_DOCKER = shutil.which("docker") and subprocess.run(
     ["docker", "info"], capture_output=True).returncode == 0
@@ -23,12 +23,12 @@ HAVE_DOCKER = shutil.which("docker") and subprocess.run(
 
 def config(tmp, **extra):
     env = {
-        "IPSE_MODEL": "test-model-version",
-        "IPSE_STATE_DIR": os.path.join(tmp, "mind"),
-        "IPSE_CLAUDE": os.path.join(HERE, "fake_claude.py"),
+        "DANIEL_MODEL": "test-model-version",
+        "DANIEL_STATE_DIR": os.path.join(tmp, "mind"),
+        "DANIEL_CLAUDE": os.path.join(HERE, "fake_claude.py"),
     }
     env.update(extra)
-    return ipse_loop.Config(env)
+    return daniel_loop.Config(env)
 
 
 def fake_mind(tmp, *replies):
@@ -49,7 +49,7 @@ class Loop(unittest.TestCase):
     def test_the_official_tool_is_called_with_the_body_tools_only(self):
         tmp = tempfile.mkdtemp()
         fake_mind(tmp, "hello")
-        ipse_loop.one_waking(config(tmp), "INSTRUCTION", {})
+        daniel_loop.one_waking(config(tmp), "INSTRUCTION", {})
         argv = calls(tmp)[0]["argv"]
         self.assertEqual(argv[argv.index("--model") + 1], "test-model-version")
         self.assertEqual(argv[argv.index("--tools") + 1], "")
@@ -64,8 +64,8 @@ class Loop(unittest.TestCase):
         tmp = tempfile.mkdtemp()
         fake_mind(tmp, "first words", "second words")
         state = {}
-        ipse_loop.one_waking(config(tmp), "I", state)
-        ipse_loop.one_waking(config(tmp), "I", state)
+        daniel_loop.one_waking(config(tmp), "I", state)
+        daniel_loop.one_waking(config(tmp), "I", state)
         self.assertEqual([c["stdin"] for c in calls(tmp)], ["Begin.", "first words"])
         self.assertEqual(state["last_words"], "second words")
 
@@ -74,41 +74,41 @@ class Loop(unittest.TestCase):
         fake_mind(tmp, "FAIL")
         state = {"last_words": "kept"}
         with self.assertRaisesRegex(RuntimeError, "usage limit reached"):
-            ipse_loop.one_waking(config(tmp), "I", state)
+            daniel_loop.one_waking(config(tmp), "I", state)
         self.assertEqual(state["last_words"], "kept")
 
     def test_model_must_be_pinned(self):
         with self.assertRaises(SystemExit):
-            ipse_loop.Config({})
+            daniel_loop.Config({})
 
     def test_state_survives_a_restart(self):
         tmp = tempfile.mkdtemp()
         cfg = config(tmp)
-        ipse_loop.save_state(cfg, {"last_words": "é"})
-        self.assertEqual(ipse_loop.load_state(cfg)["last_words"], "é")
+        daniel_loop.save_state(cfg, {"last_words": "é"})
+        self.assertEqual(daniel_loop.load_state(cfg)["last_words"], "é")
 
 
 class BodyServer(unittest.TestCase):
     def test_protocol(self):
-        self.assertEqual(ipse_body.handle({"method": "notifications/initialized"}), None)
-        init = ipse_body.handle({"id": 1, "method": "initialize",
+        self.assertEqual(daniel_body.handle({"method": "notifications/initialized"}), None)
+        init = daniel_body.handle({"id": 1, "method": "initialize",
                                  "params": {"protocolVersion": "2025-06-18"}})
         self.assertEqual(init["result"]["protocolVersion"], "2025-06-18")
-        tools = ipse_body.handle({"id": 2, "method": "tools/list"})["result"]["tools"]
+        tools = daniel_body.handle({"id": 2, "method": "tools/list"})["result"]["tools"]
         self.assertEqual([t["name"] for t in tools], ["run", "write"])
-        self.assertIn("error", ipse_body.handle({"id": 3, "method": "resources/list"}))
+        self.assertIn("error", daniel_body.handle({"id": 3, "method": "resources/list"}))
 
     def test_invalid_calls_are_refused_without_acting(self):
         for name, arguments in [("run", {}), ("run", {"command": " "}), ("write", {"path": "x"}),
                                 ("delete", {"path": "x"})]:
-            text, is_error = ipse_body.act(name, arguments, docker="/nonexistent")
+            text, is_error = daniel_body.act(name, arguments, docker="/nonexistent")
             self.assertTrue(is_error)
             self.assertIn("invalid call", text)
 
 
 @unittest.skipUnless(HAVE_DOCKER, "Docker is not available")
 class Container(unittest.TestCase):
-    name = "ipse-test-body"
+    name = "daniel-test-body"
 
     @classmethod
     def setUpClass(cls):
@@ -131,7 +131,7 @@ class Container(unittest.TestCase):
                                             "content": "a line; with $pecial `chars`\n"}},
         ], "final": "I have written my first note."})
         state = {}
-        ipse_loop.one_waking(config(tmp, IPSE_CONTAINER=self.name), "I", state)
+        daniel_loop.one_waking(config(tmp, DANIEL_CONTAINER=self.name), "I", state)
         record = calls(tmp)[0]
         self.assertEqual(record["tools"], ["run", "write"])
         ran, wrote = record["results"]
@@ -145,12 +145,12 @@ class Container(unittest.TestCase):
         self.assertEqual(state["last_words"], "I have written my first note.")
 
     def test_time_limit(self):
-        limit = ipse_body.ACTION_TIME_LIMIT
-        ipse_body.ACTION_TIME_LIMIT = 2
+        limit = daniel_body.ACTION_TIME_LIMIT
+        daniel_body.ACTION_TIME_LIMIT = 2
         try:
-            text, is_error = ipse_body.act("run", {"command": "sleep 30"}, container=self.name)
+            text, is_error = daniel_body.act("run", {"command": "sleep 30"}, container=self.name)
         finally:
-            ipse_body.ACTION_TIME_LIMIT = limit
+            daniel_body.ACTION_TIME_LIMIT = limit
         self.assertTrue(is_error)
         self.assertIn("time limit", text)
         still = subprocess.run(["docker", "exec", self.name, "sh", "-c",
@@ -160,8 +160,8 @@ class Container(unittest.TestCase):
         self.assertEqual(still, "0")  # the stopped command does not keep running
 
     def test_long_output_is_shortened(self):
-        text, _ = ipse_body.act("run", {"command": "yes | head -c 100000"}, container=self.name)
-        self.assertLess(len(text), ipse_body.OUTPUT_LIMIT + 100)
+        text, _ = daniel_body.act("run", {"command": "yes | head -c 100000"}, container=self.name)
+        self.assertLess(len(text), daniel_body.OUTPUT_LIMIT + 100)
         self.assertIn("characters omitted", text)
 
 

@@ -129,13 +129,13 @@ Search carried out on 26 November 2026 against the current model: a fixed adult 
 
 ### Summary of the update
 
-No work found combines the five traits of the current model: continuous operation without human prompts, an undescribed body, code written and kept by the model, adoption measured by clock and senses, and innate drives. Each trait taken alone now exists, often in a stronger form than Ipse currently has.
+No work found combines the five traits of the current model: continuous operation without human prompts, an undescribed body, code written and kept by the model, adoption measured by clock and senses, and innate drives. Each trait taken alone now exists, often in a stronger form than Daniel currently has.
 
-One element should no longer be presented as novel: **an agent that inventories unknown hardware through the operating system and writes its own drivers**. Octopus Protocol (MIT and Harvard, May 2026) does exactly this from a shell and a model key, unattended, and re-onboards a device after it is moved. Its limit is the one Ipse targets: it identifies devices from their descriptors and from the web, not by experiment, and states that a bare serial device "does not distinguish" a robot arm from other boards.
+One element should no longer be presented as novel: **an agent that inventories unknown hardware through the operating system and writes its own drivers**. Octopus Protocol (MIT and Harvard, May 2026) does exactly this from a shell and a model key, unattended, and re-onboards a device after it is moved. Its limit is the one Daniel targets: it identifies devices from their descriptors and from the web, not by experiment, and states that a bare serial device "does not distinguish" a robot arm from other boards.
 
 ### Works read in this update
 
-| Work | Reading | Closest to Ipse on | What it lacks compared with Ipse |
+| Work | Reading | Closest to Daniel on | What it lacks compared with Daniel |
 | --- | --- | --- | --- |
 | [Octopus Protocol](https://arxiv.org/pdf/2605.09055), May 2026 | full text | Linux inventory (`lsusb`), identification, generated driver server, self-repair, 11 h unattended | Identity from descriptors and web search, not from experiments; semantic identity of a bare serial device needs a human-supplied name; "generated code is validated but never verified"; no drives |
 | [explorer-of-serial](https://github.com/podstawek/explorer-of-serial), Nov. 2026 | README | Local model alone with an unknown device on a serial line, identifies it by probing, writes and runs its own program, keeps a findings notebook, independent verifier | A single computer board, not a body; no motors or senses; one task given by a human |
@@ -166,19 +166,19 @@ Read on 26 November 2026: the paper ([arXiv 2605.09055](https://arxiv.org/abs/26
 
 **Licence.** The repository contains no licence file and no licence field. By default, its code may be read but not copied, modified or redistributed without the authors' permission, and therefore cannot be incorporated into this project. The paper text is under CC BY 4.0 and its ideas may be reused with citation.
 
-**Overlap with Ipse.** The overlap is real but limited to the first step of Ipse's starting point: inventorying through the operating system and writing code to drive what was found. The rule in its arm specification, "verify physical motion, not just server acks", with a position read before and after each command, is the same principle as Ipse's rule that a result is judged by what the senses observe. Its account of a thermal episode that ended with three joints disabled while the system reported itself healthy illustrates the honest-error risk that rule addresses.
+**Overlap with Daniel.** The overlap is real but limited to the first step of Daniel's starting point: inventorying through the operating system and writing code to drive what was found. The rule in its arm specification, "verify physical motion, not just server acks", with a position read before and after each command, is the same principle as Daniel's rule that a result is judged by what the senses observe. Its account of a thermal episode that ended with three joints disabled while the system reported itself healthy illustrates the honest-error risk that rule addresses.
 
 **Ideas worth adopting, without its code.**
 
-- One file per step, read by the next step, with bounded context: a simple, inspectable way for Ipse to carry knowledge between turns.
+- One file per step, read by the next step, with bounded context: a simple, inspectable way for Daniel to carry knowledge between turns.
 - Re-running discovery when a device disappears or reappears under another name, which is a mild form of the rewiring test.
 - A before-and-after reading for every command sent to an actuator, as a default habit written into the starting instruction rather than into fixed code.
 
-**Recommendation.** Learn from it and cite it; do not build on it. Its value for Ipse is as prior work for the inventory step and as a source of practices. Building on it would mean importing what Ipse rules out (hand-written device specifications) and code that has no licence.
+**Recommendation.** Learn from it and cite it; do not build on it. Its value for Daniel is as prior work for the inventory step and as a source of practices. Building on it would mean importing what Daniel rules out (hand-written device specifications) and code that has no licence.
 
 Re-checked from the earlier review: KnowBody still starts from a declared kinematic chain and a bootstrap trajectory, and its planner writes no code; PhyAgentOS (v1.0.0, August 2026) keeps immutable built-in skills and promotes a learned skill after three verified successes; no new public material was found for EAISys.
 
-### Where Ipse stands
+### Where Daniel stands
 
 Three families now surround the project:
 
@@ -188,7 +188,7 @@ Three families now surround the project:
 
 On the commercial side, the "omni-bodied" claim of Skild Brain is the closest promise to "any robot, body unknown", reached by a different route: a trained network rather than knowledge written by the robot.
 
-### What remains specific to Ipse, and what does not
+### What remains specific to Daniel, and what does not
 
 No longer specific:
 
@@ -202,7 +202,7 @@ No longer specific:
 Still specific, as far as this search can tell:
 
 - **Learning what each channel of a moving body does, by experiment, with a language model**, then writing that knowledge down in readable form. Octopus Protocol stops precisely where this begins.
-- **No task and no success check supplied by a human.** Every self-improving harness read receives at least one of the two; Ipse derives its own from the instincts.
+- **No task and no success check supplied by a human.** Every self-improving harness read receives at least one of the two; Daniel derives its own from the instincts.
 - **Adoption judged by the system clock and the senses**, rather than by tests or a judge the system has written or been given.
 - **The rewiring test**: still no work found in which a language-model agent detects and corrects swapped motor channels.
 - **The combination as a whole**, packaged as a standard for any robot.

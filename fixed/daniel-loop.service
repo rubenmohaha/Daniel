@@ -1,16 +1,16 @@
 [Unit]
-Description=Ipse loop
+Description=Daniel loop
 After=network-online.target docker.service
 Wants=network-online.target
 Requires=docker.service
 
 [Service]
-User=ipse-mind
+User=daniel-mind
 SupplementaryGroups=docker
 # The official tool is installed inside the mind account.
-Environment=PATH=/var/lib/ipse/mind/.local/bin:/usr/local/bin:/usr/bin:/bin
-EnvironmentFile=/etc/ipse/ipse.env
-ExecStart=/usr/bin/python3 /opt/ipse/ipse_loop.py
+Environment=PATH=/var/lib/daniel/mind/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=/etc/daniel/daniel.env
+ExecStart=/usr/bin/python3 /opt/daniel/daniel_loop.py
 Restart=always
 RestartSec=30
 
