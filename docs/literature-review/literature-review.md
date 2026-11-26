@@ -151,6 +151,31 @@ One element should no longer be presented as novel: **an agent that inventories 
 | [agi-robot](https://github.com/msveshnikov/agi-robot), 2026 | README | Small robot run by a language model in continuous operation from boot | Pins hard-coded; model returns fixed JSON commands; writes no code |
 | [Skild Brain](https://www.therobotreport.com/skild-ai-raises-1-4b-building-omni-bodied-robot-skild-brain/), 2026, commercial | press articles | Claims to control "any robot without prior knowledge of its exact body form" and to adapt to "loss of limbs ... or even an entirely new body" | Trained neural policy, improved by fleet data; nothing written or readable; claims not independently verified |
 
+### Octopus Protocol in detail
+
+Read on 26 November 2026: the paper ([arXiv 2605.09055](https://arxiv.org/abs/2605.09055), MIT and Harvard, May 2026, CC BY 4.0) and the public repository [qsimeon/octopus-hw](https://github.com/qsimeon/octopus-hw) (last commit 30 May 2026; README, protocol specifications and orchestrator read directly). The project originates as coursework (MIT MAS.664); a listing on the NeurIPS 2026 site was seen in search results only.
+
+**How it works.** An installation script places a coding agent and a folder of Markdown specifications on the machine. A fixed orchestrator runs five stages in order, each a prompt executed by the agent, each writing one file that the next stage reads: PROBE enumerates the hardware with `lsusb` or its equivalent; IDENTIFY infers what each device can do from its identifiers, its driver and a web search, with a confidence score; INTERFACE turns capabilities into tool definitions; SERVE writes a server that drives the hardware; DEPLOY starts it and exposes it to other AI clients. A daemon then repeats WATCH (read the logs, optionally a camera frame) and HEAL (rewrite a broken tool, reinstall a dependency, restart, or re-run discovery when a device has moved) every five minutes. Each stage sees only its specification and the previous output, which bounds the context.
+
+**What it does not do.** Several points read in the repository qualify the paper's general claim:
+
+- The robot arm works because of a 392-line "privileged" specification written by hand for that arm: servo protocol version, the register that enables torque, the instruction the firmware does not support, and the fact that joint 1 is disabled because the team physically swapped a broken servo and re-programmed its identifier. The generic identification stage itself contains a rule naming the arm's chip and vendor strings.
+- A serial device whose descriptors and web search do not name the product is recorded as "unknown", and no tool is generated for it. Nothing is learned by experiment.
+- There are no goals, no drives and no improvement in performance: the daemon keeps the generated code working, it does not make it faster or more precise.
+- It runs on a paid model through an API key; it is a pipeline launched by a human, not an agent living continuously on the robot.
+
+**Licence.** The repository contains no licence file and no licence field. By default, its code may be read but not copied, modified or redistributed without the authors' permission, and therefore cannot be incorporated into this project. The paper text is under CC BY 4.0 and its ideas may be reused with citation.
+
+**Overlap with Ipse.** The overlap is real but limited to the first step of Ipse's starting point: inventorying through the operating system and writing code to drive what was found. The rule in its arm specification, "verify physical motion, not just server acks", with a position read before and after each command, is the same principle as Ipse's rule that a result is judged by what the senses observe. Its account of a thermal episode that ended with three joints disabled while the system reported itself healthy illustrates the honest-error risk that rule addresses.
+
+**Ideas worth adopting, without its code.**
+
+- One file per step, read by the next step, with bounded context: a simple, inspectable way for Ipse to carry knowledge between turns.
+- Re-running discovery when a device disappears or reappears under another name, which is a mild form of the rewiring test.
+- A before-and-after reading for every command sent to an actuator, as a default habit written into the starting instruction rather than into fixed code.
+
+**Recommendation.** Learn from it and cite it; do not build on it. Its value for Ipse is as prior work for the inventory step and as a source of practices. Building on it would mean importing what Ipse rules out (hand-written device specifications) and code that has no licence.
+
 Re-checked from the earlier review: KnowBody still starts from a declared kinematic chain and a bootstrap trajectory, and its planner writes no code; PhyAgentOS (v1.0.0, August 2026) keeps immutable built-in skills and promotes a learned skill after three verified successes; no new public material was found for EAISys.
 
 ### Where Ipse stands
@@ -197,7 +222,6 @@ Pages were read by an automated web reader. Beyond about 40,000 characters, the 
 - [ ] Literature on sensorimotor contingencies (O'Regan, Philipona) and developmental robotics (motor babbling).
 - [ ] Neural Jacobian Fields, not re-read.
 - [ ] Full text of Self-Upgrading Embodied Agents (abstract only) and Sections 2.2 onwards of SEAR (read only through a model summary).
-- [ ] Octopus Protocol: test whether its pipeline can be combined with experiment-based identification of channels.
 
 ## Sources
 
