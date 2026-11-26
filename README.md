@@ -23,6 +23,7 @@ The project is in a research phase. This repository gathers the framing document
 | [Literature review](docs/literature-review/literature-review.md) | Closest related work, corrections made to the framing note, positioning, and remaining reading |
 | [First prototype plan](docs/prototype/first-prototype-plan.md) | Fixed part written by the project, what Ipse writes, setup, first test, known limits and open questions |
 | [Fixed part of the first prototype](fixed/README.md) | The loop, the starting instruction, Ipse's container, setup and tests |
+| [Decision log](docs/decisions/decision-log.md) | Questions settled so far, with their date, reason and the earlier choices they replace |
 
 ## License
 
