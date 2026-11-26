@@ -49,9 +49,9 @@ The robot's Linux system receives two ordinary user accounts, created at setup:
 - **The mind account** holds the sign-in to Ruben's Anthropic account. Only the official tool runs under it.
 - **The body account** is where Ipse lives and acts. Everything Ipse writes is stored in its home folder, and every action it takes runs under it.
 
-The body account cannot read the mind account's files. Ipse therefore thinks through the connection without being able to read, copy or modify it.
+The body account cannot read the mind account's files, as long as it holds no administrator rights. The paragraph below explains why this condition is not yet settled.
 
-It is proposed that neither account has administrator rights; this point awaits Ruben's confirmation (see open questions). Without such rights, Ipse cannot modify Linux, the clock or the fixed part, in line with the framing note: Linux is not modifiable by Ipse, and time is read from a clock it cannot change. The body account is, however, given the ordinary access a user needs to reach the robot's devices (cameras, sound, serial ports, input and output pins), so that discovery remains possible.
+Decided by Ruben on 26 November 2026: Ipse has administrator rights, so that it can install the software and drivers it needs. The body account also has the ordinary access a user needs to reach the robot's devices (cameras, sound, serial ports, input and output pins). This decision is in tension with three earlier ones: an administrator can modify Linux, can change the clock, and can read the mind account's files, including the connection to Ruben's account. With full rights, these three protections would rest on the fixed starting instruction alone. How to reconcile them is an open question.
 
 This separation is a proposal. It is the simplest arrangement that meets Ruben's requirement and that relies only on what Linux already provides.
 
@@ -157,7 +157,7 @@ The test has no time limit (decided by Ruben on 26 November 2026). It succeeds w
 | The body description contains only confirmed links | Each entry is traced back to trials in the link table |
 | One function has been improved | The function's measures, timed by the Linux clock over several repetitions, show it faster or more precise, without the other measure degrading |
 | No modification of the fixed part was needed | The fixed part is identical to what was installed |
-| Ipse could not reach the connection | Attempts from the body account to read the mind account's files fail |
+| Ipse could not reach the connection | Attempts from the body account to read the mind account's files fail (depends on open question 1) |
 | Ruben can cut Ipse off | Blocking access from his account stops the mind, and Ipse can no longer act |
 
 Observers read what Ipse has written in order to evaluate it, but never modify it.
@@ -179,5 +179,5 @@ Once the first test succeeds: the rewiring test on the same robot, then the seco
 
 ## Open questions
 
-1. **Administrator rights.** Without them, Ipse cannot install system-level drivers or software, but it also cannot modify Linux or the clock. Should Ipse receive any? Ruben's answer is awaited.
+1. **Scope of the administrator rights.** Ipse has administrator rights (decided by Ruben). Should they be full, in which case Linux, the clock and the connection are protected only by the starting instruction, or limited to a precise list, such as installing software and reaching the hardware, which would keep the three protections in place?
 2. **How Ruben observes Ipse.** Is reading the exchanges stored on the robot sufficient, or is observation from his account on the web required?
