@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.8, 26 November 2026
+Ruben · version 2.9, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -34,23 +34,23 @@ Two consequences are accepted as part of the design:
 
 ## How it works
 
-The architecture is simple and rests on three parts.
+The architecture is simple. The language model runs as an agent inside a harness, and manages itself.
 
-1. **A continuous log.** Everything that comes in is recorded as it happens: what the senses perceive, the levels of the instincts, and the commands sent. The log is raw: it only accumulates, and its oldest entries are lost over time.
-2. **The language model.** It reads the log, analyses it, improves what it has written, and tests its improvements by running experiments. The results of those experiments enter the log in turn.
-3. **A memory.** It belongs to the model. It draws on the log, but its purpose is different: to understand the environment, to retain what is essential and relevant, and to let the model concentrate on what matters, such as its code and its trials. The log records what happened and then fades; the memory holds what the model has understood and chosen to keep.
+- **The model sets its own pace.** No external clock dictates its turns. It decides when to think, when to act, and when to wait, as an agent does in a harness.
+- **The model consults records when it chooses.** What the senses perceive, the levels of the instincts and the commands sent can be looked up at will; nothing is pushed to the model at each turn.
+- **The model has a memory of its own.** Its purpose is to understand the environment, to retain what is essential and relevant, and to let the model concentrate on what matters, such as its code and its trials.
+- **The model improves by experiment.** It analyses, rewrites what it has written, and tests the result in the real world.
 
-```
-senses, instincts, commands ──► log ──► language model ──► experiments
-                                 ▲            │                 │
-                                 │            ▼                 │
-                                 │         memory               │
-                                 └──────────────────────────────┘
-```
+Records and memory age differently. Raw records only accumulate, and the oldest are lost over time whatever their content. The memory forgets by relevance: the model decides what stays. Anything worth keeping must therefore be carried into memory before it fades.
 
-The log is what makes the principle "observed, not declared" practical: time and results are read from the record of what happened, not from what the model reports about itself. For the same reason, the log is written continuously by the system and is not something the model edits.
+### Where the records come from: an open point
 
-The two therefore differ in how they age. The log forgets by age alone: old entries disappear whatever their content. The memory forgets by relevance: the model decides what stays. Anything in the log that is worth keeping must be carried into memory before it fades.
+Whether Ipse needs a dedicated log of its own is not settled. Two options are under consideration:
+
+- **Linux provides them.** The system already keeps records of what happens; Ipse adds no log of its own and the model reads what the system offers.
+- **The model builds them.** The model sets up the recording it needs, when it needs it, as part of what it writes.
+
+The choice bears on the principle "observed, not declared" stated below. If the model builds and maintains its own records, the measurements used to judge an improvement are produced by the party being judged. Records that the model can read but not rewrite would preserve the principle; this remains to be decided.
 
 ## What is fixed
 
@@ -66,7 +66,7 @@ The model is multimodal and has open weights, so that any robot can embed it. Th
 
 ### The reflection loop
 
-The model writes to itself. At each turn it receives its previous thought and the recent content of the log, that is, the current levels of its instincts and what its senses have captured, even when unclear; it then writes its next thought or decides to act. A minimal fixed mechanism relaunches it at each turn.
+The model writes to itself. At each turn it has its previous thought and whatever it chooses to consult: the current levels of its instincts and what its senses have captured, even when unclear. It then writes its next thought or decides to act. The rhythm of these turns is the model's own.
 
 A model retains only a limited amount of text. What matters must therefore be written to memory, which sleep later sorts.
 
@@ -153,7 +153,7 @@ To attribute a response to a channel:
 
 A link is learned from repetition, in four steps:
 
-1. **The log.** For each movement, the continuous log holds what was commanded, what the senses perceived just before, and what they perceive just after.
+1. **A record.** For each movement, Ipse keeps what was commanded, what the senses perceived just before, and what they perceive just after.
 2. **Repetitions.** A single occurrence proves nothing. The same movement is repeated many times, at randomly drawn moments, and sometimes deliberately withheld for comparison.
 3. **A count.** For each pair of one command and one sense: when the command was sent, did the sense change? When it was not sent, did the sense change anyway?
 4. **A table.** Each row is a link that strengthens or fades.
@@ -164,7 +164,7 @@ A link is learned from repetition, in four steps:
 | Channel 3 | Stream 2 | 1 s | 9 | 11 | Coincidence |
 | Channel 5 | Stream 1 | 0.1 s | 20 | 0 | Certain link |
 
-The log and the count are mechanical and fast; they do not involve the language model. The model reads the table from time to time, formulates hypotheses, chooses the next experiment, and writes the body description from the solid links.
+The record and the count are mechanical and fast; they do not involve the language model. The model reads the table from time to time, formulates hypotheses, chooses the next experiment, and writes the body description from the solid links.
 
 Curiosity directs Ipse to the rows that are still uncertain. When a link that was certain suddenly starts to fail, the body has changed: this is the situation the rewiring test creates.
 
