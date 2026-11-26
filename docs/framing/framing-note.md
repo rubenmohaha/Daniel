@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.1, 26 November 2026
+Ruben · version 2.2, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -138,6 +138,8 @@ These two measures are deliberately simple. Four conditions give them meaning:
 - **The instincts still apply.** They are fixed and cannot be traded for speed: a version that goes faster by ignoring pain or fear is not available to Ipse.
 - **The comparison is repeated.** Time and precision vary from one trial to the next, so a version is compared over several repetitions rather than a single run.
 
+Time and results are observed, not declared. Ipse cannot modify reality: the time a task takes and the outcome it produces are facts of the physical world. Time is read from the clock of the fixed part of the system, which Ipse cannot change, and the result is whatever can be observed in the world once the task is done. What Ipse writes about its own performance is not a measurement.
+
 The same criterion applies to body discovery itself: the time needed to rediscover the body after a change, and the accuracy of the resulting description, are measured like any other task.
 
 ## Demonstration and success criterion
@@ -183,7 +185,6 @@ The contributions least covered by the literature reviewed are the rewiring test
 
 ## Open questions
 
-- **Measuring a task.** Who defines the reference tasks and who measures time and precision, given that Ipse writes its own code and could otherwise alter the measurement rather than the performance?
 - **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
 - **Reflexes.** A large model decides too slowly for pain and fear responses: which fast layer carries them?
 - **Offline operation.** Which local model can serve as the built-in model?
