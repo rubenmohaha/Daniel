@@ -1,4 +1,4 @@
-"""Tests of the list of devices handed to Ipse's container, on a fake /dev."""
+"""Tests of the list of devices handed to Daniel's container, on a fake /dev."""
 import os
 import sys
 import tempfile
@@ -6,7 +6,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "fixed"))
-import ipse_devices  # noqa: E402
+import daniel_devices  # noqa: E402
 
 
 @unittest.skipUnless(os.geteuid() == 0, "creating device nodes requires root")
@@ -21,8 +21,8 @@ class Devices(unittest.TestCase):
         os.symlink("sda1", os.path.join(dev, "root"))
         generic = os.path.join(sys_dir, "class/block/sda/device/scsi_generic/sg0")
         os.makedirs(generic)
-        protected = ipse_devices.protected_names(set(disks), sys_dir)
-        return {os.path.relpath(p, dev) for p in ipse_devices.devices(dev, protected)}
+        protected = daniel_devices.protected_names(set(disks), sys_dir)
+        return {os.path.relpath(p, dev) for p in daniel_devices.devices(dev, protected)}
 
     def test_system_disk_and_clock_are_excluded(self):
         handed = self.handed(

@@ -1,15 +1,15 @@
 #!/bin/sh
-# One-time setup of Ipse on a Linux machine. Run as root, from this folder.
+# One-time setup of Daniel on a Linux machine. Run as root, from this folder.
 #
-# Creates the mind account, Ipse's container and the loop service. The loop is
+# Creates the mind account, Daniel's container and the loop service. The loop is
 # installed but not started: the sign-in to the Anthropic account and the
 # choice of the model version are done afterwards by a human (see README.md).
 set -eu
 
-MIND_USER=ipse-mind
-CONTAINER=ipse-body
+MIND_USER=daniel-mind
+CONTAINER=daniel-body
 IMAGE=debian:stable-slim
-ROOT=/var/lib/ipse
+ROOT=/var/lib/daniel
 
 [ "$(id -u)" = 0 ] || { echo "setup.sh must be run as root" >&2; exit 1; }
 for tool in docker python3 findmnt lsblk systemctl; do
@@ -17,9 +17,9 @@ for tool in docker python3 findmnt lsblk systemctl; do
 done
 
 # 1. The fixed part, owned by root and read-only for everyone else.
-install -d -m 755 /opt/ipse /etc/ipse
-install -m 644 ipse_loop.py ipse_body.py ipse_devices.py starting-instruction.md /opt/ipse/
-[ -e /etc/ipse/ipse.env ] || install -m 644 ipse.env.example /etc/ipse/ipse.env
+install -d -m 755 /opt/daniel /etc/daniel
+install -m 644 daniel_loop.py daniel_body.py daniel_devices.py starting-instruction.md /opt/daniel/
+[ -e /etc/daniel/daniel.env ] || install -m 644 daniel.env.example /etc/daniel/daniel.env
 
 # 2. The mind account. It holds the sign-in; only the loop and the official tool run there.
 if ! id "$MIND_USER" >/dev/null 2>&1; then
@@ -29,17 +29,17 @@ chmod 700 "$ROOT/mind"
 # The loop starts actions in the container through Docker; see README.md, "Known limits".
 usermod -aG docker "$MIND_USER"
 
-# 3. The folder that Ipse keeps across restarts, readable from outside the container.
+# 3. The folder that Daniel keeps across restarts, readable from outside the container.
 install -d -m 755 "$ROOT/self"
 
-# 4. Ipse's container: administrator inside, every device but the excluded ones,
+# 4. Daniel's container: administrator inside, every device but the excluded ones,
 #    no access to the system disk, to working memory, to the clock or to Docker.
 if docker container inspect "$CONTAINER" >/dev/null 2>&1; then
     echo "container $CONTAINER already exists; left unchanged"
 else
-    devices=$(python3 /opt/ipse/ipse_devices.py)
+    devices=$(python3 /opt/daniel/daniel_devices.py)
     # shellcheck disable=SC2086  # one --device argument per line, no spaces
-    docker run --detach --name "$CONTAINER" --hostname ipse \
+    docker run --detach --name "$CONTAINER" --hostname daniel \
         --restart always --init \
         --volume "$ROOT/self:/self" --workdir /self \
         $devices \
@@ -47,10 +47,10 @@ else
 fi
 
 # 5. The loop, restarted by Linux after a crash or a power cut once enabled.
-install -m 644 ipse-loop.service /etc/systemd/system/ipse-loop.service
+install -m 644 daniel-loop.service /etc/systemd/system/daniel-loop.service
 systemctl daemon-reload
 
-[ "${IPSE_QUIET:-0}" = 1 ] && exit 0
+[ "${DANIEL_QUIET:-0}" = 1 ] && exit 0
 
 cat <<NEXT
 
@@ -58,6 +58,6 @@ Setup done. Remaining steps, by a human (see README.md):
   1. Open the mind account:  sudo -u $MIND_USER -i
   2. In it, install the official tool 'claude' with Anthropic's installer,
      run 'claude', sign in to the Anthropic account, then leave it.
-  3. Pin the model version:  edit IPSE_MODEL in /etc/ipse/ipse.env
-  4. Start Ipse:             systemctl enable --now ipse-loop
+  3. Pin the model version:  edit DANIEL_MODEL in /etc/daniel/daniel.env
+  4. Start Daniel:           systemctl enable --now daniel-loop
 NEXT

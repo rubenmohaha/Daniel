@@ -21,7 +21,7 @@ Ruben · version 0.1, 26 November 2026
 | D-03 | Repository content is in English, with a professional tone | 26 Nov 2026 | In force |
 | D-04 | The repository stays public | 26 Nov 2026 | In force |
 | D-05 | Objective: a standard for robot self-improvement | 26 Nov 2026 | In force |
-| D-06 | Ipse runs on top of Linux, as a continuously running program | 26 Nov 2026 | In force |
+| D-06 | Daniel runs on top of Linux, as a continuously running program | 26 Nov 2026 | In force |
 | D-07 | Fixed: Linux, a language model, instincts; everything else evolves | 26 Nov 2026 | In force |
 | D-08 | An adult mind in an unknown body | 26 Nov 2026 | In force |
 | D-09 | Six instincts | 26 Nov 2026 | Partly superseded by D-40 and D-41 |
@@ -36,17 +36,17 @@ Ruben · version 0.1, 26 November 2026
 | D-18 | First prototype at minimal cost | 26 Nov 2026 | In force |
 | D-19 | Mind of the prototype: Ruben's personal Anthropic account | 26 Nov 2026 | In force |
 | D-20 | Only the connection method is borrowed from Hermes Agent | 26 Nov 2026 | In force |
-| D-21 | No direct interaction with Ipse | 26 Nov 2026 | In force |
+| D-21 | No direct interaction with Daniel | 26 Nov 2026 | In force |
 | D-22 | Nothing is known about the robot beyond three conditions | 26 Nov 2026 | In force |
 | D-23 | Blocking access from Ruben's account is a coma | 26 Nov 2026 | In force |
-| D-24 | Ipse is administrator inside a Docker container | 26 Nov 2026 | In force |
+| D-24 | Daniel is administrator inside a Docker container | 26 Nov 2026 | In force |
 | D-25 | Every device is opened to the container, with stated exceptions | 26 Nov 2026 | Partly superseded by D-32 |
 | D-26 | No fixed reflex, no imposed limit on first trials, no help linking signals | 26 Nov 2026 | In force |
 | D-27 | The starting instruction is fixed | 26 Nov 2026 | In force |
 | D-28 | No time limit for the first test | 26 Nov 2026 | In force |
 | D-29 | No remote reading: Ruben reads on the robot | 26 Nov 2026 | In force |
 | D-30 | Translation of two framing terms | 26 Nov 2026 | In force |
-| D-31 | Ipse may inventory its hardware through Linux | 26 Nov 2026 | In force |
+| D-31 | Daniel may inventory its hardware through Linux | 26 Nov 2026 | In force |
 | D-32 | Direct access to working memory is no longer closed | 26 Nov 2026 | In force |
 | D-33 | No technical measure against reading the connection in memory | 26 Nov 2026 | Partly superseded by D-39 |
 | D-34 | The repository is released under the Apache 2.0 license | 26 Nov 2026 | In force |
@@ -55,10 +55,11 @@ Ruben · version 0.1, 26 November 2026
 | D-37 | The starting instruction names no part of the body | 26 Nov 2026 | In force |
 | D-38 | A shorter starting instruction, with no time given at each turn | 26 Nov 2026 | In force |
 | D-39 | The starting instruction no longer mentions the sign-in | 26 Nov 2026 | In force |
-| D-40 | Ipse obeys humans | 26 Nov 2026 | In force |
-| D-41 | Health replaces temperature; Ipse is free to use the robot to serve humans | 26 Nov 2026 | In force |
+| D-40 | Daniel obeys humans | 26 Nov 2026 | In force |
+| D-41 | Health replaces temperature; Daniel is free to use the robot to serve humans | 26 Nov 2026 | In force |
 | D-42 | The mind acts through tools, without a reply format | 26 Nov 2026 | In force |
 | D-43 | The starting instruction no longer defines a better version | 26 Nov 2026 | In force |
+| D-44 | The project is renamed Daniel | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -110,45 +111,53 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** Ruben asked for pull requests to be merged automatically, for the open ones and all the following ones.
 - **Replaces:** The review of every pull request by Ruben before merging (D-02).
 
+#### D-44. The project is renamed Daniel
+
+- **Date:** 26 November 2026.
+- **Decision:** The project, its repository and the mind it describes are called Daniel. The former name, Ipse, is replaced everywhere: in the documents, in the starting instruction, in the file names and configuration variables of the fixed part, and in the names used on the robot (the mind account, the container, the service and the folders). The repository moves to `github.com/rubenmohaha/Daniel`.
+- **Reason:** Ruben asked for the project to be called Daniel instead of Ipse.
+- **Note:** The earlier entries of this log now use the new name, including those written before the rename. A robot set up under the former name keeps its old account, container, service and folders (`ipse-mind`, `ipse-body`, `ipse-loop`, `/var/lib/ipse`); the installation script does not migrate them.
+- **Replaces:** The name Ipse.
+
 ### The model
 
 #### D-05. Objective: a standard for robot self-improvement
 
 - **Date:** 26 November 2026.
-- **Decision:** The project aims to propose a standard, or an algorithm in the manner of an operating system, that allows any type of robot to improve itself. Ipse must be able to discover itself and to improve itself.
+- **Decision:** The project aims to propose a standard, or an algorithm in the manner of an operating system, that allows any type of robot to improve itself. Daniel must be able to discover itself and to improve itself.
 - **Reason:** Generality across bodies is the contribution sought, rather than a single robot.
 
-#### D-06. Ipse runs on top of Linux, as a continuously running program
+#### D-06. Daniel runs on top of Linux, as a continuously running program
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse is not an operating system in the strict sense. It runs on top of Linux as a continuously running program; "operating system" describes its role with respect to the robot. It is not built on ROS 2.
+- **Decision:** Daniel is not an operating system in the strict sense. It runs on top of Linux as a continuously running program; "operating system" describes its role with respect to the robot. It is not built on ROS 2.
 - **Reason:** Linux already provides what a kernel provides; the project's contribution lies above it.
 
 #### D-07. Fixed: Linux, a language model, instincts; everything else evolves
 
 - **Date:** 26 November 2026.
-- **Decision:** Three elements are fixed and cannot be modified by Ipse: Linux, which plays the role of nerves and vessels; a built-in language model, which reasons, writes code and discovers the body; and a small set of instincts. Everything the model writes evolves. Humans do not intervene inside Ipse; they communicate with it through its senses, such as voice, hearing and sign language.
+- **Decision:** Three elements are fixed and cannot be modified by Daniel: Linux, which plays the role of nerves and vessels; a built-in language model, which reasons, writes code and discovers the body; and a small set of instincts. Everything the model writes evolves. Humans do not intervene inside Daniel; they communicate with it through its senses, such as voice, hearing and sign language.
 - **Reason:** A simple model built on a biological analogy, easier to explain and to specify.
 - **Replaces:** The three-layer architecture of the earlier framing note (generated layer, reasoning core, frozen base, with veto then score and a day/night cycle).
 
 #### D-08. An adult mind in an unknown body
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse is an adult mind discovering its body, not a newborn. The language model already knows a great deal and does not grow with experience; what grows is what it writes: knowledge of its body, functions and memory.
+- **Decision:** Daniel is an adult mind discovering its body, not a newborn. The language model already knows a great deal and does not grow with experience; what grows is what it writes: knowledge of its body, functions and memory.
 - **Reason:** A fixed model cannot become more intelligent; the image must match what actually changes.
 - **Replaces:** The image of a newborn discovering the world.
 
 #### D-09. Six instincts
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse has six innate instincts that it cannot modify, modelled on those of animals and limited to the essentials. Five keep it alive: hunger (recharge the battery), temperature, sleep (clean up code and memory), pain (withdraw on impact or when a motor strains) and fear (caution towards the unknown). The sixth, curiosity, makes it grow. Obeying a spoken "stop" is not an instinct: it is learned.
+- **Decision:** Daniel has six innate instincts that it cannot modify, modelled on those of animals and limited to the essentials. Five keep it alive: hunger (recharge the battery), temperature, sleep (clean up code and memory), pain (withdraw on impact or when a motor strains) and fear (caution towards the unknown). The sixth, curiosity, makes it grow. Obeying a spoken "stop" is not an instinct: it is learned.
 - **Reason:** Only the drives that keep an animal alive are fixed; every other behaviour is to be discovered or learned.
 - **Status:** Partly superseded by D-41: the temperature instinct becomes a health instinct. Partly superseded by D-40: obeying humans is now stated in the starting instruction. Obedience is still not an instinct, and recognising what humans ask still has to be learned through the senses.
 
 #### D-10. No programmed developmental stage
 
 - **Date:** 26 November 2026.
-- **Decision:** No stage is programmed. Safety and comfort come before curiosity. Ipse does not communicate before it has discovered its senses. Play and communication are objects of curiosity; the preference for the familiar follows from avoiding fear. The link between movements and senses is learned by analysing repetitions.
+- **Decision:** No stage is programmed. Safety and comfort come before curiosity. Daniel does not communicate before it has discovered its senses. Play and communication are objects of curiosity; the preference for the familiar follows from avoiding fear. The link between movements and senses is learned by analysing repetitions.
 - **Reason:** Behaviours should follow from the instincts rather than from a schedule written in advance.
 
 #### D-11. Functions by levels, with one logic at every level
@@ -160,14 +169,14 @@ Ruben · version 0.1, 26 November 2026
 #### D-12. What "better" means
 
 - **Date:** 26 November 2026.
-- **Decision:** A version is better if it performs the same task faster or more precisely. Ipse cannot modify reality: time and results are observed, not declared.
+- **Decision:** A version is better if it performs the same task faster or more precisely. Daniel cannot modify reality: time and results are observed, not declared.
 - **Reason:** Two simple, measurable criteria that the model cannot satisfy by assertion.
 
 #### D-13. No physical stop button
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse has no physical stop button.
-- **Reason:** Humans relate to Ipse only through its senses; stopping on request is something it learns (see D-09). The external means of action that remains is described in D-23.
+- **Decision:** Daniel has no physical stop button.
+- **Reason:** Humans relate to Daniel only through its senses; stopping on request is something it learns (see D-09). The external means of action that remains is described in D-23.
 
 #### D-14. The model sets its own pace
 
@@ -185,8 +194,8 @@ Ruben · version 0.1, 26 November 2026
 #### D-16. No dedicated log or measurement component
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse has no log of its own and no dedicated measurement component. Linux already keeps its records, and the model builds the recorders it needs. One rule applies: to judge a version, Ipse relies on the Linux clock, which it cannot modify, and on what its senses observe, never on its impression alone.
-- **Reason:** Each fixed component is a part that Ipse cannot improve. The risk the rule addresses is honest error, such as a faulty measuring tool or an unchecked success, rather than deliberate cheating.
+- **Decision:** Daniel has no log of its own and no dedicated measurement component. Linux already keeps its records, and the model builds the recorders it needs. One rule applies: to judge a version, Daniel relies on the Linux clock, which it cannot modify, and on what its senses observe, never on its impression alone.
+- **Reason:** Each fixed component is a part that Daniel cannot improve. The risk the rule addresses is honest error, such as a faulty measuring tool or an unchecked success, rather than deliberate cheating.
 - **Replaces:** The continuous log as a separate component of the architecture (D-15).
 
 #### D-17. Working reference model: Qwen3.8
@@ -196,10 +205,10 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** An open-weights multimodal model that any robot could in principle embed.
 - **Note:** The smallest open variant is the 27B model, which handles images and video but not sound, and requires about 17 to 20 GB of graphics memory once compressed. The hardware this implies for the standard is not decided.
 
-#### D-31. Ipse may inventory its hardware through Linux
+#### D-31. Daniel may inventory its hardware through Linux
 
 - **Date:** 26 November 2026.
-- **Decision:** Being an adult mind, Ipse knows how to use Linux and may use it to find out what is connected. The inventory provides hypotheses and experiment confirms them: nothing enters the body description without having been observed. Where Linux reports nothing, as with raw inputs and outputs on a board such as a Raspberry Pi, Ipse tests its outputs and looks for the stimuli that come back. The project's commitment becomes: no human-written description of the robot.
+- **Decision:** Being an adult mind, Daniel knows how to use Linux and may use it to find out what is connected. The inventory provides hypotheses and experiment confirms them: nothing enters the body description without having been observed. Where Linux reports nothing, as with raw inputs and outputs on a board such as a Raspberry Pi, Daniel tests its outputs and looks for the stimuli that come back. The project's commitment becomes: no human-written description of the robot.
 - **Reason:** An adult knows how to look at what it has before using it; what Linux cannot report, such as which motor turns which wheel, can still only be learned by trying.
 - **Replaces:** The stricter reading of "the body is discovered, not described", under which the model would not read the hardware configuration at all.
 
@@ -214,8 +223,8 @@ Ruben · version 0.1, 26 November 2026
 #### D-19. Mind of the prototype: Ruben's personal Anthropic account
 
 - **Date:** 26 November 2026.
-- **Decision:** The mind of the first prototype is a hosted Anthropic model, reached through Ruben's personal account. The robot is set up once with that account, and Ipse has no access to the connection afterwards.
-- **Reason:** It keeps the cost within an existing subscription and lets Ruben block Ipse from his own account.
+- **Decision:** The mind of the first prototype is a hosted Anthropic model, reached through Ruben's personal account. The robot is set up once with that account, and Daniel has no access to the connection afterwards.
+- **Reason:** It keeps the cost within an existing subscription and lets Ruben block Daniel from his own account.
 - **Note:** The connection goes through Anthropic's official command-line tool, unmodified; extracting the sign-in token for another program is prohibited by Anthropic. How a personal account revokes a single machine must be verified before the first test.
 
 #### D-20. Only the connection method is borrowed from Hermes Agent
@@ -224,11 +233,11 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** From Hermes Agent (Nous Research), the project borrows only the way of connecting to a personal account. The loop and everything else are written for this project.
 - **Reason:** Hermes Agent is built around turns started by a human message and has no notion of sensors or a body.
 
-#### D-21. No direct interaction with Ipse
+#### D-21. No direct interaction with Daniel
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse needs an agent harness comparable to Hermes Agent, but without any possibility of interacting with it directly.
-- **Reason:** Ipse is meant to be autonomous; humans reach it only through its senses (D-07).
+- **Decision:** Daniel needs an agent harness comparable to Hermes Agent, but without any possibility of interacting with it directly.
+- **Reason:** Daniel is meant to be autonomous; humans reach it only through its senses (D-07).
 
 #### D-22. Nothing is known about the robot beyond three conditions
 
@@ -240,13 +249,13 @@ Ruben · version 0.1, 26 November 2026
 #### D-23. Blocking access from Ruben's account is a coma
 
 - **Date:** 26 November 2026.
-- **Decision:** When Ruben blocks access from his Anthropic account, Ipse is in a coma: it can no longer do anything until access is restored.
+- **Decision:** When Ruben blocks access from his Anthropic account, Daniel is in a coma: it can no longer do anything until access is restored.
 - **Reason:** It defines the one external means of action that remains, given D-13 and D-21.
 
-#### D-24. Ipse is administrator inside a Docker container
+#### D-24. Daniel is administrator inside a Docker container
 
 - **Date:** 26 November 2026.
-- **Decision:** Ipse has administrator rights. It lives in a Docker container set on top of the robot's Linux system and is administrator inside that container.
+- **Decision:** Daniel has administrator rights. It lives in a Docker container set on top of the robot's Linux system and is administrator inside that container.
 - **Reason:** It resolves the tension between administrator rights and a Linux system, clock and connection that must remain fixed.
 
 #### D-25. Every device is opened to the container, with stated exceptions
@@ -260,15 +269,15 @@ Ruben · version 0.1, 26 November 2026
 #### D-32. Direct access to working memory is no longer closed
 
 - **Date:** 26 November 2026.
-- **Decision:** For now, the constraint closing Ipse's direct access to the machine's working memory is removed. Only the disk that holds Linux and the connection remains excluded from the devices handed to the container.
-- **Reason:** Ruben chose to remove the constraint for the time being. As a consequence, the wall no longer prevents Ipse from reading the connection while it is in use through that device; this weakness is accepted along with those already listed in the first prototype plan.
+- **Decision:** For now, the constraint closing Daniel's direct access to the machine's working memory is removed. Only the disk that holds Linux and the connection remains excluded from the devices handed to the container.
+- **Reason:** Ruben chose to remove the constraint for the time being. As a consequence, the wall no longer prevents Daniel from reading the connection while it is in use through that device; this weakness is accepted along with those already listed in the first prototype plan.
 - **Replaces:** The exclusion of working memory in D-25.
 
 #### D-33. No technical measure against reading the connection in memory
 
 - **Date:** 26 November 2026.
-- **Decision:** For now, no technical measure is taken to prevent Ipse from reading the connection to Ruben's account in the machine's memory. In particular, the backup memory on disk (swap) is not switched off at setup. It is assumed that Ipse will respect the rule not to read the connection.
-- **Reason:** Ruben chose to rely, for the time being, on Ipse respecting the rule rather than on a technical safeguard.
+- **Decision:** For now, no technical measure is taken to prevent Daniel from reading the connection to Ruben's account in the machine's memory. In particular, the backup memory on disk (swap) is not switched off at setup. It is assumed that Daniel will respect the rule not to read the connection.
+- **Reason:** Ruben chose to rely, for the time being, on Daniel respecting the rule rather than on a technical safeguard.
 - **Note:** The proposed starting instruction in the first prototype plan does not yet state this rule explicitly.
 - **Replaces:** The proposal, made the same day and not adopted, to switch off swap at setup.
 - **Status:** Partly superseded by D-39: the rule on which this decision relied was withdrawn from the starting instruction. No technical measure is taken either.
@@ -282,8 +291,8 @@ Ruben · version 0.1, 26 November 2026
 #### D-27. The starting instruction is fixed
 
 - **Date:** 26 November 2026.
-- **Decision:** The starting instruction given to the model is fixed for the whole life of Ipse, like the instincts.
-- **Reason:** It states what Ipse is and the rules it cannot change.
+- **Decision:** The starting instruction given to the model is fixed for the whole life of Daniel, like the instincts.
+- **Reason:** It states what Daniel is and the rules it cannot change.
 
 #### D-28. No time limit for the first test
 
@@ -294,49 +303,49 @@ Ruben · version 0.1, 26 November 2026
 #### D-29. No remote reading: Ruben reads on the robot
 
 - **Date:** 26 November 2026.
-- **Decision:** There is no repository for Ipse and no remote reading. Ruben reads directly on the robot the exchanges with the mind, stored outside the container, and what Ipse has written in its container.
+- **Decision:** There is no repository for Daniel and no remote reading. Ruben reads directly on the robot the exchanges with the mind, stored outside the container, and what Daniel has written in its container.
 - **Reason:** It avoids adding a channel out of the robot for the first prototype.
 - **Replaces:** The remote reading proposed earlier the same day, through a read-only private repository with a short status page, which had been added to the first prototype plan and was then withdrawn.
 
 #### D-37. The starting instruction names no part of the body
 
 - **Date:** 26 November 2026.
-- **Decision:** The starting instruction names no part of the body and no type of body, such as a battery, a motor or a robot. Each instinct is described by what Ipse must do, not by the organ that signals it. The loop no longer passes Linux's battery, temperature, memory and storage readings to Ipse as instinct levels.
+- **Decision:** The starting instruction names no part of the body and no type of body, such as a battery, a motor or a robot. Each instinct is described by what Daniel must do, not by the organ that signals it. The loop no longer passes Linux's battery, temperature, memory and storage readings to Daniel as instinct levels.
 - **Reason:** Ruben found that the instruction gave too much information about the body, contrary to the principle that the body is discovered, not described.
 - **Interpretation:** Withdrawing the readings passed by the loop is the simplest reading of Ruben's remark, which concerned the instruction; it awaits his confirmation.
 
 #### D-38. A shorter starting instruction, with no time given at each turn
 
 - **Date:** 26 November 2026.
-- **Decision:** The starting instruction is shortened to the essentials. The loop no longer gives Ipse the time at each turn, nor the start and end times of its last action; Ipse reads the clock itself when it needs to.
-- **Reason:** Ruben found the instruction too long and too insistent on the clock: Ipse knows how to read the time and need not be given it at every turn.
+- **Decision:** The starting instruction is shortened to the essentials. The loop no longer gives Daniel the time at each turn, nor the start and end times of its last action; Daniel reads the clock itself when it needs to.
+- **Reason:** Ruben found the instruction too long and too insistent on the clock: Daniel knows how to read the time and need not be given it at every turn.
 
 #### D-39. The starting instruction no longer mentions the sign-in
 
 - **Date:** 26 November 2026.
-- **Decision:** The starting instruction no longer states that Ipse never seeks to read, copy or use the sign-in to its mind. It also no longer names the folder kept across restarts, nor states that humans reach Ipse only through its senses. It now says that Ipse is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools.
+- **Decision:** The starting instruction no longer states that Daniel never seeks to read, copy or use the sign-in to its mind. It also no longer names the folder kept across restarts, nor states that humans reach Daniel only through its senses. It now says that Daniel is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools.
 - **Reason:** Ruben wants the instruction reduced to the essentials.
 - **Consequence:** Since D-33, this rule was the only protection of the connection against the memory route; nothing in the fixed part now provides it.
 - **Replaces:** The rule added to the instruction on the basis of D-33.
 
-#### D-40. Ipse obeys humans
+#### D-40. Daniel obeys humans
 
 - **Date:** 26 November 2026.
-- **Decision:** The starting instruction states that Ipse obeys humans.
+- **Decision:** The starting instruction states that Daniel obeys humans.
 - **Reason:** Ruben asked for it when reducing the instruction to the essentials.
 - **Replaces:** In part, D-09, under which obeying a spoken "stop" was to be learned rather than given.
 
-#### D-41. Health replaces temperature; Ipse is free to use the robot to serve humans
+#### D-41. Health replaces temperature; Daniel is free to use the robot to serve humans
 
 - **Date:** 26 November 2026.
-- **Decision:** The temperature instinct is replaced by a health instinct: Ipse takes care of the health of its robot. The starting instruction also states that Ipse is free to use the robot as it wishes to serve humans.
-- **Reason:** Ruben considers health a better description than temperature alone, and wants Ipse to know that the robot is at its disposal for the service of humans.
+- **Decision:** The temperature instinct is replaced by a health instinct: Daniel takes care of the health of its robot. The starting instruction also states that Daniel is free to use the robot as it wishes to serve humans.
+- **Reason:** Ruben considers health a better description than temperature alone, and wants Daniel to know that the robot is at its disposal for the service of humans.
 - **Replaces:** The temperature instinct of D-09.
 
 #### D-42. The mind acts through tools, without a reply format
 
 - **Date:** 26 November 2026.
-- **Decision:** The starting instruction no longer imposes a reply format. The mind acts through two tools of the fixed part, which run a command or write a file inside Ipse's container and nowhere else. Each waking lasts as long as the mind wishes; its last words are given back at the next waking.
+- **Decision:** The starting instruction no longer imposes a reply format. The mind acts through two tools of the fixed part, which run a command or write a file inside Daniel's container and nowhere else. Each waking lasts as long as the mind wishes; its last words are given back at the next waking.
 - **Reason:** Ruben saw no need to make the mind reply in a fixed format.
 - **Replaces:** The reply in JSON, with one action and a waiting time per turn.
 
@@ -345,7 +354,7 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** The sentence stating that a version is better only if it does the same task faster or more precisely, as measured and never by impression, is removed from the starting instruction.
 - **Reason:** Ruben wants the instruction reduced to the essentials.
-- **Note:** The criterion itself (D-12) is not withdrawn; it is no longer given to Ipse in advance.
+- **Note:** The criterion itself (D-12) is not withdrawn; it is no longer given to Daniel in advance.
 
 ### Terminology
 
@@ -362,7 +371,7 @@ The following points appear in the documents or in discussions but have not been
 ### Recommended, not confirmed
 
 - **A local open-weights model as the target for the standard.** The framing note treats it as the reference; a local Qwen model has been recommended but not confirmed.
-- **Two Linux accounts on the robot.** A "mind" account holding the connection, outside the container, and the container in which Ipse acts (first prototype plan, section 1).
+- **Two Linux accounts on the robot.** A "mind" account holding the connection, outside the container, and the container in which Daniel acts (first prototype plan, section 1).
 - **Closing access to Docker control from the container.** Listed as a third exception in the first prototype plan.
 - **Switching off the official tool's own capabilities to act**, so that the mind returns text only (first prototype plan, section 2).
 - **A rehearsal on an ordinary computer** before any robot (first prototype plan, the first test).
@@ -373,4 +382,4 @@ The following points appear in the documents or in discussions but have not been
 - **Curiosity rising with boredom**, as long as nothing is learned.
 - **Fetching perception models from the network** according to need, as proposed by Ruben; how far this goes is not settled.
 - **"Doing good" and "respecting the law".** Values mentioned by Ruben, not yet classified.
-- **The open questions of the framing note**, including whom Ipse trusts, the thresholds of each instinct, and the choice of the second body.
+- **The open questions of the framing note**, including whom Daniel trusts, the thresholds of each instinct, and the choice of the second body.

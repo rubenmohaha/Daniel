@@ -1,6 +1,6 @@
-# Ipse
+# Daniel
 
-Ipse is a research project on robot self-improvement. It aims to propose a standard and an algorithm, in the manner of an operating system, that allow any robot to improve itself autonomously: the body is not described to the system, it is discovered by it.
+Daniel is a research project on robot self-improvement. It aims to propose a standard and an algorithm, in the manner of an operating system, that allow any robot to improve itself autonomously: the body is not described to the system, it is discovered by it.
 
 ## Status
 
@@ -21,8 +21,8 @@ The project is in a research phase. This repository gathers the framing document
 | --- | --- |
 | [Framing note](docs/framing/framing-note.md) | Objective, fixed and evolving elements, instincts, body discovery, demonstration protocol, open questions |
 | [Literature review](docs/literature-review/literature-review.md) | Closest related work, corrections made to the framing note, positioning, and remaining reading |
-| [First prototype plan](docs/prototype/first-prototype-plan.md) | Fixed part written by the project, what Ipse writes, setup, first test, known limits and open questions |
-| [Fixed part of the first prototype](fixed/README.md) | The loop, the starting instruction, Ipse's container, setup and tests |
+| [First prototype plan](docs/prototype/first-prototype-plan.md) | Fixed part written by the project, what Daniel writes, setup, first test, known limits and open questions |
+| [Fixed part of the first prototype](fixed/README.md) | The loop, the starting instruction, Daniel's container, setup and tests |
 | [Decision log](docs/decisions/decision-log.md) | Questions settled so far, with their date, reason and the earlier choices they replace |
 
 ## Installing the first prototype
@@ -30,7 +30,7 @@ The project is in a research phase. This repository gathers the framing document
 From any computer with SSH, where `USER@ROBOT` is the account and address of a robot running Linux:
 
 ```
-ssh -t USER@ROBOT "curl -fsSLo ipse.sh github.com/rubenmohaha/Ipse/raw/main/install.sh && sudo bash ipse.sh"
+ssh -t USER@ROBOT "curl -fsSLo daniel.sh github.com/rubenmohaha/Daniel/raw/main/install.sh && sudo bash daniel.sh"
 ```
 
 See [the fixed part](fixed/README.md) for what this command does.

@@ -3,7 +3,7 @@
 
 A small server, in the format the official tool `claude` uses for tools
 (MCP, JSON-RPC over standard input and output). The official tool starts it
-under the mind account. It offers two tools, and both act inside Ipse's
+under the mind account. It offers two tools, and both act inside Daniel's
 container only, through `docker exec`:
 
   run    run a shell command in the container
@@ -12,7 +12,7 @@ container only, through `docker exec`:
 Nothing else is offered: the official tool's own tools are switched off, so
 the mind can act nowhere else, and never next to the sign-in.
 
-Configuration: IPSE_CONTAINER (default: ipse-body), IPSE_DOCKER (default: docker).
+Configuration: DANIEL_CONTAINER (default: daniel-body), DANIEL_DOCKER (default: docker).
 """
 
 import json
@@ -55,8 +55,8 @@ def shorten(text):
 
 def act(name, arguments, container=None, docker=None):
     """Carry out one action inside the container. Return (text, is_error)."""
-    container = container or os.environ.get("IPSE_CONTAINER", "ipse-body")
-    docker = docker or os.environ.get("IPSE_DOCKER", "docker")
+    container = container or os.environ.get("DANIEL_CONTAINER", "daniel-body")
+    docker = docker or os.environ.get("DANIEL_DOCKER", "docker")
     if name == "run" and isinstance(arguments.get("command"), str) and arguments["command"].strip():
         command = [docker, "exec", "-i", container,
                    "timeout", "-k", "5", str(ACTION_TIME_LIMIT), "sh", "-c", arguments["command"]]
@@ -89,7 +89,7 @@ def handle(request):
     if method == "initialize":
         version = (request.get("params") or {}).get("protocolVersion", "2025-06-18")
         result = {"protocolVersion": version, "capabilities": {"tools": {}},
-                  "serverInfo": {"name": "ipse-body", "version": "1"}}
+                  "serverInfo": {"name": "daniel-body", "version": "1"}}
     elif method == "tools/list":
         result = {"tools": TOOLS}
     elif method == "tools/call":
