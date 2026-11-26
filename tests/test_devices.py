@@ -24,12 +24,12 @@ class Devices(unittest.TestCase):
         protected = ipse_devices.protected_names(set(disks), sys_dir)
         return {os.path.relpath(p, dev) for p in ipse_devices.devices(dev, protected)}
 
-    def test_system_disk_memory_and_clock_are_excluded(self):
+    def test_system_disk_and_clock_are_excluded(self):
         handed = self.handed(
             ["sda", "sda1", "sda2", "sdb", "sdb1", "sg0", "sg1", "mem", "kmem", "port",
              "rtc0", "zram0", "null", "pts/0", "video0", "snd/pcmC0D0p", "i2c-1", "ttyUSB0"],
             ["sda"])
-        self.assertEqual(handed, {"sdb", "sdb1", "sg1", "video0", "snd/pcmC0D0p", "i2c-1", "ttyUSB0"})
+        self.assertEqual(handed, {"sdb", "sdb1", "sg1", "mem", "kmem", "port", "zram0", "video0", "snd/pcmC0D0p", "i2c-1", "ttyUSB0"})
 
     def test_nvme_system_disk(self):
         handed = self.handed(["nvme0", "nvme0n1", "nvme0n1p1", "ng0n1", "nvme1", "nvme1n1"], ["nvme0n1"])

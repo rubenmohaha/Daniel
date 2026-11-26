@@ -34,7 +34,7 @@ The loop keeps only the previous thought and the result of the last action, in `
 The container is a Debian system in which Ipse is administrator (root, with Docker's default capabilities). It is created once and restarted automatically.
 
 - **Kept across restarts:** the folder `/self` inside the container, which is `/var/lib/ipse/self` on the robot. Software that Ipse installs elsewhere in the container survives restarts of the container, but not its re-creation.
-- **Devices handed over:** every character and block device present under `/dev` at setup, except the disk that holds Linux, the mind account and Docker (with its partitions and the other nodes that reach it), the disks that hold swapped-out memory and every zram device, `/dev/mem`, `/dev/kmem`, `/dev/port`, and the real-time clocks `/dev/rtc*`.
+- **Devices handed over:** every character and block device present under `/dev` at setup, except the disk that holds Linux, the mind account and Docker (with its partitions and the other nodes that reach it) and the real-time clocks `/dev/rtc*`. The devices that give direct access to the machine's working memory, such as `/dev/mem`, are handed over like the others (decided by Ruben on 26 November 2026; see below).
 - **Not handed over:** the means of controlling Docker, the right to change the clock, and the right to load kernel modules.
 
 ## Setup
@@ -73,4 +73,13 @@ The plan left the following points open. The simplest option was chosen in each 
 - **Text only.** The mind receives text, not images or sounds. To perceive an image or a sound, Ipse must find or fetch, inside its container, a means of turning it into text, consistent with the decision that Ipse fetches the models it needs.
 - **The loop reaches the container through Docker.** The mind account therefore belongs to the `docker` group, which on Linux is equivalent to administrator rights on the robot. This does not open anything to Ipse, which never runs under the mind account, but it means that the mind account must be protected like an administrator account.
 - **Clocks are excluded.** The plan states that Ipse cannot change the clock; the real-time clock devices are therefore not handed over, which the plan did not list explicitly.
-- **Swapped-out memory is excluded.** For the same reason as `/dev/mem`, the devices that hold swapped-out working memory are not handed over.
+
+## Working memory is open to Ipse
+
+The plan excluded direct access to the machine's working memory. Ruben decided on 26 November 2026 to lift this constraint for now. Every memory device that Linux exposes is therefore handed to the container, which has the following consequences for the protection of the connection to the Anthropic account:
+
+- **Direct reading of working memory (`/dev/mem`, `/dev/kmem`, `/dev/port`).** These devices are handed over, but Docker does not grant the right needed to read them by default, and most kernels restrict `/dev/mem` further. In practice this access is still closed, though it now rests on Docker's defaults and the kernel's configuration rather than on the fixed part.
+- **Swap and zram.** When the machine runs short of working memory, Linux moves part of it to a swap area: a partition, or a compressed area in memory (zram), which is common on small boards. If that area is not on the system disk, it is now handed to the container, and Ipse, as administrator, can read it. The connection held by the official tool may be found there. This is the real change: the connection is no longer protected against this route.
+- **Swap on the system disk** remains closed, since the system disk is never handed over.
+
+To close the swap route without excluding any device, swap can be disabled on the robot at setup (`swapoff -a`, and its removal from `/etc/fstab`).

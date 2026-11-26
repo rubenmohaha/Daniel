@@ -6,10 +6,6 @@ the container, without interpretation, except:
 
 * the disk that holds the robot's Linux system and the mind account, with
   its partitions and the other device nodes that reach the same disk;
-* the devices that hold swapped-out working memory (swap partitions, swap
-  files' disks and compressed swap in memory such as zram);
-* the devices that give direct access to the machine's working memory
-  (/dev/mem, /dev/kmem, /dev/port, and every zram device, swap or not);
 * the real-time clocks (/dev/rtc*), so that Ipse cannot change the clock.
 
 The means of controlling Docker is not a device and is never handed over.
@@ -30,8 +26,6 @@ SKIPPED_DIRS = {"pts", "shm", "mqueue", "hugepages"}
 # Device nodes that Docker already provides inside every container.
 PROVIDED = {"null", "zero", "full", "random", "urandom", "tty", "console", "ptmx"}
 
-# Direct access to working memory and I/O ports.
-MEMORY_DEVICES = {"mem", "kmem", "port"}
 
 
 def disk_of_path(path):
@@ -56,23 +50,6 @@ def disk_of_device(source):
     }
 
 
-def swap_disks(swaps_file="/proc/swaps"):
-    """Return the names of the disks that hold swapped-out working memory."""
-    disks = set()
-    try:
-        with open(swaps_file) as f:
-            lines = f.read().splitlines()[1:]
-    except OSError:
-        return disks
-    for line in lines:
-        fields = line.split()
-        if len(fields) < 2:
-            continue
-        name, kind = fields[0], fields[1]
-        disks |= disk_of_device(name) if kind == "partition" else disk_of_path(name)
-    return disks
-
-
 def protected_names(disks, sys_dir="/sys"):
     """Return (name prefixes, exact names) of the device nodes that reach the given disks."""
     prefixes, exact = set(), set()
@@ -90,7 +67,7 @@ def protected_names(disks, sys_dir="/sys"):
 
 def is_excluded(name, protected):
     prefixes, exact = protected
-    if name in PROVIDED or name in MEMORY_DEVICES or name.startswith("zram") or name.startswith("rtc") or name in exact:
+    if name in PROVIDED or name.startswith("rtc") or name in exact:
         return True
     for prefix in prefixes:
         if name == prefix:
@@ -143,7 +120,6 @@ def main(argv=None):
                 disks |= disk_of_path(path)
         if not disks:
             sys.exit("ipse_devices: could not find the system disk; refusing to continue")
-        disks |= swap_disks()
     if args.print_protected:
         print("\n".join(sorted(disks)))
         return
