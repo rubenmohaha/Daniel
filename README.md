@@ -22,6 +22,7 @@ The project is in a research phase. This repository contains no code: it gathers
 | [Framing note](docs/framing/framing-note.md) | Objective, fixed and evolving elements, instincts, body discovery, demonstration protocol, open questions |
 | [Literature review](docs/literature-review/literature-review.md) | Closest related work, corrections made to the framing note, positioning, and remaining reading |
 | [First prototype plan](docs/prototype/first-prototype-plan.md) | Fixed part written by the project, what Ipse writes, setup, first test, known limits and open questions |
+| [Decision log](docs/decisions/decision-log.md) | Questions settled so far, with their date, reason and the earlier choices they replace |
 
 ## License
 
