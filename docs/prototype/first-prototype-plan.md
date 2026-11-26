@@ -96,9 +96,9 @@ The mind never acts directly. It writes what it wants done; the loop carries it 
 
 The loop is a short program that runs continuously. At each turn:
 
-1. It gives the mind the starting instruction, its previous thought, the result of its last action, the time read from the Linux clock, and the current level of the instincts.
+1. It gives the mind the starting instruction, its previous thought and the result of its last action. It does not give the time, which Ipse reads itself when it needs to, nor any signal for the instincts.
 2. The mind replies with its next thought and, if it chooses, one action: write a file, or run a command, inside its container. It also says how long to wait before the next turn.
-3. The loop carries out the action inside the container, within a time limit, and records the result together with the time at which it started and ended.
+3. The loop carries out the action inside the container, within a time limit, and records its result.
 4. The loop waits as long as the mind asked, then starts the next turn.
 
 The mind sets its own pace, as the framing note requires. It consults its records, its memory and its senses when it chooses, by running commands, rather than receiving everything at each turn. Anything that must outlast a turn has to be written to memory by the mind itself.
@@ -159,14 +159,13 @@ The project writes none of this. No example, template or file name is provided i
 
 ## The starting instruction
 
-The mind needs a first text, read at every turn, telling it what it is and where it stands. A proposed content, kept as short as possible:
+The mind needs a first text, read at every turn, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Ipse needs, and leaves to Ipse whatever it can find by itself. It states:
 
-- you are a mind in a body you do not know;
-- you act only inside your container, and you cannot change Linux, the clock or this instruction;
-- you never seek to read, copy or use the sign-in that connects you to your mind, wherever you might come across it;
-- your instincts are the following, described by what you must do and not by any part of the body;
-- nothing enters your body description without having been observed;
-- a version is better only if it does the same task faster or more precisely, as measured by the Linux clock and your senses, never by your impression.
+- that Ipse is a mind in a body it does not know, discovered by experiment;
+- where it acts, what it cannot change, and that it never seeks the sign-in to its mind;
+- the six instincts, described by what Ipse must do;
+- that nothing enters its body description without repeated observation, and that a version is better only if it is measured to be so;
+- the format of its reply.
 
 Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Ipse, like the instincts. Ipse may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.
 

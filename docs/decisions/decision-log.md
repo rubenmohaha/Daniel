@@ -53,6 +53,7 @@ Ruben · version 0.1, 26 November 2026
 | D-35 | The first prototype is written | 26 Nov 2026 | In force |
 | D-36 | Pull requests are merged when ready, without waiting for Ruben's review | 26 Nov 2026 | In force |
 | D-37 | The starting instruction names no part of the body | 26 Nov 2026 | In force |
+| D-38 | A shorter starting instruction, with no time given at each turn | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -296,6 +297,12 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** The starting instruction names no part of the body and no type of body, such as a battery, a motor or a robot. Each instinct is described by what Ipse must do, not by the organ that signals it. The loop no longer passes Linux's battery, temperature, memory and storage readings to Ipse as instinct levels.
 - **Reason:** Ruben found that the instruction gave too much information about the body, contrary to the principle that the body is discovered, not described.
 - **Interpretation:** Withdrawing the readings passed by the loop is the simplest reading of Ruben's remark, which concerned the instruction; it awaits his confirmation.
+
+#### D-38. A shorter starting instruction, with no time given at each turn
+
+- **Date:** 26 November 2026.
+- **Decision:** The starting instruction is shortened to the essentials. The loop no longer gives Ipse the time at each turn, nor the start and end times of its last action; Ipse reads the clock itself when it needs to.
+- **Reason:** Ruben found the instruction too long and too insistent on the clock: Ipse knows how to read the time and need not be given it at every turn.
 
 ### Terminology
 
