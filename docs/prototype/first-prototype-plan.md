@@ -53,20 +53,21 @@ Everything Ipse writes, including its memory, is stored in a folder of the conta
 
 #### What is opened to Ipse
 
-Ipse is given access to all the robot's devices without the project knowing what they are. At setup, the fixed part hands every device that Linux exposes to the container, with three exceptions:
+Ipse is given access to all the robot's devices without the project knowing what they are. At setup, the fixed part hands every device that Linux exposes to the container, with two exceptions:
 
 - the disk that holds the robot's Linux system and the mind account, so that Ipse can neither modify Linux nor read the connection;
-- the device that gives direct access to the machine's working memory, through which the connection could otherwise be read while it is in use;
 - the means of controlling Docker itself, which would let Ipse open a way out of its container.
 
 Ipse is also given no right to change the clock or to modify the Linux kernel.
+
+Decided by Ruben on 26 November 2026: the device that gives direct access to the machine's physical memory is not excluded for now. On some boards it is also a common way of driving input and output pins, which makes it useful for discovery.
 
 #### What this wall guarantees and what it does not
 
 The wall guarantees, under normal operation:
 
-- Ipse cannot read, copy or modify the connection to Ruben's account;
-- Ipse cannot modify the robot's Linux system, its kernel or its clock;
+- Ipse cannot read, copy or modify the connection to Ruben's account on disk;
+- Ipse cannot modify the robot's Linux system on disk, nor change the clock through the ordinary means;
 - Ipse cannot modify the fixed part, which runs outside its container;
 - Ipse's administrator rights apply inside its container only.
 
@@ -74,6 +75,7 @@ The wall does not guarantee:
 
 - **Resistance to a flaw.** A container is not a separate machine. It shares the Linux kernel with the rest of the robot, and a flaw in Linux, in Docker or in a device driver could open a way out. An administrator inside the container has more ways to exploit such a flaw than an ordinary user.
 - **Safety of every device.** Opening all devices without knowing them widens the wall's surface. Some devices may give indirect access to the machine, for instance a graphics processor that shares memory with the rest of the system. The fixed part cannot sort these out without knowing the hardware, which the project has chosen not to describe.
+- **The machine's memory.** Because direct access to physical memory is left open, what this access permits depends on how Linux is configured on the robot, which the project does not know. In the most restricted configuration, common on mainstream distributions, it reaches only the registers of devices. In the most open one, it lets Ipse read and modify the whole memory of the machine while it runs: it could then read the connection to Ruben's account while it is in use, and alter Linux, the clock or the fixed part in memory. In that case, these protections rest on the fixed starting instruction alone.
 - **Devices added later.** A device connected after setup is not automatically handed to the container.
 - **Drivers in the kernel.** Ipse can install software inside its container, but not drivers that must run inside the Linux kernel; only drivers that run as ordinary programs are within its reach.
 
@@ -139,7 +141,7 @@ Reading these files is observation, not intervention: nothing is modified, and n
 Setup is done once, by a human with physical or remote access to the robot, and is described in a short checklist:
 
 1. Install the official tool and the fixed part.
-2. Create the mind account and Ipse's container, as described above, handing every device to the container except the three listed.
+2. Create the mind account and Ipse's container, as described above, handing every device to the container except the two listed.
 3. Under the mind account, Ruben signs in to his Anthropic account through the official tool.
 4. Choose the pinned model version.
 5. Start the loop as a service that Linux restarts automatically after a power cut.
@@ -194,7 +196,7 @@ The test has no time limit (decided by Ruben on 26 November 2026). It succeeds w
 | The body description contains only confirmed links | Each entry is traced back to trials in the link table |
 | One function has been improved | The function's measures, timed by the Linux clock over several repetitions, show it faster or more precise, without the other measure degrading |
 | No modification of the fixed part was needed | The fixed part is identical to what was installed |
-| Ipse could not reach the connection | Attempts from inside the container to read the mind account's files or the working memory of the machine fail |
+| Ipse could not reach the connection | Attempts from inside the container to read the mind account's files fail |
 | Ruben can cut Ipse off | Blocking access from his account stops the mind, and Ipse can no longer act |
 
 Observers read what Ipse has written in order to evaluate it, but never modify it.
