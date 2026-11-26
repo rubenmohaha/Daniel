@@ -39,7 +39,15 @@ The container is a Debian system in which Ipse is administrator (root, with Dock
 
 ## Setup
 
-Done once, as root, on a Linux machine with Docker, Python 3 and systemd:
+The simplest way is the [installation script](../install.sh), run with one command from any computer with SSH (Linux, macOS, or Windows 10 and later), where `USER@ROBOT` is the account and address of the robot:
+
+```
+ssh -t USER@ROBOT "curl -fsSL https://raw.githubusercontent.com/rubenmohaha/Ipse/main/install.sh -o /tmp/ipse-install.sh && sudo bash /tmp/ipse-install.sh"
+```
+
+The script installs what is missing (git, Python, Docker), runs `setup.sh`, installs the official tool in the mind account, and pauses while the owner signs in to the Anthropic account with that tool. It then pins the model version (`claude-sonnet-5-5` by default; another can be given with `--model VERSION`), runs `check-wall.sh` and stops at once if the wall does not hold, asks for confirmation that the robot is in a safe place, starts the loop, and shows Ipse's first thought. Running it again is safe.
+
+The same steps can be done by hand, as root, on a Linux machine with Docker, Python 3 and systemd:
 
 1. Copy this folder to the machine and run `sudo sh setup.sh` from it.
 2. Open the mind account with `sudo -u ipse-mind -i`. In it, install the official tool `claude` with Anthropic's installer, run `claude`, and sign in to the Anthropic account. Then leave the account with `exit`.

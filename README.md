@@ -25,6 +25,16 @@ The project is in a research phase. This repository gathers the framing document
 | [Fixed part of the first prototype](fixed/README.md) | The loop, the starting instruction, Ipse's container, setup and tests |
 | [Decision log](docs/decisions/decision-log.md) | Questions settled so far, with their date, reason and the earlier choices they replace |
 
+## Installing the first prototype
+
+From any computer with SSH, where `USER@ROBOT` is the account and address of a robot running Linux:
+
+```
+ssh -t USER@ROBOT "curl -fsSL https://raw.githubusercontent.com/rubenmohaha/Ipse/main/install.sh -o /tmp/ipse-install.sh && sudo bash /tmp/ipse-install.sh"
+```
+
+See [the fixed part](fixed/README.md) for what this command does.
+
 ## License
 
 This repository is released under the Apache 2.0 license. See [LICENSE](LICENSE).
