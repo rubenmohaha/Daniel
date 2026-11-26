@@ -127,7 +127,8 @@ Decided by Ruben on 26 November 2026:
 
 Ruben has decided that he must be able to read what Ipse does from a distance (26 November 2026). The proposed method is the simplest one that is read-only in both directions:
 
-- **The robot sends, it never receives.** After each turn, the loop sends a copy of the turn (the thought, the action, its result, and the times read from the Linux clock) to a private repository on GitHub belonging to Ruben. At regular intervals, it also sends a copy of what Ipse has written in its container: body description, link table, functions, memory.
+- **A short status page first.** The loop keeps a private repository on GitHub belonging to Ruben. At its top, a single page is replaced after each turn. It says, in a few lines, what Ipse is doing now (the action under way and when it started), its last few thoughts, and the state of its instincts. This is the minimum Ruben asked for: a summary and the current action, readable at a glance.
+- **The full record behind it.** After each turn, the loop sends a copy of the turn (the thought, the action, its result, and the times read from the Linux clock) to the same repository. At regular intervals, it also sends a copy of what Ipse has written in its container: body description, link table, functions, memory.
 - **Ruben reads on GitHub,** from a computer or a phone, as he would read any private repository.
 - **Nothing comes back.** The loop never reads from that repository. Even if a file were changed there, it would never reach Ipse: the repository is a window, not a door.
 - **Ipse does not hold the key.** The key that allows sending to the repository is kept in the mind account, outside the container, like the connection to Ruben's Anthropic account. It allows writing to that single repository and to nothing else.
