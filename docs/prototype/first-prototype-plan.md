@@ -79,6 +79,8 @@ The wall does not guarantee:
 
 The wall therefore relies first on Linux and Docker, and only in the last resort on the fixed starting instruction.
 
+Decided by Ruben on 26 November 2026: no further category of device is excluded for now, so that the fixed part keeps no prior knowledge of hardware. The weaknesses listed above are accepted for the first prototype.
+
 ### 2. The connection to the mind
 
 The fixed part calls the official tool under the mind account, without a screen, with:
@@ -203,5 +205,4 @@ Once the first test succeeds: the rewiring test on the same robot, then the seco
 
 ## Open questions
 
-1. **Devices that weaken the wall.** Should the fixed part exclude further categories of devices known to give indirect access to the machine, such as graphics processors, at the cost of a small piece of prior knowledge about hardware in general?
-2. **How Ruben observes Ipse.** Is reading the exchanges stored on the robot sufficient, or is observation from his account on the web required?
+1. **How Ruben observes Ipse.** Is reading the exchanges stored on the robot sufficient, or is observation from his account on the web required?
