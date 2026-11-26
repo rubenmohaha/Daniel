@@ -50,6 +50,8 @@ fi
 install -m 644 ipse-loop.service /etc/systemd/system/ipse-loop.service
 systemctl daemon-reload
 
+[ "${IPSE_QUIET:-0}" = 1 ] && exit 0
+
 cat <<NEXT
 
 Setup done. Remaining steps, by a human (see README.md):
