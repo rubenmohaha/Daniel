@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.7, 26 November 2026
+Ruben · version 2.8, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -36,9 +36,9 @@ Two consequences are accepted as part of the design:
 
 The architecture is simple and rests on three parts.
 
-1. **A continuous log.** Everything that comes in is recorded as it happens: what the senses perceive, the levels of the instincts, and the commands sent. The log is raw and complete.
+1. **A continuous log.** Everything that comes in is recorded as it happens: what the senses perceive, the levels of the instincts, and the commands sent. The log is raw: it only accumulates, and its oldest entries are lost over time.
 2. **The language model.** It reads the log, analyses it, improves what it has written, and tests its improvements by running experiments. The results of those experiments enter the log in turn.
-3. **A memory.** It draws on the log, but its purpose is different: to understand the environment and to retain what is essential and relevant. The log records everything that happened; the memory holds what the model has understood and chosen to keep.
+3. **A memory.** It belongs to the model. It draws on the log, but its purpose is different: to understand the environment, to retain what is essential and relevant, and to let the model concentrate on what matters, such as its code and its trials. The log records what happened and then fades; the memory holds what the model has understood and chosen to keep.
 
 ```
 senses, instincts, commands ──► log ──► language model ──► experiments
@@ -50,7 +50,7 @@ senses, instincts, commands ──► log ──► language model ──► exp
 
 The log is what makes the principle "observed, not declared" practical: time and results are read from the record of what happened, not from what the model reports about itself. For the same reason, the log is written continuously by the system and is not something the model edits.
 
-Because the log grows without end while storage is finite, sleep condenses it: what matters is carried into memory, and the oldest raw records are the first to go.
+The two therefore differ in how they age. The log forgets by age alone: old entries disappear whatever their content. The memory forgets by relevance: the model decides what stays. Anything in the log that is worth keeping must be carried into memory before it fades.
 
 ## What is fixed
 
