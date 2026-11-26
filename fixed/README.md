@@ -21,7 +21,7 @@ The loop runs continuously under the mind account. At each turn it calls Anthrop
 - the pinned model version (`--model`);
 - no tool at all (`--tools ""`) and no connector (`--strict-mcp-config`), so that the mind can only return text;
 - the starting instruction as its only system prompt (`--system-prompt`);
-- a message containing the time read from the Linux clock, the signals available to the instincts, the previous thought and the result of the last action.
+- a message containing the time read from the Linux clock, the previous thought and the result of the last action. No signal is passed for the instincts: finding them is left to Ipse.
 
 The mind replies with a JSON object: its thought, at most one action (run a command, or write a file, inside the container) and the number of seconds to wait. The loop carries out the action with `docker exec`, passing the command as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind.
 

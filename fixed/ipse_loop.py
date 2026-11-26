@@ -4,8 +4,7 @@
 At each turn the loop:
 
 1. gives the mind the starting instruction, its previous thought, the result
-   of its last action, the time read from the Linux clock and the signals
-   available to the instincts;
+   of its last action and the time read from the Linux clock;
 2. receives the mind's next thought, at most one action and the time to wait;
 3. carries out the action inside Ipse's container, within a time limit, and
    records the result with the times at which it started and ended;
@@ -24,18 +23,14 @@ Configuration, read from the environment (see ipse.env.example):
   IPSE_MODEL       pinned model version, required
   IPSE_CONTAINER   name of Ipse's container            (default: ipse-body)
   IPSE_STATE_DIR   folder of the loop's state          (default: /var/lib/ipse/mind)
-  IPSE_SELF_DIR    folder kept across restarts, as seen from outside the container
-                                                       (default: /var/lib/ipse/self)
   IPSE_INSTRUCTION path of the starting instruction    (default: next to this file)
   IPSE_CLAUDE      command of the official tool        (default: claude)
   IPSE_DOCKER      command of Docker                   (default: docker)
 """
 
 import datetime
-import glob
 import json
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -57,70 +52,13 @@ class Config:
             raise SystemExit("IPSE_MODEL is not set: the model version must be pinned at setup")
         self.container = env.get("IPSE_CONTAINER", "ipse-body")
         self.state_dir = env.get("IPSE_STATE_DIR", "/var/lib/ipse/mind")
-        self.self_dir = env.get("IPSE_SELF_DIR", "/var/lib/ipse/self")
         self.instruction = env.get("IPSE_INSTRUCTION", os.path.join(HERE, "starting-instruction.md"))
         self.claude = env.get("IPSE_CLAUDE", "claude")
         self.docker = env.get("IPSE_DOCKER", "docker")
-        self.sys_dir = env.get("IPSE_SYS_DIR", "/sys")
-        self.proc_dir = env.get("IPSE_PROC_DIR", "/proc")
 
 
 def now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
-
-
-# ---------------------------------------------------------------- instincts
-
-def read(path):
-    try:
-        with open(path) as f:
-            return f.read().strip()
-    except OSError:
-        return None
-
-
-def instinct_signals(cfg):
-    """Return the signals that Linux reports on any machine, where they exist."""
-    signals = {}
-
-    batteries = []
-    for supply in sorted(glob.glob(os.path.join(cfg.sys_dir, "class/power_supply/*"))):
-        if read(os.path.join(supply, "type")) == "Battery":
-            capacity = read(os.path.join(supply, "capacity"))
-            status = read(os.path.join(supply, "status"))
-            if capacity is not None:
-                batteries.append(f"{capacity}%" + (f" ({status.lower()})" if status else ""))
-    signals["hunger"] = "battery " + ", ".join(batteries) if batteries else "no battery reported by Linux"
-
-    temperatures = []
-    for zone in sorted(glob.glob(os.path.join(cfg.sys_dir, "class/thermal/thermal_zone*"))):
-        value = read(os.path.join(zone, "temp"))
-        kind = read(os.path.join(zone, "type")) or os.path.basename(zone)
-        try:
-            temperatures.append(f"{kind} {int(value) / 1000:.1f} °C")
-        except (TypeError, ValueError):
-            continue
-    signals["temperature"] = ", ".join(temperatures) if temperatures else "no temperature reported by Linux"
-
-    sleep = []
-    meminfo = read(os.path.join(cfg.proc_dir, "meminfo")) or ""
-    fields = {}
-    for line in meminfo.splitlines():
-        key, _, rest = line.partition(":")
-        try:
-            fields[key] = int(rest.split()[0])
-        except (IndexError, ValueError):
-            pass
-    if fields.get("MemTotal") and "MemAvailable" in fields:
-        used = 100 * (1 - fields["MemAvailable"] / fields["MemTotal"])
-        sleep.append(f"working memory {used:.0f}% used")
-    try:
-        disk = shutil.disk_usage(cfg.self_dir)
-        sleep.append(f"storage {100 * disk.used / disk.total:.0f}% used")
-    except OSError:
-        pass
-    signals["sleep"] = ", ".join(sleep) if sleep else "no load reported by Linux"
-    return signals
 
 
 # ---------------------------------------------------------------- the mind
@@ -246,7 +184,6 @@ def save_state(cfg, state):
 def turn_message(cfg, state):
     return json.dumps({
         "time": now(),
-        "instincts": instinct_signals(cfg),
         "previous_thought": state.get("previous_thought"),
         "last_result": state.get("last_result"),
     }, ensure_ascii=False, indent=1)

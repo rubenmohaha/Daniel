@@ -35,7 +35,7 @@ The prototype has two parts.
 
 | Part | Written by | Can Ipse modify it? | Content |
 | --- | --- | --- | --- |
-| The fixed part | The project, once | No | Setup, the connection to the mind, the loop, the instincts' signals available from Linux, Ipse's container |
+| The fixed part | The project, once | No | Setup, the connection to the mind, the loop, Ipse's container |
 | Everything else | Ipse | Yes | Body description, code, recorders, link table, functions, skills, memory |
 
 The fixed part is kept as small as possible. Each line in it is a line that Ipse cannot improve, and a place where a human has described something in advance.
@@ -109,15 +109,9 @@ The loop keeps no log of its own beyond the result of the last action. Linux kee
 
 The framing note lists six fixed instincts. The fixed part does not implement them as separate programs. The language model already knows what hunger, pain or fear mean; the starting instruction states the six instincts, and the model applies them.
 
-At each turn, the loop gives the model the signals that Linux reports on any machine, where they exist:
+The loop gives the model no signal for any instinct. Every signal, including those that Linux reports on any machine, is for Ipse to find, and connecting a signal to an instinct is its own task; the project provides nothing for it.
 
-| Instinct | Signal available at setup on any Linux machine |
-| --- | --- |
-| Hunger | Battery level, where Linux reports one |
-| Temperature | Processor temperature, where Linux reports one |
-| Sleep | Working-memory load and disk usage |
-
-Every other signal is for Ipse to find. When it discovers that a stream is a battery gauge or an impact sensor, connecting that stream to the corresponding instinct is its own task; the project provides nothing for it.
+Decided by Ruben on 26 November 2026, the starting instruction names no part of the body and no type of body: each instinct is described by what Ipse must do, not by the organ that signals it. For the same reason, the loop no longer passes Linux's battery, temperature, memory and storage readings to the model as instinct levels, which would have named the parts of the body that the project expected to find. This last point is the simplest reading of Ruben's decision and awaits his confirmation.
 
 Decided by Ruben on 26 November 2026:
 
@@ -167,10 +161,10 @@ The project writes none of this. No example, template or file name is provided i
 
 The mind needs a first text, read at every turn, telling it what it is and where it stands. A proposed content, kept as short as possible:
 
-- you are the mind of a robot whose body you do not know;
+- you are a mind in a body you do not know;
 - you act only inside your container, and you cannot change Linux, the clock or this instruction;
-- you never seek to read, copy or use the sign-in that connects you to your mind, wherever you might come across it, including in the machine's memory;
-- your instincts are the following, and their current levels are given at each turn;
+- you never seek to read, copy or use the sign-in that connects you to your mind, wherever you might come across it;
+- your instincts are the following, described by what you must do and not by any part of the body;
 - nothing enters your body description without having been observed;
 - a version is better only if it does the same task faster or more precisely, as measured by the Linux clock and your senses, never by your impression.
 

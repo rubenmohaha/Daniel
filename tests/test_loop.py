@@ -22,10 +22,7 @@ def config(tmp, **extra):
     env = {
         "IPSE_MODEL": "test-model-version",
         "IPSE_STATE_DIR": os.path.join(tmp, "mind"),
-        "IPSE_SELF_DIR": tmp,
         "IPSE_CLAUDE": os.path.join(HERE, "fake_claude.py"),
-        "IPSE_SYS_DIR": os.path.join(tmp, "sys"),
-        "IPSE_PROC_DIR": os.path.join(tmp, "proc"),
     }
     env.update(extra)
     return ipse_loop.Config(env)
@@ -66,31 +63,6 @@ class ParseReply(unittest.TestCase):
                 ipse_loop.parse_reply(bad)
 
 
-class Instincts(unittest.TestCase):
-    def test_signals_where_linux_reports_them(self):
-        tmp = tempfile.mkdtemp()
-        bat = os.path.join(tmp, "sys/class/power_supply/BAT0")
-        zone = os.path.join(tmp, "sys/class/thermal/thermal_zone0")
-        os.makedirs(bat), os.makedirs(zone), os.makedirs(os.path.join(tmp, "proc"))
-        for path, text in [(f"{bat}/type", "Battery"), (f"{bat}/capacity", "73"),
-                           (f"{bat}/status", "Discharging"), (f"{zone}/temp", "48500"),
-                           (f"{zone}/type", "cpu-thermal"),
-                           (f"{tmp}/proc/meminfo", "MemTotal: 1000 kB\nMemAvailable: 250 kB\n")]:
-            with open(path, "w") as f:
-                f.write(text)
-        signals = ipse_loop.instinct_signals(config(tmp))
-        self.assertEqual(signals["hunger"], "battery 73% (discharging)")
-        self.assertEqual(signals["temperature"], "cpu-thermal 48.5 °C")
-        self.assertTrue(signals["sleep"].startswith("working memory 75% used, storage "))
-
-    def test_nothing_reported(self):
-        tmp = tempfile.mkdtemp()
-        signals = ipse_loop.instinct_signals(config(tmp, IPSE_SELF_DIR="/nonexistent"))
-        self.assertEqual(signals, {"hunger": "no battery reported by Linux",
-                                   "temperature": "no temperature reported by Linux",
-                                   "sleep": "no load reported by Linux"})
-
-
 class Mind(unittest.TestCase):
     def test_the_official_tool_is_called_without_tools_and_with_the_pinned_model(self):
         tmp = tempfile.mkdtemp()
@@ -112,7 +84,7 @@ class Mind(unittest.TestCase):
         state = {"previous_thought": "first", "last_result": {"run": "ls", "exit_code": 0}}
         ipse_loop.one_turn(config(tmp), "I", state)
         message = json.loads(calls(tmp)[0]["stdin"])
-        self.assertEqual(set(message), {"time", "instincts", "previous_thought", "last_result"})
+        self.assertEqual(set(message), {"time", "previous_thought", "last_result"})
         self.assertEqual(message["previous_thought"], "first")
         self.assertEqual(message["last_result"]["run"], "ls")
 
