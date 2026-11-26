@@ -2,6 +2,8 @@
 
 Version of 26 November 2026
 
+> Update of 26 November 2026: a section on equivalents to the version 2 model has been added (see "Update: equivalents to the version 2 model").
+>
 > Status: exploratory review, carried out during the project's research phase. It covers version 1.0 of the [framing note](../framing/framing-note.md); the corrections it recommends were incorporated in version 1.1. Version 2.0 of the note has since replaced the three-layer architecture (generated layer, reasoning core, fixed foundation) discussed here with a simpler model; the findings on related work remain applicable. The limitations of the method are described in the penultimate section.
 
 ## Summary
@@ -121,6 +123,67 @@ What is missing and the project could contribute: a measured ablation, with and 
 - [Let Them Sleep](https://arxiv.org/pdf/2610.25561) prunes an agent's memory without a non-regression test. On a conversation with 35% errors, it deleted 43% of the memory and ended 19.5 points below the baseline. This is the direct argument for the morning contract.
 - No work read adopts a cleaned-up version only if behaviour is identical on fixed tests. The morning contract is the real novelty of the cycle, more than the cycle itself.
 
+## Update: equivalents to the version 2 model
+
+Search carried out on 26 November 2026 against the current model: a fixed adult language model running alone, with no human conversation, on a Linux robot whose body is not described to it; it inventories the hardware through Linux, confirms by experiment, writes its own functions and memory, is guided by six instincts, and keeps a version only if the clock and the senses show it is faster or more precise. Thirteen additional works were read, most only in part (reading depth given per row). The earlier findings above were checked against them and still hold.
+
+### Summary of the update
+
+No work found combines the five traits of the current model: continuous operation without human prompts, an undescribed body, code written and kept by the model, adoption measured by clock and senses, and innate drives. Each trait taken alone now exists, often in a stronger form than Ipse currently has.
+
+One element should no longer be presented as novel: **an agent that inventories unknown hardware through the operating system and writes its own drivers**. Octopus Protocol (MIT and Harvard, May 2026) does exactly this from a shell and a model key, unattended, and re-onboards a device after it is moved. Its limit is the one Ipse targets: it identifies devices from their descriptors and from the web, not by experiment, and states that a bare serial device "does not distinguish" a robot arm from other boards.
+
+### Works read in this update
+
+| Work | Reading | Closest to Ipse on | What it lacks compared with Ipse |
+| --- | --- | --- | --- |
+| [Octopus Protocol](https://arxiv.org/pdf/2605.09055), May 2026 | full text | Linux inventory (`lsusb`), identification, generated driver server, self-repair, 11 h unattended | Identity from descriptors and web search, not from experiments; semantic identity of a bare serial device needs a human-supplied name; "generated code is validated but never verified"; no drives |
+| [explorer-of-serial](https://github.com/podstawek/explorer-of-serial), Nov. 2026 | README | Local model alone with an unknown device on a serial line, identifies it by probing, writes and runs its own program, keeps a findings notebook, independent verifier | A single computer board, not a body; no motors or senses; one task given by a human |
+| [Body Discovery of Embodied AI](https://arxiv.org/pdf/2503.19941), March 2025 | full text | Starts from signals whose effect "is unknown to the agent" and finds which objects belong to it, by randomised on/off trials | Statistical test, no language model, no code, simulation only, no body change |
+| [SEAR](https://arxiv.org/html/2610.18792v1), Oct. 2026, Luma AI | partial text | Agent writes Python policies, proposes its own practice tasks, judged on held-out seeds; tested with a moved camera and a miscalibrated arm | Receives a task, a success check and named perception, kinematics and servo tools; body known |
+| [What Stops Recursive Self-Improvement in Robotics?](https://arxiv.org/pdf/2609.31760), Sept. 2026 | full text | 123 automatic rounds of an agent editing its own skills | Body described by hand; simulation only; target task never solved: "changes kept passing their tests, yet the target task ... never succeeded" |
+| [PEPA](https://arxiv.org/html/2603.00117), 2026 | partial text | Persistent embodied agent that sets its own goals, with battery thresholds, curiosity and personality | Fixed action repertoire and declared capabilities; writes no code; long runs in simulation |
+| [Sophia](https://arxiv.org/pdf/2512.18202), Dec. 2025 | abstract and parts | Persistent agent with curiosity, mastery and relatedness drives | No body (browser sandbox); no code |
+| [Self-Upgrading Embodied Agents](https://arxiv.org/abs/2611.31117), Nov. 2026 | abstract | Improves nightly without human intervention; "tests every change against its unchanged self ... and keeps only what holds" | Edits its own weights rather than written code; body discovery not addressed |
+| [autonomous-os / lampOS](https://github.com/autonomous-ai/autonomous-os), 2026 | README | Open-source "operating system for physical AI" that gives existing agents (Hermes, Claude Code, OpenClaw) a body | Body declared by hand in ROBOT.md with a driver per subsystem; interaction through voice or chat |
+| [ABot-Claw](https://arxiv.org/pdf/2604.10096), April 2026, Alibaba | partial text | Embodied extension of OpenClaw, one script written per task, three physical robots | Per-robot ROS adapters and capability registration; driven by user requests |
+| [OpenClaw on a Jetson](https://huggingface.co/blog/andito/openclaw), Feb. 2026 | full text | General agent with administrator rights on an embedded Linux board, mounts a new drive and builds its own tools | No robot body |
+| [agi-robot](https://github.com/msveshnikov/agi-robot), 2026 | README | Small robot run by a language model in continuous operation from boot | Pins hard-coded; model returns fixed JSON commands; writes no code |
+| [Skild Brain](https://www.therobotreport.com/skild-ai-raises-1-4b-building-omni-bodied-robot-skild-brain/), 2026, commercial | press articles | Claims to control "any robot without prior knowledge of its exact body form" and to adapt to "loss of limbs ... or even an entirely new body" | Trained neural policy, improved by fleet data; nothing written or readable; claims not independently verified |
+
+Re-checked from the earlier review: KnowBody still starts from a declared kinematic chain and a bootstrap trajectory, and its planner writes no code; PhyAgentOS (v1.0.0, August 2026) keeps immutable built-in skills and promotes a learned skill after three verified successes; no new public material was found for EAISys.
+
+### Where Ipse stands
+
+Three families now surround the project:
+
+- **Agents that take over a computer and its peripherals** (Octopus Protocol, explorer-of-serial, OpenClaw): they discover hardware through the operating system and write their own code, unattended. They stop at identifying devices; none learns a moving body.
+- **Self-improving robot harnesses** (SEAR, PhyAgentOS, HarnessPAI, the 123-round study): they rewrite code and skills under tests, but on a body that is described to them and on tasks given by a human.
+- **Persistent agents with drives** (PEPA, Sophia): they run without prompts and choose their own goals from internal levels, but on a fixed action set and without writing code.
+
+On the commercial side, the "omni-bodied" claim of Skild Brain is the closest promise to "any robot, body unknown", reached by a different route: a trained network rather than knowledge written by the robot.
+
+### What remains specific to Ipse, and what does not
+
+No longer specific:
+
+- Inventorying hardware through Linux and generating drivers (Octopus Protocol).
+- An agent left alone with an unknown device, identifying it by probing and keeping a findings notebook (explorer-of-serial).
+- Continuous, prompt-free operation of a language model on a robot (PEPA, agi-robot).
+- Drives such as battery, curiosity and fatigue guiding a language model (PEPA, Sophia).
+- Keeping a change only if it beats the unchanged version on tests (Self-Upgrading Embodied Agents, HarnessPAI).
+- Robustness to a moved camera or a miscalibrated arm (SEAR, at the level of one task).
+
+Still specific, as far as this search can tell:
+
+- **Learning what each channel of a moving body does, by experiment, with a language model**, then writing that knowledge down in readable form. Octopus Protocol stops precisely where this begins.
+- **No task and no success check supplied by a human.** Every self-improving harness read receives at least one of the two; Ipse derives its own from the instincts.
+- **Adoption judged by the system clock and the senses**, rather than by tests or a judge the system has written or been given.
+- **The rewiring test**: still no work found in which a language-model agent detects and corrects swapped motor channels.
+- **The combination as a whole**, packaged as a standard for any robot.
+
+Risk noted for the project: the 123-round study reports that an agent's changes "kept passing their tests" without the real task ever succeeding, and names evaluator capture and memory corruption among the causes. This is the honest-error risk that the clock-and-senses rule is meant to address, and it argues for keeping that rule strict.
+
 ## Remaining reading and limitations of this review
 
 Pages were read by an automated web reader. Beyond about 40,000 characters, the remainder arrived only as a model-generated summary: figures taken from such summaries are flagged as unverified or omitted. The search covered arXiv and GitHub, in English, without access to paid databases.
@@ -133,6 +196,8 @@ Pages were read by an automated web reader. Beyond about 40,000 characters, the 
 - [ ] Sections 5.2 onwards of Act-Observe-Rewrite.
 - [ ] Literature on sensorimotor contingencies (O'Regan, Philipona) and developmental robotics (motor babbling).
 - [ ] Neural Jacobian Fields, not re-read.
+- [ ] Full text of Self-Upgrading Embodied Agents (abstract only) and Sections 2.2 onwards of SEAR (read only through a model summary).
+- [ ] Octopus Protocol: test whether its pipeline can be combined with experiment-based identification of channels.
 
 ## Sources
 
