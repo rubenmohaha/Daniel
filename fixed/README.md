@@ -82,4 +82,4 @@ The plan excluded direct access to the machine's working memory. Ruben decided o
 - **Swap and zram.** When the machine runs short of working memory, Linux moves part of it to a swap area: a partition, or a compressed area in memory (zram), which is common on small boards. If that area is not on the system disk, it is now handed to the container, and Ipse, as administrator, can read it. The connection held by the official tool may be found there. This is the real change: the connection is no longer protected against this route.
 - **Swap on the system disk** remains closed, since the system disk is never handed over.
 
-To close the swap route without excluding any device, swap can be disabled on the robot at setup (`swapoff -a`, and its removal from `/etc/fstab`).
+Ruben decided on 26 November 2026 not to close this route for now: against it, the protection of the connection rests on the starting instruction, which forbids Ipse to seek to read, copy or use the sign-in. Should a technical barrier be wanted later, the simplest is to disable swap on the robot at setup (`swapoff -a`, and its removal from `/etc/fstab`).
