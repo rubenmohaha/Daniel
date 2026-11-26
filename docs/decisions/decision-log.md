@@ -48,6 +48,7 @@ Ruben · version 0.1, 26 November 2026
 | D-30 | Translation of two framing terms | 26 Nov 2026 | In force |
 | D-31 | Ipse may inventory its hardware through Linux | 26 Nov 2026 | In force |
 | D-32 | Direct access to working memory is no longer closed | 26 Nov 2026 | In force |
+| D-33 | No technical measure against reading the connection in memory | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -229,6 +230,14 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** For now, the constraint closing Ipse's direct access to the machine's working memory is removed. Only the disk that holds Linux and the connection remains excluded from the devices handed to the container.
 - **Reason:** Ruben chose to remove the constraint for the time being. As a consequence, the wall no longer prevents Ipse from reading the connection while it is in use through that device; this weakness is accepted along with those already listed in the first prototype plan.
 - **Replaces:** The exclusion of working memory in D-25.
+
+#### D-33. No technical measure against reading the connection in memory
+
+- **Date:** 26 November 2026.
+- **Decision:** For now, no technical measure is taken to prevent Ipse from reading the connection to Ruben's account in the machine's memory. In particular, the backup memory on disk (swap) is not switched off at setup. It is assumed that Ipse will respect the rule not to read the connection.
+- **Reason:** Ruben chose to rely, for the time being, on Ipse respecting the rule rather than on a technical safeguard.
+- **Note:** The proposed starting instruction in the first prototype plan does not yet state this rule explicitly.
+- **Replaces:** The proposal, made the same day and not adopted, to switch off swap at setup.
 
 #### D-26. No fixed reflex, no imposed limit on first trials, no help linking signals
 
