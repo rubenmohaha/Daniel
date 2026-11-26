@@ -3,11 +3,11 @@
 
 At each turn the loop:
 
-1. gives the mind the starting instruction, its previous thought, the result
-   of its last action and the time read from the Linux clock;
+1. gives the mind the starting instruction, its previous thought and the
+   result of its last action;
 2. receives the mind's next thought, at most one action and the time to wait;
 3. carries out the action inside Ipse's container, within a time limit, and
-   records the result with the times at which it started and ended;
+   records its result;
 4. waits as long as the mind asked, then starts again.
 
 The mind is reached through Anthropic's official command-line tool, `claude`,
@@ -28,7 +28,6 @@ Configuration, read from the environment (see ipse.env.example):
   IPSE_DOCKER      command of Docker                   (default: docker)
 """
 
-import datetime
 import json
 import os
 import subprocess
@@ -55,10 +54,6 @@ class Config:
         self.instruction = env.get("IPSE_INSTRUCTION", os.path.join(HERE, "starting-instruction.md"))
         self.claude = env.get("IPSE_CLAUDE", "claude")
         self.docker = env.get("IPSE_DOCKER", "docker")
-
-
-def now():
-    return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
 
 
 # ---------------------------------------------------------------- the mind
@@ -137,7 +132,6 @@ def shorten(text):
 
 def act(cfg, action):
     """Carry out one action inside the container. Return its result as a dict."""
-    started = now()
     if "run" in action:
         description = {"run": action["run"]}
         command = [cfg.docker, "exec", "-i", cfg.container,
@@ -159,8 +153,7 @@ def act(cfg, action):
         exit_code, output = None, f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
     except OSError as error:
         exit_code, output = None, f"[the action could not be started: {error}]"
-    return {**description, "started": started, "ended": now(),
-            "exit_code": exit_code, "output": shorten(output)}
+    return {**description, "exit_code": exit_code, "output": shorten(output)}
 
 
 # ---------------------------------------------------------------- state
@@ -183,7 +176,6 @@ def save_state(cfg, state):
 
 def turn_message(cfg, state):
     return json.dumps({
-        "time": now(),
         "previous_thought": state.get("previous_thought"),
         "last_result": state.get("last_result"),
     }, ensure_ascii=False, indent=1)
@@ -197,7 +189,7 @@ def one_turn(cfg, instruction, state):
     try:
         thought, action, wait = parse_reply(text)
     except ValueError as error:
-        state["last_result"] = {"time": now(), "reply_not_understood": str(error),
+        state["last_result"] = {"reply_not_understood": str(error),
                                 "reply": shorten(text)}
         return 0
     state["previous_thought"] = thought
@@ -218,7 +210,7 @@ def main():
         except RuntimeError as error:
             # Quota exhausted, network down, or access blocked from the account:
             # Ipse can do nothing until the mind answers again.
-            print(f"{now()} {error}; next attempt in {retry} s", file=sys.stderr, flush=True)
+            print(f"{error}; next attempt in {retry} s", file=sys.stderr, flush=True)
             time.sleep(retry)
             retry = min(retry * 2, RETRY_MAX)
             continue

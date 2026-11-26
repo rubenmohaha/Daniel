@@ -84,7 +84,7 @@ class Mind(unittest.TestCase):
         state = {"previous_thought": "first", "last_result": {"run": "ls", "exit_code": 0}}
         ipse_loop.one_turn(config(tmp), "I", state)
         message = json.loads(calls(tmp)[0]["stdin"])
-        self.assertEqual(set(message), {"time", "previous_thought", "last_result"})
+        self.assertEqual(set(message), {"previous_thought", "last_result"})
         self.assertEqual(message["previous_thought"], "first")
         self.assertEqual(message["last_result"]["run"], "ls")
 
@@ -142,7 +142,6 @@ class Container(unittest.TestCase):
         self.assertEqual(result["exit_code"], 3)
         self.assertIn("\n0\n", result["output"])
         self.assertIn("err", result["output"])
-        self.assertLessEqual(result["started"], result["ended"])
 
     def test_write_is_kept_in_self(self):
         result = self.turn({"thought": "t", "action": {"write": {
