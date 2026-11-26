@@ -123,7 +123,19 @@ Decided by Ruben on 26 November 2026:
 - **No imposed limit on first trials.** What a first command on an unknown output may do is left to the model's judgement.
 - **No help in connecting discovered signals to the instincts.** The model manages on its own.
 
-### 5. Setup by the human
+### 5. Remote reading
+
+Ruben has decided that he must be able to read what Ipse does from a distance (26 November 2026). The proposed method is the simplest one that is read-only in both directions:
+
+- **The robot sends, it never receives.** After each turn, the loop sends a copy of the turn (the thought, the action, its result, and the times read from the Linux clock) to a private repository on GitHub belonging to Ruben. At regular intervals, it also sends a copy of what Ipse has written in its container: body description, link table, functions, memory.
+- **Ruben reads on GitHub,** from a computer or a phone, as he would read any private repository.
+- **Nothing comes back.** The loop never reads from that repository. Even if a file were changed there, it would never reach Ipse: the repository is a window, not a door.
+- **Ipse does not hold the key.** The key that allows sending to the repository is kept in the mind account, outside the container, like the connection to Ruben's Anthropic account. It allows writing to that single repository and to nothing else.
+- **Nothing is opened on the robot.** No incoming connection is accepted, so remote reading creates no way into the robot.
+
+The repository must remain private: it will contain what Ipse perceives of its surroundings.
+
+### 6. Setup by the human
 
 Setup is done once, by a human with physical or remote access to the robot, and is described in a short checklist:
 
@@ -131,8 +143,9 @@ Setup is done once, by a human with physical or remote access to the robot, and 
 2. Create the mind account and Ipse's container, as described above, handing every device to the container except the three listed.
 3. Under the mind account, Ruben signs in to his Anthropic account through the official tool.
 4. Choose the pinned model version.
-5. Start the loop as a service that Linux restarts automatically after a power cut.
-6. Leave.
+5. Create a private repository on GitHub for remote reading, and place a key that can write only to that repository in the mind account.
+6. Start the loop as a service that Linux restarts automatically after a power cut.
+7. Leave.
 
 After the last step, nobody intervenes inside Ipse. There is no stop button. Humans relate to Ipse only through its senses, once it has discovered them. Ruben keeps one external means of action: blocking access from his Anthropic account. Ruben has decided that this is the equivalent of a coma: Ipse can no longer do anything until access is restored.
 
@@ -200,9 +213,9 @@ Once the first test succeeds: the rewiring test on the same robot, then the seco
 - **Data sent to the mind.** Whatever the mind reads, including images and sounds from the robot's surroundings, is sent to Anthropic. People near the robot during trials should be informed.
 - **Fast reactions.** With no fixed reflex, a reaction to an impact takes at least the time of a remote call, which may be several seconds. This is accepted for the first prototype.
 - **Blocking a single machine.** Anthropic's documentation describes signing out on the machine itself, but does not describe how the owner of a personal account revokes one machine's access from the account settings. This must be verified before the first test.
-- **Observing what Ipse does.** According to Anthropic's documentation, the exchanges of the official tool run without a screen are stored only on the machine, under the mind account; they do not appear in the owner's account on the web. Reading what Ipse does therefore means reading these files on the robot, which Ipse cannot reach from its container. A feature exists to follow a session from the account on the web, but it is documented for interactive sessions only.
+- **Observing what Ipse does.** According to Anthropic's documentation, the exchanges of the official tool run without a screen are stored only on the machine, under the mind account; they do not appear in the owner's account on the web. A feature exists to follow a session from the account on the web, but it is documented for interactive sessions only. Remote reading therefore goes through the project's own copy to GitHub, described in the fixed part.
 - **Model availability.** A pinned model version may be withdrawn by its provider. Results obtained with different versions are not directly comparable.
 
 ## Open questions
 
-1. **How Ruben observes Ipse.** Is reading the exchanges stored on the robot sufficient, or is observation from his account on the web required?
+All questions raised in earlier versions of this plan have been decided by Ruben. New questions will be added here as they arise.
