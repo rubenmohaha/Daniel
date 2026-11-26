@@ -129,15 +129,16 @@ The literature reviewed supports the waking check: *Let Them Sleep* (arXiv:2610.
 
 ## What "better" means
 
-A version is better if it completes the same task in less time.
+A version is better if it performs the same task faster or more precisely.
 
-This single criterion is deliberately simple and measurable. Three conditions give it meaning:
+These two measures are deliberately simple. Four conditions give them meaning:
 
+- **One measure must not be traded for the other.** A version is better if it improves speed or precision without degrading the other. A version that is faster but less precise is different, not better.
 - **The task must be completed.** A faster attempt that fails is not an improvement.
 - **The instincts still apply.** They are fixed and cannot be traded for speed: a version that goes faster by ignoring pain or fear is not available to Ipse.
-- **The comparison is repeated.** Task time varies from one trial to the next, so a version is compared over several repetitions rather than a single run.
+- **The comparison is repeated.** Time and precision vary from one trial to the next, so a version is compared over several repetitions rather than a single run.
 
-The same criterion applies to body discovery itself: the time needed to rediscover the body after a change is a task time like any other.
+The same criterion applies to body discovery itself: the time needed to rediscover the body after a change, and the accuracy of the resulting description, are measured like any other task.
 
 ## Demonstration and success criterion
 
@@ -182,7 +183,7 @@ The contributions least covered by the literature reviewed are the rewiring test
 
 ## Open questions
 
-- **Measuring task time.** Who defines the reference tasks and who measures the time, given that Ipse writes its own code and could otherwise shorten the measurement rather than the task?
+- **Measuring a task.** Who defines the reference tasks and who measures time and precision, given that Ipse writes its own code and could otherwise alter the measurement rather than the performance?
 - **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
 - **Reflexes.** A large model decides too slowly for pain and fear responses: which fast layer carries them?
 - **Offline operation.** Which local model can serve as the built-in model?
