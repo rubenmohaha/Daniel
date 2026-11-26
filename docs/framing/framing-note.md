@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.10, 26 November 2026
+Ruben · version 2.11, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -270,6 +270,18 @@ Protocol:
 Success criterion, for each of the two bodies and without any code change: a correct body description, a working control interface, and a successful repair after rewiring.
 
 Initial trials are run with the wheels off the ground or in an enclosure, since random pulses can move the robot unpredictably.
+
+## First prototype
+
+The first prototype makes two practical choices in order to keep initial trials inexpensive. Neither changes the model described above.
+
+- **The mind is a remote model, accessed through an API.** For a start, the reasoning model is a hosted model of the kind offered by Anthropic, rather than a model running on the robot. This avoids buying dedicated computing hardware before the approach has been tried. A local open-weights model remains the reference for the standard, since it is what guarantees a fixed mind with no dependence on a network connection.
+- **The body is a Raspberry Pi or other Linux-based robot.** The exact platform is not yet chosen. A Raspberry Pi is the case where Linux reports little about what is wired to its inputs and outputs, so discovery by testing applies in full.
+
+Two consequences are specific to the prototype and are accepted as such:
+
+- **A hosted model is fixed only if its version is pinned.** The principle of a mind that Ipse cannot modify is respected, but the prototype should name an exact model version so that results remain comparable from one session to the next.
+- **The robot depends on its connection.** Reasoning stops when the network does, and each turn carries the delay of a remote call. Whatever must act quickly, and whatever has been mastered, has to run on the robot itself.
 
 ## Related work and positioning
 
