@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.4, 26 November 2026
+Ruben · version 2.5, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -58,10 +58,12 @@ Instincts are modelled on those of animals and restricted to the essentials. Fiv
 | --- | --- | --- |
 | Hunger | Recharge the battery | It shuts down |
 | Temperature | Slow down or stop when overheating | It damages its components |
-| Sleep | Rest, in order to clean up its code and memory | It accumulates clutter until it no longer works |
+| Sleep | Rest, in order to clean up its code and memory, when working memory or storage fills up | It saturates its memory and storage until it no longer works |
 | Pain | Withdraw at once on impact or when a motor strains | It breaks |
 | Fear | Freeze, or proceed gently, when facing the unknown | It endangers itself before it has understood |
 | Curiosity | Go towards what it does not yet understand | It stays on its charger and never discovers anything |
+
+The limits of the computer that hosts Ipse belong to these vital instincts, in the same way as the battery. Working memory and disk space are finite resources of the body: their saturation is a fatigue signal that triggers sleep, and it restrains curiosity, since acquiring new code, data or models consumes storage.
 
 The first five are sufficient for survival but admit a trivial strategy: remaining plugged in and motionless. Curiosity is what drives body discovery and self-improvement, and is therefore kept as a sixth instinct of a different kind.
 
@@ -182,6 +184,7 @@ The instincts determine which signals a body must provide. Each instinct needs a
 | --- | --- | --- |
 | Hunger | Energy level | Battery gauge |
 | Temperature | Internal temperature | Thermal sensor |
+| Sleep | Fatigue: working-memory load and storage usage | System memory and disk gauges |
 | Pain | Danger signal | Impact detection, motor current spikes |
 | Fear, curiosity | Prediction error | Any stream; an inertial unit and proprioception respond fastest |
 
@@ -204,6 +207,7 @@ The day adds, the night removes. During activity, Ipse acts, makes mistakes and 
 
 - **Rare does not mean useless.** A manoeuvre used once a month must be kept. What fails, or what is superseded, is removed.
 - **Archive rather than delete.** Anything removed by mistake must be restorable.
+- **Storage is finite.** The archive itself is bounded by the disk: when storage approaches its limit, the oldest archives are the first to go.
 - **Waking check.** A cleaned-up version is adopted only if its behaviour is unchanged. Same behaviour, less code: this is a non-regression check, easier to verify than an improvement.
 
 The literature reviewed supports the waking check: *Let Them Sleep* (arXiv:2610.25561) prunes an agent's memory without a non-regression test and ends 19.5 points below the baseline in an adverse case. No work reviewed adopts a cleaned-up version on the condition of identical behaviour.
