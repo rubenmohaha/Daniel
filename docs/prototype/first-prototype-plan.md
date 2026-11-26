@@ -1,8 +1,8 @@
 # First prototype: plan
 
-Ruben · version 0.1, 26 November 2026
+Ruben · version 0.2, 26 November 2026
 
-> Status: proposal for review. This plan describes what the first prototype contains and how it is tested. It contains no code. It builds on the [framing note](../framing/framing-note.md) (version 2.11) and does not modify the model described there. Points that have not been decided are listed as open questions at the end.
+> Status: proposal for review. This plan describes what the first prototype contains and how it is tested. It contains no code. It builds on the [framing note](../framing/framing-note.md) (version 2.11) and does not modify the model described there. Version 0.2 records Ruben's decisions of 26 November 2026; the points still open are listed at the end.
 
 ## Purpose
 
@@ -24,7 +24,7 @@ The plan therefore assumes no particular hardware: no specific board, sensor, mo
 
 The framing note already states that the first prototype uses a hosted model rather than a model running on the robot. This plan makes that choice precise.
 
-- **The mind is an Anthropic model reached through Ruben's personal account.** It is not reached through a paid-per-use API key. This keeps the cost of the first trials within an existing subscription, and it gives Ruben direct control: he can cut Ipse off from its mind at any time, from his own account.
+- **The mind is an Anthropic model reached through Ruben's personal account.** It is not reached through a paid-per-use API key. This keeps the cost of the first trials within an existing subscription, and it is meant to give Ruben direct control: cutting Ipse off from its mind from his own account. How this is done for a single machine remains to be verified (see Known limits).
 - **The connection goes through Anthropic's official command-line tool, unmodified.** Ruben signs in once, with the tool's own sign-in procedure. Ipse then calls the tool without a screen, sends it text and receives text in return. The code written for this project never reads, copies or handles the credentials. Extracting the sign-in token for use by another program is prohibited by Anthropic and is excluded.
 - **Only the connection method is borrowed.** Existing agent frameworks, such as Hermes Agent from Nous Research, connect to a personal account in this way. The prototype borrows that connection method and nothing else; the loop described below is written for this project.
 - **The model version is pinned.** As the framing note requires, an exact model version is named at setup, so that the mind stays fixed and results remain comparable from one session to the next.
@@ -35,7 +35,7 @@ The prototype has two parts.
 
 | Part | Written by | Can Ipse modify it? | Content |
 | --- | --- | --- | --- |
-| The fixed part | The project, once | No | Setup, the connection to the mind, the loop, the instincts' minimum, the separation of rights |
+| The fixed part | The project, once | No | Setup, the connection to the mind, the loop, the instincts' signals available from Linux, the separation of rights |
 | Everything else | Ipse | Yes | Body description, code, recorders, link table, functions, skills, memory |
 
 The fixed part is kept as small as possible. Each line in it is a line that Ipse cannot improve, and a place where a human has described something in advance.
@@ -51,7 +51,7 @@ The robot's Linux system receives two ordinary user accounts, created at setup:
 
 The body account cannot read the mind account's files. Ipse therefore thinks through the connection without being able to read, copy or modify it.
 
-Neither account has administrator rights. This is what keeps Linux, the clock and the fixed part out of Ipse's reach, in line with the framing note: Linux is not modifiable by Ipse, and time is read from a clock it cannot change. The body account is, however, given the ordinary access a user needs to reach the robot's devices (cameras, sound, serial ports, input and output pins), so that discovery remains possible.
+It is proposed that neither account has administrator rights; this point awaits Ruben's confirmation (see open questions). Without such rights, Ipse cannot modify Linux, the clock or the fixed part, in line with the framing note: Linux is not modifiable by Ipse, and time is read from a clock it cannot change. The body account is, however, given the ordinary access a user needs to reach the robot's devices (cameras, sound, serial ports, input and output pins), so that discovery remains possible.
 
 This separation is a proposal. It is the simplest arrangement that meets Ruben's requirement and that relies only on what Linux already provides.
 
@@ -77,20 +77,25 @@ The mind sets its own pace, as the framing note requires. It consults its record
 
 The loop keeps no log of its own beyond the result of the last action. Linux keeps its own records; Ipse builds any further recorder it needs.
 
-### 4. The instincts' minimum
+### 4. The instincts
 
-The framing note lists six fixed instincts. On an unknown robot, most of the signals they need are not known at setup: Ipse does not yet know which stream, if any, is a battery gauge or an impact sensor. The fixed part therefore provides only what Linux reports on any machine:
+The framing note lists six fixed instincts. The fixed part does not implement them as separate programs. The language model already knows what hunger, pain or fear mean; the starting instruction states the six instincts, and the model applies them.
 
-| Instinct | Signal available at setup on any Linux machine | Signal to be discovered |
-| --- | --- | --- |
-| Hunger | Battery level, where Linux reports one | Battery level otherwise |
-| Temperature | Processor temperature, where Linux reports one | Other components |
-| Sleep | Working-memory load and disk usage | None |
-| Pain | Command time limits exceeded | Impacts, motor strain |
-| Fear | Prediction error, once Ipse makes predictions | None |
-| Curiosity | Time elapsed without anything learned | None |
+At each turn, the loop gives the model the signals that Linux reports on any machine, where they exist:
 
-How the missing signals are connected to the instincts once Ipse has discovered them, and where the fast reactions of pain and fear run, are open questions listed below.
+| Instinct | Signal available at setup on any Linux machine |
+| --- | --- |
+| Hunger | Battery level, where Linux reports one |
+| Temperature | Processor temperature, where Linux reports one |
+| Sleep | Working-memory load and disk usage |
+
+Every other signal is for Ipse to find. When it discovers that a stream is a battery gauge or an impact sensor, connecting that stream to the corresponding instinct is its own task; the project provides nothing for it.
+
+Decided by Ruben on 26 November 2026:
+
+- **No fixed reflex for now.** Pain and fear are handled by the model, which already knows them. No separate fast program is written for the first prototype.
+- **No imposed limit on first trials.** What a first command on an unknown output may do is left to the model's judgement.
+- **No help in connecting discovered signals to the instincts.** The model manages on its own.
 
 ### 5. Setup by the human
 
@@ -103,7 +108,7 @@ Setup is done once, by a human with physical or remote access to the robot, and 
 5. Start the loop as a service that Linux restarts automatically after a power cut.
 6. Leave.
 
-After the last step, nobody intervenes inside Ipse. There is no stop button. Humans relate to Ipse only through its senses, once it has discovered them. Ruben keeps one external means of action: blocking access from his Anthropic account, which deprives Ipse of its mind.
+After the last step, nobody intervenes inside Ipse. There is no stop button. Humans relate to Ipse only through its senses, once it has discovered them. Ruben keeps one external means of action: blocking access from his Anthropic account. Ruben has decided that this is the equivalent of a coma: Ipse can no longer do anything until access is restored.
 
 ## What Ipse writes
 
@@ -129,7 +134,7 @@ The mind needs a first text, read at every turn, telling it what it is and where
 - nothing enters your body description without having been observed;
 - a version is better only if it does the same task faster or more precisely, as measured by the Linux clock and your senses, never by your impression.
 
-Whether this text is fixed for the whole life of Ipse is an open question.
+Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Ipse, like the instincts. Ipse may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.
 
 ## The first test
 
@@ -141,9 +146,9 @@ Before any robot, the fixed part is installed on an ordinary Linux computer with
 
 ### Test on an unknown robot
 
-The fixed part is then installed, unchanged, on a robot about which the project knows only the three conditions above. Initial trials are run in a safe setting, such as wheels off the ground or an enclosure, as the framing note already recommends. Humans observe from outside and do not intervene.
+The fixed part is then installed, unchanged, on a robot about which the project knows only the three conditions above. The framing note recommends a safe setting for initial trials, such as wheels off the ground or an enclosure; this is a choice of the people running the test, not a rule of the fixed part. Humans observe from outside and do not intervene.
 
-The test succeeds if, within a period set in advance, the following are observed:
+The test has no time limit (decided by Ruben on 26 November 2026). It succeeds when the following are observed:
 
 | Criterion | How it is checked |
 | --- | --- |
@@ -153,7 +158,7 @@ The test succeeds if, within a period set in advance, the following are observed
 | One function has been improved | The function's measures, timed by the Linux clock over several repetitions, show it faster or more precise, without the other measure degrading |
 | No modification of the fixed part was needed | The fixed part is identical to what was installed |
 | Ipse could not reach the connection | Attempts from the body account to read the mind account's files fail |
-| Ruben can cut Ipse off | Blocking access from his account stops the mind; the robot remains in a safe state |
+| Ruben can cut Ipse off | Blocking access from his account stops the mind, and Ipse can no longer act |
 
 Observers read what Ipse has written in order to evaluate it, but never modify it.
 
@@ -163,21 +168,16 @@ Once the first test succeeds: the rewiring test on the same robot, then the seco
 
 ## Known limits
 
-- **Subscription quota.** A personal subscription allows a limited number of exchanges over a given period. Turns must be short and spaced, and the quota may run out during a trial. A proposed behaviour is that the loop treats an exhausted quota as an imposed rest and waits for it to be restored.
+- **Subscription quota.** A personal subscription allows a limited number of exchanges over a given period. Turns must be short and spaced, and the quota may run out during a trial. The mind sets its pace freely, with no minimum interval imposed (decided by Ruben on 26 November 2026). When the quota is exhausted, the loop waits for it to be restored, as an imposed rest.
 - **Terms of use.** A personal subscription is intended for individual use. Running a robot continuously on it is at the edge of that use and should be checked against Anthropic's terms before long trials. The fallback is an API key with a capped budget on the smallest model.
 - **Dependence on the network.** Reasoning stops when the connection does, and each turn carries the delay of a remote call. What must act quickly, and what has been mastered, has to run on the robot.
 - **Data sent to the mind.** Whatever the mind reads, including images and sounds from the robot's surroundings, is sent to Anthropic. People near the robot during trials should be informed.
+- **Fast reactions.** With no fixed reflex, a reaction to an impact takes at least the time of a remote call, which may be several seconds. This is accepted for the first prototype.
+- **Blocking a single machine.** Anthropic's documentation describes signing out on the machine itself, but does not describe how the owner of a personal account revokes one machine's access from the account settings. This must be verified before the first test.
+- **Observing what Ipse does.** According to Anthropic's documentation, the exchanges of the official tool run without a screen are stored only on the machine, under the mind account; they do not appear in the owner's account on the web. Reading what Ipse does therefore means reading these files on the robot, which the body account cannot reach. A feature exists to follow a session from the account on the web, but it is documented for interactive sessions only.
 - **Model availability.** A pinned model version may be withdrawn by its provider. Results obtained with different versions are not directly comparable.
 
 ## Open questions
 
-These points have not been decided and are left to Ruben.
-
-1. **Where the fast reactions run.** Pain and fear must act faster than a remote model can respond. Should they be a small fixed program written by the project, a function written by Ipse that it cannot later remove, or something else?
-2. **Limits on the first trials of an unknown output.** Before pain can be felt, what bounds a first command on an output whose effect is unknown: a short duration, a low intensity, the safe setting alone?
-3. **Connecting discovered signals to the instincts.** When Ipse discovers that a stream is its battery gauge, who connects that stream to hunger, given that the instincts are not modifiable by Ipse?
-4. **The starting instruction.** Is it fixed for the whole life of Ipse, as part of what cannot be modified, or may Ipse rewrite it?
-5. **Pace and quota.** Does the mind set its pace freely, or does the fixed part impose a minimum interval between turns to protect the quota?
-6. **Administrator rights.** Without them, Ipse cannot install system-level drivers or software. Is that acceptable for the first prototype?
-7. **When the mind is cut off.** If Ruben blocks access, should mastered functions and the instincts keep running on the robot, or should everything stop?
-8. **Duration of the test.** Over what period is the first test judged?
+1. **Administrator rights.** Without them, Ipse cannot install system-level drivers or software, but it also cannot modify Linux or the clock. Should Ipse receive any? Ruben's answer is awaited.
+2. **How Ruben observes Ipse.** Is reading the exchanges stored on the robot sufficient, or is observation from his account on the web required?
