@@ -1,6 +1,6 @@
 # The discovered body: framing note
 
-Ruben · version 2.5, 26 November 2026
+Ruben · version 2.6, 26 November 2026
 
 > Status: research document, with no implementation. Version 2.0 replaces the three-layer architecture of earlier versions with a simpler model built on a biological analogy. Novelty claims are stated as hypotheses to be confirmed, not as results. Related work is detailed in the [literature review](../literature-review/literature-review.md).
 
@@ -36,7 +36,7 @@ Two consequences are accepted as part of the design:
 
 ### Linux
 
-Ipse runs on top of Linux as a continuously running program. It is not an operating-system kernel; the term "operating system" describes its role with respect to the robot, not its technical nature. Linux carries signals between the body and the rest of the system, as nerves and vessels do, and Ipse cannot modify it. The standard itself is independent of the underlying system: any machine able to expose the body contract described below is compatible.
+Ipse runs on top of Linux as a continuously running program. It is not an operating-system kernel; the term "operating system" describes its role with respect to the robot, not its technical nature. Linux carries signals between the body and the rest of the system, as nerves and vessels do, and Ipse cannot modify it.
 
 ### The built-in language model
 
@@ -98,18 +98,22 @@ One consequence follows directly: at the very beginning, Ipse does not know that
 
 ## Discovering the body
 
-### The body contract
+### The starting point
 
-A body exposes the following, and nothing more:
+No human writes a description of the robot for Ipse. This is the project's commitment: no manual, no adapter, no model of the body prepared in advance.
 
-- a list of anonymous output channels, each with its minimum and maximum bounds;
-- a list of anonymous input streams;
-- a way to act on a channel, with a value and a duration;
-- a way to observe.
+Being an adult mind, Ipse knows how to use Linux, and may use it to find out what is connected: a camera, a microphone, a board driving four motors, a battery. This inventory is obtained in seconds, and it is legitimate, in the way a person looks at their hands before moving them.
 
-No names and no semantics: Ipse does not know that a channel corresponds to a wheel. The bounds are the only information fixed in advance.
+What the system reports and what it does not must be distinguished:
 
-This contract takes up the framework of Pierce and Kuipers (1997), in which an agent starts from "uninterpreted" sensors and effectors and derives control laws. The intended contribution is not this starting point but what is derived from it: a readable description, a generated control interface, and their repair.
+- **What Linux reports** is an inventory of components.
+- **What Linux does not report** is which motor turns which wheel, in which direction, with what force, or whether two cables have been swapped. This can only be learned by trying.
+
+The rule follows: the inventory provides hypotheses, experiment confirms them. Nothing enters the body description without having been observed.
+
+Some bodies offer no inventory at all. On a board with raw inputs and outputs, such as a Raspberry Pi driving general-purpose pins, Linux says nothing about what is wired to them. Ipse must then test its outputs and look for the stimuli that come back. The method below covers both cases: with an inventory, it verifies; without one, it discovers.
+
+Discovering a body from uninterpreted sensors and effectors has a precedent in Pierce and Kuipers (1997), who derive control laws from such a starting point. The intended contribution here is what is derived: a readable description, a generated control interface, and their repair.
 
 ### The minimal loop
 
@@ -188,7 +192,7 @@ The instincts determine which signals a body must provide. Each instinct needs a
 | Pain | Danger signal | Impact detection, motor current spikes |
 | Fear, curiosity | Prediction error | Any stream; an inertial unit and proprioception respond fastest |
 
-The contract therefore requires roles (an energy signal, a temperature signal, a danger signal) rather than specific sensors, consistent with defining interoception by function rather than by physical origin (Candia-Rivera, arXiv:2604.24527). Vision and hearing are not required for survival; they are what makes communication with humans possible.
+A body must therefore provide roles (an energy signal, a temperature signal, a danger signal) rather than specific sensors, consistent with defining interoception by function rather than by physical origin (Candia-Rivera, arXiv:2604.24527). Vision and hearing are not required for survival; they are what makes communication with humans possible.
 
 ### Perception
 
@@ -238,7 +242,7 @@ The first proof to deliver is generality with respect to the body: the same code
 
 Protocol:
 
-1. Ipse knows only anonymous channels and streams.
+1. Ipse receives no description of the robot. It may inventory what Linux reports.
 2. It sends small signed pulses on each channel and observes the changes.
 3. It formulates hypotheses and tests them.
 4. It writes its body description and a calibrated control interface.
@@ -262,16 +266,16 @@ Details are in the [literature review](../literature-review/literature-review.md
 | [PhyAgentOS](https://arxiv.org/abs/2607.16636), July 2026 | Self-improving robotic OS: memory and skills evolve, safety constraints are immutable | Robots are added through hand-written adapters; the body is described |
 | [Bongard et al.](https://static.ias.edu/pitp/archive/2012files/Resilient_Machines%28Science06%29.pdf), 2006; [Hu and Lipson](https://arxiv.org/abs/2311.12151v2), 2025 | Self-model built through action; adaptation after damage | Morphological damage rather than channel permutation; no reasoning model |
 
-Each element exists somewhere in isolation. According to the review, no work read chains them together: anonymous channels, experimentation, a description written by the robot, a generated control interface, and repair after rewiring. Proposed formulation, to be confirmed:
+Each element exists somewhere in isolation. According to the review, no work read chains them together: no human-written description of the robot, experimentation, a description written by the robot, a generated control interface, and repair after rewiring. Proposed formulation, to be confirmed:
 
-> A minimal standard exposed by the robot (anonymous channels, bounds, sensor streams) and an algorithm that, from this contract alone and driven by a small set of fixed instincts, discovers the body, writes its description and its control, and then improves, validated on two very different bodies without body-specific code.
+> An algorithm that, without any human-written description of the robot and driven by a small set of fixed instincts, inventories what the system reports, discovers the body by experiment, writes its description and its control, and then improves, validated on two very different bodies without body-specific code.
 
 The contributions least covered by the literature reviewed are the rewiring test, the waking check, and the use of a minimal set of animal-like instincts as the only fixed drives of a self-improving robot. The last point has not yet been checked against the literature on homeostatic and intrinsically motivated agents. An absence in search results is not proof of absence, and timing is a risk: several 2026 systems are each advancing on part of the problem.
 
 ## Open questions
 
 - **Whom Ipse trusts.** If humans communicate only through the senses, anyone can address it. Should it trust everyone, or learn to recognise particular people?
-- **What the model may see of the system.** A model free to inspect the Linux configuration could read component names instead of discovering its body. Should the model see its body through the contract only?
+- **Limits of safe testing.** Earlier versions gave each output channel bounds fixed in advance. Without a human-written description, what keeps the first trials on an unknown output within safe limits, before pain can be felt?
 - **Acting without external stimuli.** Should curiosity rise as long as nothing is learned, and fall only when learning is observed rather than declared?
 - **Fast responses.** Mastered functions run without the model, but pain and fear must also act faster than it can respond: where do the instincts themselves run?
 - **Tuning the instincts.** At what thresholds does each instinct act?
@@ -285,6 +289,6 @@ The contributions least covered by the literature reviewed are the rewiring test
 - [x] First literature review on body discovery by an agent
 - [ ] Extend the review to homeostatic and intrinsically motivated agents, and to developmental robotics
 - [ ] Verify the capabilities and hardware requirements of the reference model
-- [ ] Specify the body contract, including the signals each instinct requires
+- [ ] Specify the signals each instinct requires from a body
 - [ ] Specify each instinct as a verifiable condition
 - [ ] Choose the second body
