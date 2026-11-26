@@ -49,6 +49,7 @@ Ruben · version 0.1, 26 November 2026
 | D-31 | Ipse may inventory its hardware through Linux | 26 Nov 2026 | In force |
 | D-32 | Direct access to working memory is no longer closed | 26 Nov 2026 | In force |
 | D-33 | No technical measure against reading the connection in memory | 26 Nov 2026 | In force |
+| D-34 | The repository is released under the Apache 2.0 license | 26 Nov 2026 | In force |
 
 ## Entries
 
@@ -77,6 +78,12 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** The repository remains public.
 - **Reason:** Ruben considers public visibility acceptable at this stage.
+
+#### D-34. The repository is released under the Apache 2.0 license
+
+- **Date:** 26 November 2026.
+- **Decision:** The repository remains under the Apache 2.0 license, rather than the MIT license that was also considered.
+- **Reason:** Apache 2.0 includes an explicit patent grant, which is useful for a project that aims to propose a standard.
 
 ### The model
 
