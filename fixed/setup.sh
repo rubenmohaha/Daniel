@@ -18,7 +18,7 @@ done
 
 # 1. The fixed part, owned by root and read-only for everyone else.
 install -d -m 755 /opt/ipse /etc/ipse
-install -m 644 ipse_loop.py ipse_devices.py starting-instruction.md /opt/ipse/
+install -m 644 ipse_loop.py ipse_body.py ipse_devices.py starting-instruction.md /opt/ipse/
 [ -e /etc/ipse/ipse.env ] || install -m 644 ipse.env.example /etc/ipse/ipse.env
 
 # 2. The mind account. It holds the sign-in; only the loop and the official tool run there.

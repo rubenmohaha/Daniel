@@ -4,8 +4,9 @@ This folder contains everything the project writes for the first prototype, as d
 
 | File | Role |
 | --- | --- |
-| [`ipse_loop.py`](ipse_loop.py) | The loop: gives the mind its turn, carries out the action it chooses inside the container, waits as long as it asked |
-| [`starting-instruction.md`](starting-instruction.md) | The starting instruction, read by the mind at every turn and fixed for the whole life of Ipse |
+| [`ipse_loop.py`](ipse_loop.py) | The loop: wakes the mind again and again, and keeps its last words between wakings |
+| [`ipse_body.py`](ipse_body.py) | The body's tools, `run` and `write`: the only way the mind can act, inside the container only |
+| [`starting-instruction.md`](starting-instruction.md) | The starting instruction, read by the mind at every waking and fixed for the whole life of Ipse |
 | [`ipse_devices.py`](ipse_devices.py) | Lists the devices handed to Ipse's container: all of them, without interpretation, except the excluded ones |
 | [`setup.sh`](setup.sh) | One-time setup: mind account, container, loop service |
 | [`ipse-loop.service`](ipse-loop.service) | Runs the loop under the mind account and restarts it after a crash or a power cut |
@@ -16,18 +17,21 @@ The fixed part uses only Python 3 and its standard library, Docker, and the stan
 
 ## How it works
 
-The loop runs continuously under the mind account. At each turn it calls Anthropic's official command-line tool, `claude`, without a screen, with:
+The loop runs continuously under the mind account and wakes the mind again and again. Each waking is one call to Anthropic's official command-line tool, `claude`, without a screen, with:
 
 - the pinned model version (`--model`);
-- no tool at all (`--tools ""`) and no connector (`--strict-mcp-config`), so that the mind can only return text;
-- the starting instruction as its only system prompt (`--system-prompt`);
-- a message containing the previous thought and the result of the last action. Neither the time nor any signal for the instincts is passed: Ipse reads the clock itself when it needs to. No signal is passed for the instincts: finding them is left to Ipse.
+- none of the official tool's own tools (`--tools ""`) and no connector (`--strict-mcp-config`), so that the mind cannot act on the machine where the sign-in is held;
+- the body's tools as its only tools ([`ipse_body.py`](ipse_body.py), given with `--mcp-config` and approved in advance with `--allowedTools`): `run`, which runs a shell command inside the container, and `write`, which writes a file there. Both go through `docker exec`, with the command passed as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind;
+- the starting instruction as system prompt (`--system-prompt`);
+- a message containing the mind's last words from its previous waking, or `Begin.` the first time. Neither the time nor any signal for the instincts is passed: Ipse finds them itself.
 
-The mind replies with a JSON object: its thought, at most one action (run a command, or write a file, inside the container) and the number of seconds to wait. The loop carries out the action with `docker exec`, passing the command as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind.
+During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept and given back at the next waking, which starts at once. The mind sets its own pace: it can rest by running a command such as `sleep` in its container. A waking is stopped after six hours.
+
+The official tool adds a few lines of its own to the context, besides the starting instruction: a sentence stating that the model is an agent built on Anthropic's Agent SDK, and a short description of the environment of the official tool (working folder, platform, version of the Linux kernel). This was observed by running the unmodified tool against a local stand-in for Anthropic's service.
 
 When the mind cannot be reached, because the subscription quota is exhausted, the network is down or Ruben has blocked access from his account, the loop waits and tries again, from one minute up to one hour between attempts. Ipse can do nothing in the meantime.
 
-The loop keeps only the previous thought and the result of the last action, in `/var/lib/ipse/mind/state.json`, so that a restart resumes where it stopped. It writes nothing else. Its messages about an unreachable mind go to the Linux system journal.
+The loop keeps only the mind's last words, in `/var/lib/ipse/mind/state.json`, so that a restart resumes where it stopped. It writes nothing else. Its messages about an unreachable mind go to the Linux system journal.
 
 ## Ipse's container
 
@@ -75,9 +79,9 @@ On the robot, without modifying anything:
 
 The plan left the following points open. The simplest option was chosen in each case, and each can be revisited.
 
-- **One call to the official tool per turn.** Each turn is a new, short exchange, which keeps the quota use per turn small and makes every exchange readable on its own.
-- **Reply format.** The mind replies with a single JSON object. A reply that cannot be read is returned to the mind at the next turn, with the reason.
-- **Time limits.** 300 seconds per action, 600 seconds for the mind to answer, and 60 seconds of waiting when the mind does not specify any.
+- **One call to the official tool per waking.** The mind decides how long each waking lasts. Every use of a tool within a waking sends the whole waking back to the model, so long wakings use the subscription quota faster.
+- **Tools instead of a reply format.** The mind acts through two tools, `run` and `write`, rather than through a reply in a fixed format (decided by Ruben on 26 November 2026).
+- **Time limits.** 300 seconds per action and six hours per waking.
 - **Text only.** The mind receives text, not images or sounds. To perceive an image or a sound, Ipse must find or fetch, inside its container, a means of turning it into text, consistent with the decision that Ipse fetches the models it needs.
 - **The loop reaches the container through Docker.** The mind account therefore belongs to the `docker` group, which on Linux is equivalent to administrator rights on the robot. This does not open anything to Ipse, which never runs under the mind account, but it means that the mind account must be protected like an administrator account.
 - **Clocks are excluded.** The plan states that Ipse cannot change the clock; the real-time clock devices are therefore not handed over, which the plan did not list explicitly.

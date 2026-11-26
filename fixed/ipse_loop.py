@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
 """The loop: the part of Ipse that runs continuously and that Ipse cannot modify.
 
-At each turn the loop:
-
-1. gives the mind the starting instruction, its previous thought and the
-   result of its last action;
-2. receives the mind's next thought, at most one action and the time to wait;
-3. carries out the action inside Ipse's container, within a time limit, and
-   records its result;
-4. waits as long as the mind asked, then starts again.
+The loop wakes the mind, again and again. Each time, it gives the mind the
+starting instruction and the last words the mind wrote before it stopped.
+The mind then acts as long as it wishes, with the body's tools (see
+ipse_body.py), which act inside Ipse's container only. When it stops, its
+last words are kept for the next waking, and the loop wakes it again.
 
 The mind is reached through Anthropic's official command-line tool, `claude`,
-unmodified, called without a screen and with all of its own tools switched
-off, so that it can only return text. This program never reads, copies or
-handles the credentials of that tool.
+unmodified, called without a screen. Its own tools are switched off; the only
+tools it has are the body's. This program never reads, copies or handles the
+credentials of the official tool.
 
-The loop keeps nothing but the previous thought and the result of the last
-action, so that a restart resumes where it stopped.
+The loop keeps only the mind's last words, so that a restart resumes where
+it stopped.
 
 Configuration, read from the environment (see ipse.env.example):
 
@@ -37,11 +34,9 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-ACTION_TIME_LIMIT = 300        # seconds; the action is stopped beyond this
-MIND_TIME_LIMIT = 600          # seconds allowed for the mind to answer
-OUTPUT_LIMIT = 16000           # characters of an action's output given back to the mind
-DEFAULT_WAIT = 60              # seconds, when the mind does not say how long to wait
+SESSION_TIME_LIMIT = 6 * 3600      # seconds; a waking is stopped beyond this
 RETRY_FIRST, RETRY_MAX = 60, 3600  # waiting when the mind cannot be reached
+BODY_TOOLS = "mcp__body__run,mcp__body__write"
 
 
 class Config:
@@ -56,26 +51,34 @@ class Config:
         self.docker = env.get("IPSE_DOCKER", "docker")
 
 
-# ---------------------------------------------------------------- the mind
+def body_config(cfg):
+    """The tools given to the mind: the body's, and nothing else."""
+    return json.dumps({"mcpServers": {"body": {
+        "command": sys.executable,
+        "args": [os.path.join(HERE, "ipse_body.py")],
+        "env": {"IPSE_CONTAINER": cfg.container, "IPSE_DOCKER": cfg.docker},
+    }}})
 
-def ask_mind(cfg, instruction, message):
-    """Send one turn to the mind. Return its text, or raise RuntimeError."""
+
+def wake(cfg, instruction, message):
+    """Wake the mind once. Return its last words, or raise RuntimeError."""
     workdir = os.path.join(cfg.state_dir, "workdir")  # empty: no project files are loaded
     os.makedirs(workdir, exist_ok=True)
     command = [
         cfg.claude, "-p",
         "--model", cfg.model,
-        "--tools", "",                 # no tool at all: the mind only returns text
-        "--strict-mcp-config",         # and no connector either
-        "--mcp-config", '{"mcpServers":{}}',
+        "--tools", "",                       # none of the official tool's own tools
+        "--strict-mcp-config",               # no connector but the body
+        "--mcp-config", body_config(cfg),
+        "--allowedTools", BODY_TOOLS,        # the body's tools need no approval
         "--system-prompt", instruction,
         "--output-format", "json",
     ]
     try:
         done = subprocess.run(command, input=message, capture_output=True, text=True,
-                              cwd=workdir, timeout=MIND_TIME_LIMIT)
+                              cwd=workdir, timeout=SESSION_TIME_LIMIT)
     except subprocess.TimeoutExpired:
-        raise RuntimeError("the mind did not answer in time")
+        raise RuntimeError("the mind did not stop within the time limit")
     except OSError as error:
         raise RuntimeError(f"the official tool could not be started: {error}")
     try:
@@ -89,81 +92,12 @@ def ask_mind(cfg, instruction, message):
     return str(reply.get("result", ""))
 
 
-def parse_reply(text):
-    """Read the mind's reply: a JSON object with thought, action and wait_seconds."""
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end < start:
-        raise ValueError("the reply contains no JSON object")
-    reply = json.loads(text[start:end + 1])
-    if not isinstance(reply, dict):
-        raise ValueError("the reply is not a JSON object")
-    thought = reply.get("thought", "")
-    if not isinstance(thought, str):
-        raise ValueError("thought must be text")
-    action = reply.get("action")
-    if action is not None:
-        if not isinstance(action, dict):
-            raise ValueError("action must be an object or null")
-        if "run" in action:
-            if not isinstance(action["run"], str) or not action["run"].strip():
-                raise ValueError("run must be a non-empty command")
-        elif "write" in action:
-            target = action["write"]
-            if not (isinstance(target, dict) and isinstance(target.get("path"), str)
-                    and target["path"] and isinstance(target.get("content"), str)):
-                raise ValueError("write must have a path and a content, both text")
-        else:
-            raise ValueError("action must contain run or write")
-    wait = reply.get("wait_seconds", DEFAULT_WAIT)
-    if isinstance(wait, bool) or not isinstance(wait, (int, float)) or wait < 0:
-        raise ValueError("wait_seconds must be a number of seconds, zero or more")
-    return thought, action, float(wait)
-
-
-# ---------------------------------------------------------------- the body
-
-def shorten(text):
-    if len(text) <= OUTPUT_LIMIT:
-        return text
-    half = OUTPUT_LIMIT // 2
-    return (text[:half] + f"\n[... {len(text) - OUTPUT_LIMIT} characters omitted ...]\n"
-            + text[-half:])
-
-
-def act(cfg, action):
-    """Carry out one action inside the container. Return its result as a dict."""
-    if "run" in action:
-        description = {"run": action["run"]}
-        command = [cfg.docker, "exec", "-i", cfg.container,
-                   "timeout", "-k", "5", str(ACTION_TIME_LIMIT), "sh", "-c", action["run"]]
-        stdin = ""
-    else:
-        path = action["write"]["path"]
-        description = {"write": path, "characters": len(action["write"]["content"])}
-        command = [cfg.docker, "exec", "-i", cfg.container, "sh", "-c",
-                   'mkdir -p -- "$(dirname -- "$1")" && cat > "$1"', "sh", path]
-        stdin = action["write"]["content"]
-    try:
-        done = subprocess.run(command, input=stdin, capture_output=True, text=True,
-                              errors="replace", timeout=ACTION_TIME_LIMIT + 30)
-        exit_code, output = done.returncode, done.stdout + done.stderr
-        if exit_code == 124 and "run" in action:
-            output += f"\n[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
-    except subprocess.TimeoutExpired:
-        exit_code, output = None, f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
-    except OSError as error:
-        exit_code, output = None, f"[the action could not be started: {error}]"
-    return {**description, "exit_code": exit_code, "output": shorten(output)}
-
-
-# ---------------------------------------------------------------- state
-
 def load_state(cfg):
     try:
         with open(os.path.join(cfg.state_dir, "state.json")) as f:
             return json.load(f)
     except (OSError, ValueError):
-        return {"previous_thought": None, "last_result": None}
+        return {"last_words": None}
 
 
 def save_state(cfg, state):
@@ -174,27 +108,8 @@ def save_state(cfg, state):
     os.replace(temporary, os.path.join(cfg.state_dir, "state.json"))
 
 
-def turn_message(cfg, state):
-    return json.dumps({
-        "previous_thought": state.get("previous_thought"),
-        "last_result": state.get("last_result"),
-    }, ensure_ascii=False, indent=1)
-
-
-# ---------------------------------------------------------------- the loop
-
-def one_turn(cfg, instruction, state):
-    """Run one turn. Return the number of seconds to wait before the next one."""
-    text = ask_mind(cfg, instruction, turn_message(cfg, state))
-    try:
-        thought, action, wait = parse_reply(text)
-    except ValueError as error:
-        state["last_result"] = {"reply_not_understood": str(error),
-                                "reply": shorten(text)}
-        return 0
-    state["previous_thought"] = thought
-    state["last_result"] = act(cfg, action) if action else None
-    return wait
+def one_waking(cfg, instruction, state):
+    state["last_words"] = wake(cfg, instruction, state.get("last_words") or "Begin.")
 
 
 def main():
@@ -205,7 +120,7 @@ def main():
     retry = RETRY_FIRST
     while True:
         try:
-            wait = one_turn(cfg, instruction, state)
+            one_waking(cfg, instruction, state)
             retry = RETRY_FIRST
         except RuntimeError as error:
             # Quota exhausted, network down, or access blocked from the account:
@@ -215,7 +130,6 @@ def main():
             retry = min(retry * 2, RETRY_MAX)
             continue
         save_state(cfg, state)
-        time.sleep(wait)
 
 
 if __name__ == "__main__":

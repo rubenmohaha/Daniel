@@ -118,16 +118,18 @@ if [ "$ASK" = 1 ]; then
 fi
 systemctl enable ipse-loop >/dev/null 2>&1
 systemctl restart ipse-loop
-printf 'Waiting for the first thought'
+printf 'Waiting for Ipse to wake up'
 for _ in $(seq 1 36); do
-    if [ -s /var/lib/ipse/mind/state.json ]; then
-        printf '\n\nIpse is running. First thought:\n'
-        python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["previous_thought"])' \
-            /var/lib/ipse/mind/state.json
+    if [ -s /var/lib/ipse/mind/state.json ] || \
+       find /var/lib/ipse/mind/.claude/projects -name '*.jsonl' 2>/dev/null | grep -q .; then
         cat <<DONE
 
-Read what Ipse does:   sudo cat /var/lib/ipse/mind/state.json
-                       sudo ls -R /var/lib/ipse/self
+
+Ipse is awake.
+
+Read what Ipse does:   sudo ls -R /var/lib/ipse/self
+                       sudo cat /var/lib/ipse/mind/state.json      (its last words)
+                       sudo ls /var/lib/ipse/mind/.claude/projects/ (its full exchanges)
 Stop Ipse entirely:    sudo systemctl disable --now ipse-loop && sudo docker stop ipse-body
 DONE
         exit 0
@@ -136,7 +138,7 @@ DONE
 done
 printf '\n'
 journalctl -u ipse-loop -n 20 --no-pager
-fail "no thought after 3 minutes; the lines above say why"
+fail "Ipse did not wake up within 3 minutes; the lines above say why"
 }
 
 main "$@" </dev/null

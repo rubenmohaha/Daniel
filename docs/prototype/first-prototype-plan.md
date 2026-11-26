@@ -88,22 +88,22 @@ Decided by Ruben on 26 November 2026: no further category of device is excluded 
 The fixed part calls the official tool under the mind account, without a screen, with:
 
 - the pinned model version;
-- the tool's own capabilities to act on the machine switched off, so that the mind can only return text. If they were left on, the mind would act outside the container, under the mind account, and could reach the sign-in.
-
-The mind never acts directly. It writes what it wants done; the loop carries it out inside Ipse's container.
+- the tool's own capabilities to act on the machine switched off. If they were left on, the mind would act outside the container, under the mind account, and could reach the sign-in;
+- two tools of the fixed part instead, `run` and `write`, which run a command or write a file inside Ipse's container, and nowhere else.
 
 ### 3. The loop
 
-The loop is a short program that runs continuously. At each turn:
+The loop is a short program that runs continuously. It wakes the mind again and again:
 
-1. It gives the mind the starting instruction, its previous thought and the result of its last action. It does not give the time, which Ipse reads itself when it needs to, nor any signal for the instincts.
-2. The mind replies with its next thought and, if it chooses, one action: write a file, or run a command, inside its container. It also says how long to wait before the next turn.
-3. The loop carries out the action inside the container, within a time limit, and records its result.
-4. The loop waits as long as the mind asked, then starts the next turn.
+1. It gives the mind the starting instruction and the last words the mind wrote before it last stopped. It does not give the time, which Ipse reads itself when it needs to, nor any signal for the instincts.
+2. The mind acts as long as it wishes with its two tools, inside its container, then stops.
+3. The loop keeps its last words and wakes it again.
 
-The mind sets its own pace, as the framing note requires. It consults its records, its memory and its senses when it chooses, by running commands, rather than receiving everything at each turn. Anything that must outlast a turn has to be written to memory by the mind itself.
+The mind sets its own pace, as the framing note requires: it can rest by waiting inside its container. It consults its records, its memory and its senses when it chooses, by running commands, rather than receiving everything at each waking. Anything that must outlast a waking has to be written by the mind itself.
 
-The loop keeps no log of its own beyond the result of the last action. Linux keeps its own records; Ipse builds any further recorder it needs.
+Decided by Ruben on 26 November 2026: the mind acts through these tools rather than through a reply in a fixed format.
+
+The loop keeps no log of its own beyond the mind's last words. Linux keeps its own records; Ipse builds any further recorder it needs.
 
 ### 4. The instincts
 
@@ -159,14 +159,13 @@ The project writes none of this. No example, template or file name is provided i
 
 ## The starting instruction
 
-The mind needs a first text, read at every turn, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Ipse needs, and leaves to Ipse whatever it can find by itself. It states:
+The mind needs a first text, read at every waking, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Ipse needs, and leaves to Ipse whatever it can find by itself. It states:
 
 - that Ipse is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools;
-- where it acts, what it cannot change, and what it keeps from one turn to the next;
+- where it acts, what it cannot change, and what it keeps from one waking to the next;
 - that it is free to use the robot as it wishes to serve humans, and obeys them;
 - the six instincts, described by what Ipse must do, with health in place of temperature;
 - that nothing enters its body description without repeated observation, and that a version is better only if it is measured to be so;
-- the format of its reply.
 
 Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Ipse, like the instincts. Ipse may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.
 

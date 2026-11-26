@@ -1,6 +1,8 @@
-"""Tests of the loop. The mind is replaced by a stand-in; nothing contacts Anthropic.
+"""Tests of the loop and of the body's tools. Nothing contacts Anthropic.
 
-The tests marked "container" need Docker and start a throwaway container.
+The mind is replaced by a stand-in (fake_claude.py) that starts the body's
+tool server as the official tool does. The tests marked "container" need
+Docker and start a throwaway container.
 """
 import json
 import os
@@ -12,6 +14,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "fixed"))
+import ipse_body  # noqa: E402
 import ipse_loop  # noqa: E402
 
 HAVE_DOCKER = shutil.which("docker") and subprocess.run(
@@ -32,7 +35,7 @@ def fake_mind(tmp, *replies):
     path = os.path.join(tmp, "replies")
     with open(path, "w") as f:
         for reply in replies:
-            f.write(json.dumps(reply if isinstance(reply, str) else json.dumps(reply)) + "\n")
+            f.write(json.dumps(reply) + "\n")
     os.environ["FAKE_CLAUDE_REPLIES"] = path
     os.environ["FAKE_CLAUDE_RECORD"] = os.path.join(tmp, "record")
 
@@ -42,65 +45,37 @@ def calls(tmp):
         return [json.loads(line) for line in f]
 
 
-class ParseReply(unittest.TestCase):
-    def test_run(self):
-        thought, action, wait = ipse_loop.parse_reply(
-            '{"thought": "look", "action": {"run": "ls /dev"}, "wait_seconds": 5}')
-        self.assertEqual((thought, action, wait), ("look", {"run": "ls /dev"}, 5.0))
-
-    def test_text_around_the_object_is_ignored(self):
-        _, action, _ = ipse_loop.parse_reply('Here:\n```json\n{"thought": "", "action": null}\n```')
-        self.assertIsNone(action)
-
-    def test_default_wait(self):
-        self.assertEqual(ipse_loop.parse_reply('{"thought": "x"}')[2], ipse_loop.DEFAULT_WAIT)
-
-    def test_rejected(self):
-        for bad in ['no object', '{"action": {"delete": "x"}}', '{"action": {"run": ""}}',
-                    '{"wait_seconds": -1}', '{"wait_seconds": "soon"}',
-                    '{"action": {"write": {"path": "/self/a"}}}', '[1, 2]']:
-            with self.subTest(bad=bad), self.assertRaises(ValueError):
-                ipse_loop.parse_reply(bad)
-
-
-class Mind(unittest.TestCase):
-    def test_the_official_tool_is_called_without_tools_and_with_the_pinned_model(self):
+class Loop(unittest.TestCase):
+    def test_the_official_tool_is_called_with_the_body_tools_only(self):
         tmp = tempfile.mkdtemp()
-        fake_mind(tmp, {"thought": "hello", "action": None, "wait_seconds": 0})
-        cfg = config(tmp)
-        state = {"previous_thought": None, "last_result": None}
-        ipse_loop.one_turn(cfg, "INSTRUCTION", state)
+        fake_mind(tmp, "hello")
+        ipse_loop.one_waking(config(tmp), "INSTRUCTION", {})
         argv = calls(tmp)[0]["argv"]
         self.assertEqual(argv[argv.index("--model") + 1], "test-model-version")
         self.assertEqual(argv[argv.index("--tools") + 1], "")
         self.assertIn("--strict-mcp-config", argv)
+        servers = json.loads(argv[argv.index("--mcp-config") + 1])["mcpServers"]
+        self.assertEqual(list(servers), ["body"])
+        self.assertEqual(argv[argv.index("--allowedTools") + 1], "mcp__body__run,mcp__body__write")
         self.assertEqual(argv[argv.index("--system-prompt") + 1], "INSTRUCTION")
         self.assertEqual(calls(tmp)[0]["cwd"], os.path.join(tmp, "mind", "workdir"))
-        self.assertEqual(state["previous_thought"], "hello")
 
-    def test_turn_message(self):
+    def test_last_words_are_given_back(self):
         tmp = tempfile.mkdtemp()
-        fake_mind(tmp, {"thought": "second", "action": None})
-        state = {"previous_thought": "first", "last_result": {"run": "ls", "exit_code": 0}}
-        ipse_loop.one_turn(config(tmp), "I", state)
-        message = json.loads(calls(tmp)[0]["stdin"])
-        self.assertEqual(set(message), {"previous_thought", "last_result"})
-        self.assertEqual(message["previous_thought"], "first")
-        self.assertEqual(message["last_result"]["run"], "ls")
+        fake_mind(tmp, "first words", "second words")
+        state = {}
+        ipse_loop.one_waking(config(tmp), "I", state)
+        ipse_loop.one_waking(config(tmp), "I", state)
+        self.assertEqual([c["stdin"] for c in calls(tmp)], ["Begin.", "first words"])
+        self.assertEqual(state["last_words"], "second words")
 
-    def test_unreachable_mind_raises(self):
+    def test_unreachable_mind_raises_and_keeps_the_state(self):
         tmp = tempfile.mkdtemp()
         fake_mind(tmp, "FAIL")
+        state = {"last_words": "kept"}
         with self.assertRaisesRegex(RuntimeError, "usage limit reached"):
-            ipse_loop.one_turn(config(tmp), "I", {})
-
-    def test_unreadable_reply_is_given_back_to_the_mind(self):
-        tmp = tempfile.mkdtemp()
-        fake_mind(tmp, "I do not know what to do")
-        state = {"previous_thought": "kept", "last_result": None}
-        self.assertEqual(ipse_loop.one_turn(config(tmp), "I", state), 0)
-        self.assertEqual(state["previous_thought"], "kept")
-        self.assertIn("no JSON object", state["last_result"]["reply_not_understood"])
+            ipse_loop.one_waking(config(tmp), "I", state)
+        self.assertEqual(state["last_words"], "kept")
 
     def test_model_must_be_pinned(self):
         with self.assertRaises(SystemExit):
@@ -109,8 +84,26 @@ class Mind(unittest.TestCase):
     def test_state_survives_a_restart(self):
         tmp = tempfile.mkdtemp()
         cfg = config(tmp)
-        ipse_loop.save_state(cfg, {"previous_thought": "é", "last_result": None})
-        self.assertEqual(ipse_loop.load_state(cfg)["previous_thought"], "é")
+        ipse_loop.save_state(cfg, {"last_words": "é"})
+        self.assertEqual(ipse_loop.load_state(cfg)["last_words"], "é")
+
+
+class BodyServer(unittest.TestCase):
+    def test_protocol(self):
+        self.assertEqual(ipse_body.handle({"method": "notifications/initialized"}), None)
+        init = ipse_body.handle({"id": 1, "method": "initialize",
+                                 "params": {"protocolVersion": "2025-06-18"}})
+        self.assertEqual(init["result"]["protocolVersion"], "2025-06-18")
+        tools = ipse_body.handle({"id": 2, "method": "tools/list"})["result"]["tools"]
+        self.assertEqual([t["name"] for t in tools], ["run", "write"])
+        self.assertIn("error", ipse_body.handle({"id": 3, "method": "resources/list"}))
+
+    def test_invalid_calls_are_refused_without_acting(self):
+        for name, arguments in [("run", {}), ("run", {"command": " "}), ("write", {"path": "x"}),
+                                ("delete", {"path": "x"})]:
+            text, is_error = ipse_body.act(name, arguments, docker="/nonexistent")
+            self.assertTrue(is_error)
+            self.assertIn("invalid call", text)
 
 
 @unittest.skipUnless(HAVE_DOCKER, "Docker is not available")
@@ -130,35 +123,36 @@ class Container(unittest.TestCase):
     def tearDownClass(cls):
         subprocess.run(["docker", "rm", "-f", cls.name], capture_output=True)
 
-    def turn(self, reply):
+    def test_a_waking_acts_inside_the_container_through_the_body_tools(self):
         tmp = tempfile.mkdtemp()
-        fake_mind(tmp, reply)
-        state = {"previous_thought": None, "last_result": None}
-        ipse_loop.one_turn(config(tmp, IPSE_CONTAINER=self.name), "I", state)
-        return state["last_result"]
-
-    def test_run_inside_the_container(self):
-        result = self.turn({"thought": "t", "action": {"run": "hostname; id -u; echo err >&2; exit 3"}})
-        self.assertEqual(result["exit_code"], 3)
-        self.assertIn("\n0\n", result["output"])
-        self.assertIn("err", result["output"])
-
-    def test_write_is_kept_in_self(self):
-        result = self.turn({"thought": "t", "action": {"write": {
-            "path": "/self/notes/first.md", "content": "a line; with $pecial `chars`\n"}}})
-        self.assertEqual(result["exit_code"], 0)
+        fake_mind(tmp, {"calls": [
+            {"name": "run", "arguments": {"command": "hostname; id -u; echo err >&2; exit 3"}},
+            {"name": "write", "arguments": {"path": "/self/notes/first.md",
+                                            "content": "a line; with $pecial `chars`\n"}},
+        ], "final": "I have written my first note."})
+        state = {}
+        ipse_loop.one_waking(config(tmp, IPSE_CONTAINER=self.name), "I", state)
+        record = calls(tmp)[0]
+        self.assertEqual(record["tools"], ["run", "write"])
+        ran, wrote = record["results"]
+        self.assertTrue(ran["isError"])
+        self.assertIn("\n0\n", ran["content"][0]["text"])
+        self.assertIn("err", ran["content"][0]["text"])
+        self.assertIn("[exit code 3]", ran["content"][0]["text"])
+        self.assertFalse(wrote["isError"])
         with open(os.path.join(self.self_dir, "notes", "first.md")) as f:
             self.assertEqual(f.read(), "a line; with $pecial `chars`\n")
+        self.assertEqual(state["last_words"], "I have written my first note.")
 
     def test_time_limit(self):
-        limit = ipse_loop.ACTION_TIME_LIMIT
-        ipse_loop.ACTION_TIME_LIMIT = 2
+        limit = ipse_body.ACTION_TIME_LIMIT
+        ipse_body.ACTION_TIME_LIMIT = 2
         try:
-            result = self.turn({"thought": "t", "action": {"run": "sleep 30"}})
+            text, is_error = ipse_body.act("run", {"command": "sleep 30"}, container=self.name)
         finally:
-            ipse_loop.ACTION_TIME_LIMIT = limit
-        self.assertEqual(result["exit_code"], 124)
-        self.assertIn("time limit", result["output"])
+            ipse_body.ACTION_TIME_LIMIT = limit
+        self.assertTrue(is_error)
+        self.assertIn("time limit", text)
         still = subprocess.run(["docker", "exec", self.name, "sh", "-c",
                                 "for f in /proc/[0-9]*/cmdline; do tr '\\0' ' ' < $f; echo; done"
                                 " | grep -c '^sleep 30 $' || true"],
@@ -166,9 +160,9 @@ class Container(unittest.TestCase):
         self.assertEqual(still, "0")  # the stopped command does not keep running
 
     def test_long_output_is_shortened(self):
-        result = self.turn({"thought": "t", "action": {"run": "yes | head -c 100000"}})
-        self.assertLess(len(result["output"]), ipse_loop.OUTPUT_LIMIT + 100)
-        self.assertIn("characters omitted", result["output"])
+        text, _ = ipse_body.act("run", {"command": "yes | head -c 100000"}, container=self.name)
+        self.assertLess(len(text), ipse_body.OUTPUT_LIMIT + 100)
+        self.assertIn("characters omitted", text)
 
 
 if __name__ == "__main__":
