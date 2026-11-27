@@ -18,8 +18,11 @@ IMAGE=debian:stable-slim
 ROOT=/var/lib/daniel
 KEPT="usr var etc opt root home srv"
 
-if [ "${1:-}" = ready ]; then  # used by the service: return once the container answers
-    until docker exec "$CONTAINER" true 2>/dev/null; do
+# Used by the service: return once the container started by process $2 answers,
+# and not an earlier container that is still being stopped.
+if [ "${1:-}" = ready ]; then
+    started_by() { docker container inspect --format '{{index .Config.Labels "daniel.start"}}' "$CONTAINER" 2>/dev/null; }
+    until [ "$(started_by)" = "$2" ] && docker exec "$CONTAINER" true 2>/dev/null; do
         kill -0 "$2" 2>/dev/null || exit 1  # the container could not be started
         sleep 1
     done
@@ -49,7 +52,8 @@ done
 devices=$(python3 /opt/daniel/daniel_devices.py)
 
 # shellcheck disable=SC2086  # one argument per word, no spaces inside
-exec docker run --rm --name "$CONTAINER" --network host \
+# This process becomes the one that runs the container: its number marks the container.
+exec docker run --rm --name "$CONTAINER" --label "daniel.start=$$" --network host \
     --hostname daniel --add-host daniel:127.0.1.1 \
     --volume "$ROOT/self:/self" --workdir /self $volumes $devices \
     "$IMAGE" sh -c "$FIRST"
