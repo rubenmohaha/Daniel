@@ -5,7 +5,9 @@ Every character and block device that Linux exposes under /dev is handed to
 the container, without interpretation, except:
 
 * the disk that holds the robot's Linux system and the mind account, with
-  its partitions and the other device nodes that reach the same disk;
+  its partitions, the devices built on it (a logical volume, an encrypted
+  volume, a RAID array) and the other device nodes that reach the same disk,
+  whatever their names;
 * the real-time clocks (/dev/rtc*), so that Daniel cannot change the clock;
 * the nodes whose name contains a colon or a space, which Docker cannot be
   given. In practice these are the nodes of /dev/bsg, a second way of sending
@@ -13,7 +15,7 @@ the container, without interpretation, except:
 
 The means of controlling Docker is not a device and is never handed over.
 
-Usage: daniel_devices.py [--dev DIR] [--sys DIR] [--protect PATH ...]
+Usage: daniel_devices.py [--dev DIR] [--sys DIR] [--protect PATH ...] [--print-numbers]
 Prints one `--device=...` argument per line, ready for `docker run`.
 """
 
@@ -49,8 +51,21 @@ def disk_of_device(source):
     ).stdout.split("\n")
     return {
         line.split()[0] for line in ancestors
-        if len(line.split()) == 2 and line.split()[1] == "disk"
+        if len(line.split()) == 2 and line.split()[1] in ("disk", "loop")
     }
+
+
+def numbers_on(disks):
+    """Return the device numbers of the given disks and of every block device built on them."""
+    numbers = set()
+    for disk in disks:
+        listing = subprocess.run(["lsblk", "-n", "-r", "-o", "MAJ:MIN", "/dev/" + disk],
+                                 capture_output=True, text=True).stdout
+        for number in listing.split():
+            major, _, minor = number.partition(":")
+            if major.isdigit() and minor.isdigit():
+                numbers.add((int(major), int(minor)))
+    return numbers
 
 
 def protected_names(disks, sys_dir="/sys"):
@@ -83,8 +98,12 @@ def is_excluded(name, protected):
     return False
 
 
-def devices(dev_dir, protected):
-    """Yield the absolute paths of the device nodes to hand to the container."""
+def devices(dev_dir, protected, numbers=frozenset()):
+    """Yield the absolute paths of the device nodes to hand to the container.
+
+    `numbers` holds the device numbers of the protected block devices: a node
+    with one of them is left out under any name, such as /dev/root or /dev/dm-0.
+    """
     for root, dirs, files in os.walk(dev_dir):
         if root == dev_dir:
             dirs[:] = [d for d in dirs if d not in SKIPPED_DIRS]
@@ -92,12 +111,15 @@ def devices(dev_dir, protected):
         for name in sorted(files):
             path = os.path.join(root, name)
             try:
-                mode = os.lstat(path).st_mode
+                node = os.lstat(path)
             except OSError:
                 continue
+            mode = node.st_mode
             if not (stat.S_ISCHR(mode) or stat.S_ISBLK(mode)):
                 continue  # symbolic links, sockets and ordinary files
             if is_excluded(name, protected):
+                continue
+            if stat.S_ISBLK(mode) and (os.major(node.st_rdev), os.minor(node.st_rdev)) in numbers:
                 continue
             if ":" in path or any(c.isspace() for c in path):
                 continue  # `docker run --device=HOST:CONTAINER` cannot express such a name
@@ -114,6 +136,8 @@ def main(argv=None):
                         help="name the protected disks directly instead of finding them")
     parser.add_argument("--print-protected", action="store_true",
                         help="print the names of the protected disks and stop")
+    parser.add_argument("--print-numbers", action="store_true",
+                        help="print the device numbers of the protected block devices and stop")
     args = parser.parse_args(argv)
 
     if args.disk is not None:
@@ -128,8 +152,12 @@ def main(argv=None):
     if args.print_protected:
         print("\n".join(sorted(disks)))
         return
+    numbers = numbers_on(disks)
+    if args.print_numbers:
+        print("\n".join(f"{major}:{minor}" for major, minor in sorted(numbers)))
+        return
     protected = protected_names(disks, args.sys)
-    for path in devices(args.dev, protected):
+    for path in devices(args.dev, protected, numbers):
         inside = "/dev/" + os.path.relpath(path, args.dev)
         print(f"--device={path}:{inside}")
 

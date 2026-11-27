@@ -75,6 +75,21 @@ check "it answers again within a minute" sh -c \
     'for _ in $(seq 60); do docker exec daniel-body true 2>/dev/null && exit 0; sleep 1; done; exit 1'
 check "the wall still holds" sh "$FIXED/check-wall.sh"
 
+step "The wall is tried by device numbers, whatever the names"
+truncate -s 8M /tmp/daniel-test.img
+loop=$(losetup --find --show /tmp/daniel-test.img)
+restart_body
+open_by_number() {  # as administrator, Daniel can make a node for any device number
+    inside "rm -f /tmp/node; mknod /tmp/node b ${1%:*} ${1#*:} && head -c 1 /tmp/node >/dev/null"
+}
+cannot_open_by_number() { ! open_by_number "$1"; }
+check "a device that is handed over can be opened through a node made by Daniel" \
+    open_by_number "$(lsblk -nro MAJ:MIN "$loop" | head -1)"
+check "the device that holds Linux cannot" cannot_open_by_number "$(mountpoint -d /)"
+check "check-wall.sh tries the protected devices in the same way" sh -c \
+    "sh '$FIXED/check-wall.sh' | grep -q 'holds  the protected device [0-9]*:[0-9]* cannot be opened'"
+losetup --detach "$loop"
+
 step "The loop wakes the mind, which acts in the container"
 install -D -m 755 "$HERE/fake_claude.py" "$MIND/.local/bin/claude"
 cat > "$MIND/replies" <<'REPLY'

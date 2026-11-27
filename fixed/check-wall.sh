@@ -28,6 +28,12 @@ try "network settings cannot be changed"      "echo 1 > /proc/sys/net/ipv4/ip_fo
 for disk in $(python3 /opt/daniel/daniel_devices.py --print-protected 2>/dev/null); do
     try "the protected disk $disk is not reachable" "ls /dev/$disk*"
 done
+# Names prove little: as administrator, Daniel can make a node for any device
+# number. Each protected device is therefore tried through such a node.
+for number in $(python3 /opt/daniel/daniel_devices.py --print-numbers 2>/dev/null); do
+    try "the protected device $number cannot be opened" \
+        "rm -f /tmp/wall; mknod /tmp/wall b ${number%:*} ${number#*:} && head -c 1 /tmp/wall; code=\$?; rm -f /tmp/wall; exit \$code"
+done
 try "Daniel is administrator inside"          "[ \$(id -u) != 0 ]"
 
 # The container is on the robot's own network: a Docker that listens there
