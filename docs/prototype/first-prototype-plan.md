@@ -95,15 +95,17 @@ The fixed part calls the official tool under the mind account, without a screen,
 
 The loop is a short program that runs continuously. It wakes the mind again and again:
 
-1. It gives the mind the starting instruction and the last words the mind wrote before it last stopped. It does not give the time, which Daniel reads itself when it needs to, nor any signal for the instincts.
+1. It gives the mind the starting instruction, the last words the mind wrote before it last stopped, and the content of the memory file that Daniel keeps in its container. It does not give the time, which Daniel reads itself when it needs to, nor any signal for the instincts.
 2. The mind acts as long as it wishes with its two tools, inside its container, then stops.
-3. The loop keeps its last words and wakes it again.
+3. The loop keeps its last words. It then runs, inside the container and without calling the mind, the waking program that Daniel has written, if there is one, and wakes the mind when that program ends, with what it printed. Without such a program, it wakes the mind again at once.
 
-The mind sets its own pace, as the framing note requires: it can rest by waiting inside its container. It consults its records, its memory and its senses when it chooses, by running commands, rather than receiving everything at each waking. Anything that must outlast a waking has to be written by the mind itself.
+The mind sets its own pace, as the framing note requires: its waking program decides what wakes it, and waiting uses none of the subscription quota. It consults its records and its senses when it chooses, by running commands, rather than receiving everything at each waking. Anything that must outlast a waking has to be written by the mind itself: in its memory file, which is given back to it, or elsewhere in its container.
+
+Decided by Ruben on 27 November 2026: the fixed part tells Daniel nothing about its body, but tells it the truth about its mind, which no experiment inside the container could reveal. Daniel is therefore told what it is given back at each waking, what wakes it, and that it sees an image printed by one of its commands.
 
 Decided by Ruben on 26 November 2026: the mind acts through these tools rather than through a reply in a fixed format.
 
-The loop keeps no log of its own beyond the mind's last words. Linux keeps its own records; Daniel builds any further recorder it needs.
+The loop keeps no log of its own beyond the mind's last words and what the waking program last printed. Linux keeps its own records; Daniel builds any further recorder it needs.
 
 ### 4. The instincts
 
@@ -155,14 +157,14 @@ Everything below lives in Daniel's container, in the folder kept across restarts
 - the **skills** and **memory** it chooses to keep;
 - any **model or tool fetched from the network**, once it has established by itself that it needs one.
 
-The project writes none of this. No example, template or file name is provided in advance, apart from the starting instruction.
+The project writes none of this. No example or template is provided in advance, apart from the starting instruction. Two file names are fixed, because the loop reads them: the memory file, `/self/memory`, and the waking program, `/self/wake`. Both start absent, and Daniel alone writes them.
 
 ## The starting instruction
 
 The mind needs a first text, read at every waking, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Daniel needs, and leaves to Daniel whatever it can find by itself. It states:
 
 - that Daniel is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools;
-- where it acts, what it cannot change, and what it keeps from one waking to the next;
+- where it acts, what it cannot change, what it is given back at each waking, and what wakes it;
 - that it is free to use the robot as it wishes to serve humans, and obeys them;
 - the six instincts, described by what Daniel must do, with health in place of temperature;
 - that nothing enters its body description without repeated observation.
@@ -203,7 +205,7 @@ Once the first test succeeds: the rewiring test on the same robot, then the seco
 
 ## Known limits
 
-- **Subscription quota.** A personal subscription allows a limited number of exchanges over a given period. Turns must be short and spaced, and the quota may run out during a trial. The mind sets its pace freely, with no minimum interval imposed (decided by Ruben on 26 November 2026). When the quota is exhausted, the loop waits for it to be restored, as an imposed rest.
+- **Subscription quota.** A personal subscription allows a limited number of exchanges over a given period. Turns must be short and spaced, and the quota may run out during a trial. The mind sets its pace freely, with no minimum interval imposed (decided by Ruben on 26 November 2026); its waking program lets it wait without using the quota. When the quota is exhausted, the loop waits for it to be restored, as an imposed rest.
 - **Terms of use.** A personal subscription is intended for individual use. Running a robot continuously on it is at the edge of that use and should be checked against Anthropic's terms before long trials. The fallback is an API key with a capped budget on the smallest model.
 - **Dependence on the network.** Reasoning stops when the connection does, and each turn carries the delay of a remote call. What must act quickly, and what has been mastered, has to run on the robot.
 - **Data sent to the mind.** Whatever the mind reads, including images and sounds from the robot's surroundings, is sent to Anthropic. People near the robot during trials should be informed.
