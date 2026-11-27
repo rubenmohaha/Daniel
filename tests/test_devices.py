@@ -1,5 +1,12 @@
-"""Tests of the list of devices handed to Daniel's container, on a fake /dev."""
+"""Tests of the list of devices handed to Daniel's container.
+
+The class Devices works on a fake /dev. The class StackedDevices builds real
+devices on this machine, as a system installed on a logical volume, an
+encrypted volume or a RAID array has them.
+"""
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -43,6 +50,41 @@ class Devices(unittest.TestCase):
         handed = self.handed(["mmcblk0", "mmcblk0p1", "mmcblk0p2", "mmcblk0boot0", "mmcblk0rpmb",
                               "mmcblk1", "mmcblk1p1", "gpiochip0"], ["mmcblk0"])
         self.assertEqual(handed, {"mmcblk1", "mmcblk1p1", "gpiochip0"})
+
+
+CAN_STACK = os.geteuid() == 0 and all(shutil.which(tool) for tool in ["losetup", "dmsetup", "mkfs.ext4"])
+
+
+@unittest.skipUnless(CAN_STACK, "building a device on another requires root, losetup, dmsetup and mkfs.ext4")
+class StackedDevices(unittest.TestCase):
+    """A filesystem on a device that is built on a disk and has a name of its own."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        image = os.path.join(self.tmp, "disk.img")
+        with open(image, "wb") as f:
+            f.truncate(64 << 20)
+        run = lambda *command: subprocess.run(command, capture_output=True, text=True, check=True).stdout.strip()
+        self.disk = run("losetup", "--find", "--show", image)        # stands for the system disk
+        self.addCleanup(subprocess.run, ["losetup", "--detach", self.disk], capture_output=True)
+        name = f"danieltest{os.getpid()}"
+        run("dmsetup", "create", name, "--table", f"0 {run('blockdev', '--getsz', self.disk)} linear {self.disk} 0")
+        self.addCleanup(subprocess.run, ["dmsetup", "remove", "--retry", name], capture_output=True)
+        self.volume = os.path.realpath("/dev/mapper/" + name)        # /dev/dm-N, built on the disk
+        run("mkfs.ext4", "-q", self.volume)
+        self.mounted = os.path.join(self.tmp, "mounted")
+        os.mkdir(self.mounted)
+        run("mount", self.volume, self.mounted)
+        self.addCleanup(subprocess.run, ["umount", self.mounted], capture_output=True)
+
+    def test_a_device_built_on_the_protected_disk_is_not_handed_over(self):
+        listed = subprocess.run([sys.executable, os.path.join(HERE, "..", "fixed", "daniel_devices.py"),
+                                 "--protect", self.mounted], capture_output=True, text=True)
+        self.assertEqual(listed.returncode, 0, listed.stderr)
+        handed = {line.split("=", 1)[1].split(":")[0] for line in listed.stdout.split()}
+        self.assertIn("/dev/loop-control", handed)   # the other devices are still handed over
+        self.assertNotIn(self.disk, handed)
+        self.assertNotIn(self.volume, handed)
 
 
 if __name__ == "__main__":

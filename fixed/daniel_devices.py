@@ -49,7 +49,7 @@ def disk_of_device(source):
     ).stdout.split("\n")
     return {
         line.split()[0] for line in ancestors
-        if len(line.split()) == 2 and line.split()[1] == "disk"
+        if len(line.split()) == 2 and line.split()[1] in ("disk", "loop")
     }
 
 
