@@ -1,0 +1,19 @@
+# Runs the tests on Linux, as root and with Docker, so that the tests that
+# create device nodes or start a throwaway container are not skipped.
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run the tests
+        run: sudo python3 -m unittest discover -v tests

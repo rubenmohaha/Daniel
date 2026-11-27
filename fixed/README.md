@@ -75,6 +75,8 @@ On the robot, without modifying anything:
 
 `python3 -m unittest discover tests` runs the tests. The mind is replaced by a stand-in ([`tests/fake_claude.py`](../tests/fake_claude.py)) that never contacts Anthropic. The tests that start a throwaway container are skipped when Docker is not available.
 
+The tests also run on Linux for every pull request, as root and with Docker, so that none is skipped there ([`tests.yml`](../.github/workflows/tests.yml)).
+
 ## Choices made in this prototype
 
 The plan left the following points open. The simplest option was chosen in each case, and each can be revisited.
