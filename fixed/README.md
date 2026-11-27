@@ -8,12 +8,14 @@ This folder contains everything the project writes for the first prototype, as d
 | [`daniel_body.py`](daniel_body.py) | The body's tools, `run` and `write`: the only way the mind can act, inside the container only |
 | [`starting-instruction.md`](starting-instruction.md) | The starting instruction, read by the mind at every waking and fixed for the whole life of Daniel |
 | [`daniel_devices.py`](daniel_devices.py) | Lists the devices handed to Daniel's container: all of them, without interpretation, except the excluded ones |
-| [`setup.sh`](setup.sh) | One-time setup: mind account, container, loop service |
+| [`daniel-body.sh`](daniel-body.sh) | Makes Daniel's container anew, with the devices present at that moment |
+| [`daniel-body.service`](daniel-body.service) | Runs the container, at each start of the robot and again whenever it stops |
+| [`setup.sh`](setup.sh) | One-time setup: mind account, container service, loop service |
 | [`daniel-loop.service`](daniel-loop.service) | Runs the loop under the mind account and restarts it after a crash or a power cut |
 | [`daniel.env.example`](daniel.env.example) | Configuration, including the pinned model version |
 | [`check-wall.sh`](check-wall.sh) | Checks from inside the container that the wall holds |
 
-The fixed part uses only Python 3 and its standard library, Docker, and the standard tools of a Linux system. It contains about 400 lines of code, comments excluded.
+The fixed part uses only Python 3 and its standard library, Docker, and the standard tools of a Linux system. It contains about 500 lines of code, comments excluded.
 
 ## How it works
 
@@ -49,11 +51,12 @@ The limits are not announced in advance, but each is stated when it is met: a me
 
 ## Daniel's container
 
-The container is a Debian system in which Daniel is administrator (root, with Docker's default capabilities). It is created once and restarted automatically.
+The container is a Debian system in which Daniel is administrator (root, with Docker's default capabilities). A service, `daniel-body`, runs it: the container is made anew by [`daniel-body.sh`](daniel-body.sh) at each start of the robot, and again whenever it stops.
 
-- **Kept across restarts:** the folder `/self` inside the container, which is `/var/lib/daniel/self` on the robot. Software that Daniel installs elsewhere in the container survives restarts of the container, but not its re-creation.
-- **Devices handed over:** every character and block device present under `/dev` at setup, except the disk that holds Linux, the mind account and Docker (with its partitions and the other nodes that reach it) and the real-time clocks `/dev/rtc*`. The devices that give direct access to the machine's working memory, such as `/dev/mem`, are handed over like the others (decided by Ruben on 26 November 2026; see below).
-- **Not handed over:** the means of controlling Docker, the right to change the clock, and the right to load kernel modules.
+- **Kept from one container to the next:** the folder `/self`, which is `/var/lib/daniel/self` on the robot, and the folders where a Linux system keeps its software and its settings: `/usr`, `/var`, `/etc`, `/opt`, `/root`, `/home` and `/srv`, held in Docker volumes named `daniel-usr`, `daniel-var` and so on. What Daniel installs therefore survives. What it writes elsewhere, for instance in `/tmp` or in a new folder at the root of the container, is lost at the next start, as are the programs it left running.
+- **Devices handed over:** every character and block device present under `/dev` when the container starts, except the disk that holds Linux, the mind account and Docker (with its partitions and the other nodes that reach it), the real-time clocks `/dev/rtc*`, and the nodes that Docker cannot be given (see below). A device connected later is handed over at the next start of the robot or of the container; a device that has gone does not prevent the start. The devices that give direct access to the machine's working memory, such as `/dev/mem`, are handed over like the others (decided by Ruben on 26 November 2026; see below).
+- **Network:** the container is on the robot's own network, not on a separate one. Daniel reaches whatever the robot reaches, and whatever is on the robot's local network can reach a program that Daniel starts.
+- **Not handed over:** the means of controlling Docker, the right to change the clock or the settings of the network, and the right to load kernel modules.
 
 ## Setup
 
@@ -83,13 +86,16 @@ On the robot, without modifying anything:
 - the exchanges with the mind are stored by the official tool under `/var/lib/daniel/mind/.claude/projects/`;
 - what Daniel has written is in `/var/lib/daniel/self/`;
 - the mind's last words are in `/var/lib/daniel/mind/state.json`;
-- `journalctl -u daniel-loop` shows when the mind or the container could not be reached.
+- `journalctl -u daniel-loop` shows when the mind or the container could not be reached;
+- `journalctl -u daniel-body` shows each start of the container.
 
 ## Tests
 
 `python3 -m unittest discover tests` runs the tests. The mind is replaced by a stand-in ([`tests/fake_claude.py`](../tests/fake_claude.py)) that never contacts Anthropic. The tests that start a throwaway container are skipped when Docker is not available.
 
 The tests also run on Linux for every pull request, as root and with Docker, so that none is skipped there ([`tests.yml`](../.github/workflows/tests.yml)).
+
+The same workflow runs a system test, [`tests/system_test.sh`](../tests/system_test.sh), which sets Daniel up for real on a throwaway machine, with the stand-in for the mind: it runs `setup.sh` and `check-wall.sh`, restarts the container with a device added and then removed, and lets the loop wake the mind under its service. It refuses to run anywhere else, since it creates an account, a container and services.
 
 ## Choices made in this prototype
 
@@ -102,6 +108,10 @@ The plan left the following points open. The simplest option was chosen in each 
 - **The waking program is not stopped with the loop.** If the loop is restarted while the waking program runs, that program keeps running inside the container, and the loop starts it a second time. A restart of the robot stops both.
 - **The loop reaches the container through Docker.** The mind account therefore belongs to the `docker` group, which on Linux is equivalent to administrator rights on the robot. This does not open anything to Daniel, which never runs under the mind account, but it means that the mind account must be protected like an administrator account.
 - **Clocks are excluded.** The plan states that Daniel cannot change the clock; the real-time clock devices are therefore not handed over, which the plan did not list explicitly.
+- **Nodes that Docker cannot be given are left out.** Docker's syntax for handing over a device cannot express a name that contains a colon or a space. In practice these are the nodes of `/dev/bsg`, a second way of sending raw commands to disks; the same disks stay reachable through their other nodes, the system disk excepted. Before this exception, setup failed on any machine with a SCSI, SATA or USB disk.
+- **The robot's own network.** Sharing the robot's network lets a human, or another machine, on the local network reach a program that Daniel starts. It also puts within Daniel's reach the services that listen only on the robot itself, lets it listen on any free port and observe the traffic of the robot's network interfaces. It cannot change the settings of the network, which Docker does not grant by default: joining another Wi-Fi network, for instance, stays out of its reach. `check-wall.sh` checks that Docker itself does not listen on the network.
+- **What is driven through `/sys` stays out of reach.** Docker gives the container a read-only view of `/sys`. Daniel can read there what Linux knows of the hardware, but cannot drive what is controlled by writing there. Opening `/sys` entirely would open a way out of the container.
+- **A container made by an earlier version is set aside.** Before this version, the container was created once at setup and kept what Daniel had installed in itself. When `daniel-body.sh` finds such a container, it stops it and renames it `daniel-body-old` instead of deleting it; Daniel then starts again with `/self` intact and nothing else installed.
 
 ## Working memory is open to Daniel
 

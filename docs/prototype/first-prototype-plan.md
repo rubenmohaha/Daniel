@@ -49,16 +49,18 @@ Decided by Ruben on 26 November 2026, the robot's Linux system is divided in two
 - **The mind account**, an ordinary user account on the robot's Linux system, holds the sign-in to Ruben's Anthropic account. Only the official tool and the loop run there.
 - **Daniel's container** is an isolated space set on top of the robot's Linux system, built with Docker. Daniel lives and acts inside it. It is administrator inside the container: it can install the software and libraries it needs there, without restriction.
 
-Everything Daniel writes, including its memory, is stored in a folder of the container that is kept across restarts and power cuts.
+Everything Daniel writes, including its memory, is stored in a folder of the container that is kept across restarts and power cuts. What it installs is kept as well.
 
 #### What is opened to Daniel
 
-Daniel is given access to all the robot's devices without the project knowing what they are. At setup, the fixed part hands every device that Linux exposes to the container, with two exceptions:
+Daniel is given access to all the robot's devices without the project knowing what they are. At each start of the robot, the fixed part makes the container anew and hands it every device that Linux exposes at that moment, with two exceptions:
 
 - the disk that holds the robot's Linux system and the mind account, so that Daniel can neither modify Linux nor read the connection;
 - the means of controlling Docker itself, which would let Daniel open a way out of its container.
 
 Daniel is also given no right to change the clock or to modify the Linux kernel.
+
+Decided by Ruben on 27 November 2026: the container is on the robot's own network, not on a separate one. Daniel could already reach the internet; a human or a machine on the robot's local network can now reach a program that Daniel starts, which gives Daniel another means of communicating when a sense is missing. Daniel is given no right to change the settings of the network.
 
 Decided by Ruben on 26 November 2026: the device that gives direct access to the machine's physical memory is not excluded for now. On some boards it is also a common way of driving input and output pins, which makes it useful for discovery.
 
@@ -76,7 +78,8 @@ The wall does not guarantee:
 - **Resistance to a flaw.** A container is not a separate machine. It shares the Linux kernel with the rest of the robot, and a flaw in Linux, in Docker or in a device driver could open a way out. An administrator inside the container has more ways to exploit such a flaw than an ordinary user.
 - **Safety of every device.** Opening all devices without knowing them widens the wall's surface. Some devices may give indirect access to the machine, for instance a graphics processor that shares memory with the rest of the system. The fixed part cannot sort these out without knowing the hardware, which the project has chosen not to describe.
 - **The machine's memory.** Because direct access to physical memory is left open, what this access permits depends on how Linux is configured on the robot, which the project does not know. In the most restricted configuration, common on mainstream distributions, it reaches only the registers of devices. In the most open one, it lets Daniel read and modify the whole memory of the machine while it runs: it could then read the connection to Ruben's account while it is in use, and alter Linux, the clock or the fixed part in memory. In that case, these protections rest on the fixed starting instruction alone.
-- **Devices added later.** A device connected after setup is not automatically handed to the container.
+- **The robot's network.** Because the container shares the robot's network, the services that listen only on the robot itself are within Daniel's reach, and Daniel can observe the traffic of the robot's network interfaces.
+- **Devices added later.** A device connected while the robot runs is handed to the container only at its next start.
 - **Drivers in the kernel.** Daniel can install software inside its container, but not drivers that must run inside the Linux kernel; only drivers that run as ordinary programs are within its reach.
 
 The wall therefore relies first on Linux and Docker, and only in the last resort on the fixed starting instruction.

@@ -1,0 +1,17 @@
+[Unit]
+Description=Daniel's container
+After=docker.service
+Wants=docker.service
+# Tried again without limit: the container is Daniel's only way to act.
+StartLimitIntervalSec=0
+
+[Service]
+ExecStart=/bin/sh /opt/daniel/daniel-body.sh
+# The service counts as started once the container answers.
+ExecStartPost=/bin/sh /opt/daniel/daniel-body.sh ready $MAINPID
+TimeoutStartSec=600
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

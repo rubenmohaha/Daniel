@@ -40,7 +40,7 @@ Ruben · version 0.1, 26 November 2026
 | D-22 | Nothing is known about the robot beyond three conditions | 26 Nov 2026 | In force |
 | D-23 | Blocking access from Ruben's account is a coma | 26 Nov 2026 | In force |
 | D-24 | Daniel is administrator inside a Docker container | 26 Nov 2026 | In force |
-| D-25 | Every device is opened to the container, with stated exceptions | 26 Nov 2026 | Partly superseded by D-32 |
+| D-25 | Every device is opened to the container, with stated exceptions | 26 Nov 2026 | Partly superseded by D-32, D-49 and D-51 |
 | D-26 | No fixed reflex, no imposed limit on first trials, no help linking signals | 26 Nov 2026 | In force |
 | D-27 | The starting instruction is fixed | 26 Nov 2026 | In force |
 | D-28 | No time limit for the first test | 26 Nov 2026 | In force |
@@ -64,6 +64,9 @@ Ruben · version 0.1, 26 November 2026
 | D-46 | Daniel chooses what wakes it | 27 Nov 2026 | In force |
 | D-47 | A memory file is given back at each waking | 27 Nov 2026 | In force |
 | D-48 | The mind sees the images that its commands print | 27 Nov 2026 | In force |
+| D-49 | The container is made anew at each start, with the devices present then | 27 Nov 2026 | In force |
+| D-50 | The container is on the robot's own network | 27 Nov 2026 | In force |
+| D-51 | Device nodes that Docker cannot be given are left out | 27 Nov 2026 | In force |
 
 ## Entries
 
@@ -388,6 +391,29 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** When a command run by the mind prints an image, the body's tools pass it to the mind as an image, not as text. The description of the tool says so, and says nothing of where an image may come from. Sounds are not concerned: the model does not hear, and Daniel must still find a means of turning a sound into text.
 - **Reason:** The model can see. Making Daniel fetch a second model to describe images to the first was a heavy burden on a small computer, for a faculty that the mind already has. The framing note already states that a multimodal model perceives images directly.
 - **Replaces:** The choice of a mind that receives text only, made when the first prototype was written (D-35).
+
+#### D-49. The container is made anew at each start, with the devices present then
+
+- **Date:** 27 November 2026.
+- **Decision:** The container is no longer created once at setup. A service makes it anew at each start of the robot, and whenever it stops, with every device present at that moment, under the exceptions of D-25. A device that has gone does not prevent the start. The folders where a Linux system keeps its software and its settings are kept from one container to the next, with the folder `/self`, so that what Daniel has installed survives.
+- **Reason:** A device connected after setup was never handed over: a sense added to the robot stayed out of Daniel's reach, and nothing that Daniel could try from inside its container would have revealed it.
+- **Replaces:** In part, D-25, under which the devices were handed over once, at setup.
+- **Note:** Ruben agreed on 27 November 2026 to the proposal of a new inventory of the devices at each start. The list of the kept folders and the choice of making the whole container anew are choices made in carrying it out, and await his confirmation. A device connected while the robot runs is still handed over only at the next start.
+
+#### D-50. The container is on the robot's own network
+
+- **Date:** 27 November 2026.
+- **Decision:** The container shares the network of the robot instead of having a separate one. Daniel is still given no right to change the settings of the network.
+- **Reason:** On a separate network, Daniel could reach the internet, but nothing on the robot's local network could reach a program started by Daniel. This closed the natural fallback when a sense is missing: communicating with humans over the network.
+- **Consequence:** The services that listen only on the robot itself are within Daniel's reach, and Daniel can observe the traffic of the robot's network interfaces. The check of the wall now verifies that Docker does not listen on the network.
+
+#### D-51. Device nodes that Docker cannot be given are left out
+
+- **Date:** 27 November 2026.
+- **Decision:** The device nodes whose name contains a colon or a space are not handed to the container. In practice these are the nodes of `/dev/bsg`, a second way of sending raw commands to disks.
+- **Reason:** Docker's syntax for handing over a device cannot express such a name, and setup failed on any machine with a SCSI, SATA or USB disk. The same disks stay reachable through their other nodes, the system disk excepted.
+- **Replaces:** In part, D-25: this is one more exception to the rule that every device is handed over.
+- **Interpretation:** This is a technical necessity found when the setup was first run on a real machine, not a question that Ruben has settled. It awaits his confirmation.
 
 ### Terminology
 

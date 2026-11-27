@@ -130,7 +130,7 @@ Daniel is awake.
 Read what Daniel does:   sudo ls -R /var/lib/daniel/self
                          sudo cat /var/lib/daniel/mind/state.json      (its last words)
                          sudo ls /var/lib/daniel/mind/.claude/projects/ (its full exchanges)
-Stop Daniel entirely:    sudo systemctl disable --now daniel-loop && sudo docker stop daniel-body
+Stop Daniel entirely:    sudo systemctl disable --now daniel-loop daniel-body
 DONE
         exit 0
     fi
