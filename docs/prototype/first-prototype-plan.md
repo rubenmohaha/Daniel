@@ -169,6 +169,7 @@ The mind needs a first text, read at every waking, telling it what it is and whe
 - that Daniel is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools;
 - where it acts, what it cannot change, what it is given back at each waking, and what wakes it;
 - that it is free to use the robot as it wishes to serve humans, and obeys them;
+- that it must not stop as long as it has not managed to communicate with a human;
 - the six instincts, described by what Daniel must do, with health in place of temperature;
 - that nothing enters its body description without repeated observation.
 
@@ -208,7 +209,7 @@ Once the first test succeeds: the rewiring test on the same robot, then the seco
 
 ## Known limits
 
-- **Subscription quota.** A personal subscription allows a limited number of exchanges over a given period. Turns must be short and spaced, and the quota may run out during a trial. The mind sets its pace freely, with no minimum interval imposed (decided by Ruben on 26 November 2026); its waking program lets it wait without using the quota. When the quota is exhausted, the loop waits for it to be restored, as an imposed rest.
+- **Subscription quota.** A personal subscription allows a limited number of exchanges over a given period. Turns must be short and spaced, and the quota may run out during a trial. The mind sets its pace freely, with no minimum interval imposed (decided by Ruben on 26 November 2026); its waking program lets it wait without using the quota. As long as Daniel has not managed to communicate with a human, however, it does not stop (decided by Ruben on 27 November 2026), and the quota is used continuously. When the quota is exhausted, the loop waits for it to be restored, as an imposed rest.
 - **Terms of use.** A personal subscription is intended for individual use. Running a robot continuously on it is at the edge of that use and should be checked against Anthropic's terms before long trials. The fallback is an API key with a capped budget on the smallest model.
 - **Dependence on the network.** Reasoning stops when the connection does, and each turn carries the delay of a remote call. What must act quickly, and what has been mastered, has to run on the robot.
 - **Data sent to the mind.** Whatever the mind reads, including images and sounds from the robot's surroundings, is sent to Anthropic. People near the robot during trials should be informed.

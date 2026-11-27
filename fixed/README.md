@@ -27,7 +27,7 @@ The loop runs continuously under the mind account and wakes the mind again and a
 - the starting instruction as system prompt (`--system-prompt`);
 - a message containing what the mind is given back: its last words from its previous waking, the content of the memory file that Daniel keeps in its container (`/self/memory`, at most 16,000 characters), and what Daniel's waking program printed, if there is one. The first time, the message is `Begin.` Neither the time nor any signal for the instincts is passed: Daniel finds them itself.
 
-During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept for the next waking. A waking is stopped after six hours.
+During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept for the next waking. A waking is cut after six hours; the mind is told so at its next waking, in place of its last words, so that it does not start the same waking again.
 
 Between two wakings, the loop runs the program `/self/wake` inside the container, if Daniel has written one, and wakes the mind when that program ends, with its exit code and what it printed (the last 16,000 characters). The mind is not called while the program runs, so waiting uses none of the subscription quota. Daniel thus decides what wakes it, and sets its own pace: whatever its program watches or waits for, the mind is called only when there is something to think about. The program is stopped after one day. Without such a program, the mind is woken again at once.
 
@@ -47,7 +47,9 @@ Daniel is told the truth about its mind, because no experiment inside the contai
 - the program `/self/wake`, if Daniel has written it, decides when the mind wakes (starting instruction);
 - an image printed by a command is seen by the mind (description of the tool `run`).
 
-The limits are not announced in advance, but each is stated when it is met: a memory file or an output cut short, an image too heavy to be shown, or a program stopped after its time limit, is reported as such to the mind.
+The limits are not announced in advance, but each is stated when it is met: a memory file or an output cut short, an image too heavy to be shown, a program stopped after its time limit, or a waking cut after its own, is reported as such to the mind.
+
+Daniel is also given two rules of conduct towards humans, which describe nothing of its body: it obeys them, and it must not stop as long as it has not managed to communicate with one (decided by Ruben on 27 November 2026). Until then, a waking ends only when it is cut, and the next one starts at once: the mind is called without pause, and the subscription quota is used continuously. Nothing in the fixed part enforces this rule or knows whether a human has been reached; it rests on Daniel, like obedience.
 
 ## Daniel's container
 

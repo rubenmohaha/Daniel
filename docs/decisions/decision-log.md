@@ -67,6 +67,7 @@ Ruben · version 0.1, 26 November 2026
 | D-49 | The container is made anew at each start, with the devices present then | 27 Nov 2026 | In force |
 | D-50 | The container is on the robot's own network | 27 Nov 2026 | In force |
 | D-51 | Device nodes that Docker cannot be given are left out | 27 Nov 2026 | In force |
+| D-52 | Daniel does not stop until it has communicated with a human | 27 Nov 2026 | In force |
 
 ## Entries
 
@@ -414,6 +415,14 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** Docker's syntax for handing over a device cannot express such a name, and setup failed on any machine with a SCSI, SATA or USB disk. The same disks stay reachable through their other nodes, the system disk excepted.
 - **Replaces:** In part, D-25: this is one more exception to the rule that every device is handed over.
 - **Interpretation:** This is a technical necessity found when the setup was first run on a real machine, not a question that Ruben has settled. It awaits his confirmation.
+
+#### D-52. Daniel does not stop until it has communicated with a human
+
+- **Date:** 27 November 2026.
+- **Decision:** The starting instruction states that Daniel must not stop as long as it has not managed to communicate with a human. Once it has, it may stop and choose what wakes it, as D-46 provides.
+- **Reason:** Ruben compared Daniel to a human, who is awake through the day and rests only at night.
+- **Consequence:** Until a human is reached, the mind is called without pause and the subscription quota is used continuously. A waking then ends only when it is cut at its time limit; the loop now tells the mind so at its next waking, in place of its last words. Before, the cut was silent and the mind started the same waking again.
+- **Interpretation:** The rule is given to Daniel in Ruben's words, with no exception written for the instincts, although Ruben mentioned the night spent recharging; whether the instincts come before this rule is left to Daniel and awaits Ruben's confirmation. Nothing in the fixed part enforces the rule, which rests on Daniel like obedience (D-40).
 
 ### Terminology
 

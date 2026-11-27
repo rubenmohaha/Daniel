@@ -75,7 +75,10 @@ def body_config(cfg):
 
 
 def wake(cfg, instruction, message):
-    """Wake the mind once. Return its last words, or raise RuntimeError."""
+    """Wake the mind once. Return its last words, or None if the waking was cut at its time limit.
+
+    Raise RuntimeError if the mind could not be reached.
+    """
     workdir = os.path.join(cfg.state_dir, "workdir")  # empty: no project files are loaded
     os.makedirs(workdir, exist_ok=True)
     command = [
@@ -92,7 +95,7 @@ def wake(cfg, instruction, message):
         done = subprocess.run(command, input=message, capture_output=True, text=True,
                               cwd=workdir, timeout=SESSION_TIME_LIMIT)
     except subprocess.TimeoutExpired:
-        raise RuntimeError("the mind did not stop within the time limit")
+        return None
     except OSError as error:
         raise RuntimeError(f"the official tool could not be started: {error}")
     try:
@@ -197,7 +200,10 @@ def one_waking(cfg, instruction, state):
         state["printed"] = wait(cfg)
         save_state(cfg, state)  # not lost if the mind cannot be reached, or if the loop restarts
     message = waking_message(state.get("last_words"), memory(cfg), state["printed"])
-    state["last_words"] = wake(cfg, instruction, message)
+    words = wake(cfg, instruction, message)
+    if words is None:  # the mind is told, so that it does not start the same waking again
+        words = f"[none: your last waking was cut after {SESSION_TIME_LIMIT} seconds, before you had stopped]"
+    state["last_words"] = words
     del state["printed"]
 
 
