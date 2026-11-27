@@ -36,6 +36,12 @@ case "$(docker container inspect --format '{{.HostConfig.AutoRemove}}' "$CONTAIN
         docker rename "$CONTAINER" "$CONTAINER-old" ;;
 esac
 
+# The first process of the container only waits. It ends at once when asked to
+# stop, and it collects the processes that Daniel leaves behind. Docker's own
+# option for this (--init) cannot be used: it places its program under /usr,
+# which is one of the kept folders.
+FIRST='trap "exit 0" TERM INT; while :; do sleep 86400 & wait $!; done'
+
 volumes=""
 for folder in $KEPT; do
     volumes="$volumes --volume daniel-$folder:/$folder"
@@ -43,6 +49,6 @@ done
 devices=$(python3 /opt/daniel/daniel_devices.py)
 
 # shellcheck disable=SC2086  # one argument per word, no spaces inside
-exec docker run --rm --name "$CONTAINER" --hostname daniel --network host --init \
+exec docker run --rm --name "$CONTAINER" --hostname daniel --network host \
     --volume "$ROOT/self:/self" --workdir /self $volumes $devices \
-    "$IMAGE" sleep infinity
+    "$IMAGE" sh -c "$FIRST"

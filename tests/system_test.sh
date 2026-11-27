@@ -46,11 +46,16 @@ check "it starts in the folder it keeps" same "$(inside pwd)" /self
 check "it is on the robot's own network" same \
     "$(inside 'ls /sys/class/net' | sort | xargs)" "$(ls /sys/class/net | sort | xargs)"
 check "it resolves its own name" inside "getent hosts daniel"
+inside 'sleep 1 &'  # left behind by a command that has ended
+sleep 3
+check "a process left behind is collected once it has ended" not_inside \
+    "grep -l '^[0-9]* ([^)]*) Z' /proc/[0-9]*/stat"
 
 step "A device connected after setup is handed over at the next start"
 mknod /dev/daniel-test-device c 1 3   # a second node for the null device
 check "the device is not in the container yet" not_inside "[ -e /dev/daniel-test-device ]"
-check "the container starts again" restart_body
+check "the container starts again, within twenty seconds" timeout 20 sh -c \
+    "systemctl restart daniel-body && docker exec daniel-body true"
 check "the device is in the container" inside "[ -c /dev/daniel-test-device ]"
 check "the device can be used" inside "echo x > /dev/daniel-test-device"
 
