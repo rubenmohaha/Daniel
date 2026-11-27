@@ -6,7 +6,10 @@ the container, without interpretation, except:
 
 * the disk that holds the robot's Linux system and the mind account, with
   its partitions and the other device nodes that reach the same disk;
-* the real-time clocks (/dev/rtc*), so that Daniel cannot change the clock.
+* the real-time clocks (/dev/rtc*), so that Daniel cannot change the clock;
+* the nodes whose name contains a colon or a space, which Docker cannot be
+  given. In practice these are the nodes of /dev/bsg, a second way of sending
+  raw commands to disks.
 
 The means of controlling Docker is not a device and is never handed over.
 
@@ -96,6 +99,8 @@ def devices(dev_dir, protected):
                 continue  # symbolic links, sockets and ordinary files
             if is_excluded(name, protected):
                 continue
+            if ":" in path or any(c.isspace() for c in path):
+                continue  # `docker run --device=HOST:CONTAINER` cannot express such a name
             yield path
 
 

@@ -35,6 +35,10 @@ class Devices(unittest.TestCase):
         handed = self.handed(["nvme0", "nvme0n1", "nvme0n1p1", "ng0n1", "nvme1", "nvme1n1"], ["nvme0n1"])
         self.assertEqual(handed, {"nvme1", "nvme1n1"})
 
+    def test_nodes_that_docker_cannot_be_given_are_left_out(self):
+        handed = self.handed(["bsg/0:0:0:0", "bsg/1:0:0:0", "odd name", "video0"], ["sda"])
+        self.assertEqual(handed, {"video0"})
+
     def test_sd_card_system_disk(self):
         handed = self.handed(["mmcblk0", "mmcblk0p1", "mmcblk0p2", "mmcblk0boot0", "mmcblk0rpmb",
                               "mmcblk1", "mmcblk1p1", "gpiochip0"], ["mmcblk0"])

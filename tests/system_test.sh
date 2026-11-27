@@ -36,6 +36,8 @@ check "the container answers as soon as setup returns" inside true
 
 step "The wall"
 check "check-wall.sh reports that the wall holds" sh "$FIXED/check-wall.sh"
+check "check-wall.sh does not vouch for a container that does not answer" \
+    sh -c "! DANIEL_CONTAINER=no-such-container sh '$FIXED/check-wall.sh'"
 
 step "The container"
 check "Daniel is administrator" same "$(inside 'id -u')" 0
