@@ -108,6 +108,26 @@ class Loop(unittest.TestCase):
             daniel_loop.one_waking(config(tmp), "I", state)
         self.assertEqual(state["last_words"], "kept")
 
+    def test_a_waking_cut_at_its_time_limit_is_told_to_the_mind_at_the_next_one(self):
+        tmp = tempfile.mkdtemp()
+        cfg = config(tmp)
+        put(os.environ["FAKE_DOCKER_SELF"], "wake", "#!/bin/sh\necho an event\n", program=True)
+        fake_mind(tmp, "HANG", "ok")
+        state = {"last_words": "words from an earlier waking"}
+        limit = daniel_loop.SESSION_TIME_LIMIT
+        daniel_loop.SESSION_TIME_LIMIT = 1
+        try:
+            daniel_loop.one_waking(cfg, "I", state)  # the mind does not stop: the waking is cut
+        finally:
+            daniel_loop.SESSION_TIME_LIMIT = limit
+        os.remove(os.path.join(os.environ["FAKE_DOCKER_SELF"], "wake"))
+        daniel_loop.one_waking(cfg, "I", state)
+        after = received(tmp)[1]
+        self.assertIn("cut after 1 seconds", after)
+        # neither the words of an older waking nor an event already given are passed off as new
+        self.assertNotIn("words from an earlier waking", after)
+        self.assertNotIn("an event", after)
+
     def test_model_must_be_pinned(self):
         with self.assertRaises(SystemExit):
             daniel_loop.Config({})

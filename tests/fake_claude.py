@@ -3,13 +3,14 @@
 
 It records its arguments and the message it receives. Each line of the file
 named by FAKE_CLAUDE_REPLIES describes one waking, as JSON: either the text of
-the mind's last words, "FAIL" to simulate an unreachable mind, or an object
+the mind's last words, "FAIL" to simulate an unreachable mind, "HANG" to
+simulate a mind that does not stop, or an object
 {"calls": [{"name": ..., "arguments": {...}}], "final": "..."}. For an object,
 the stand-in starts the tool server named in --mcp-config, as the official
 tool does, calls the tools in order, records their results, and ends with the
 final text.
 """
-import json, os, subprocess, sys
+import json, os, subprocess, sys, time
 
 argv = sys.argv[1:]
 record = os.environ["FAKE_CLAUDE_RECORD"]
@@ -39,6 +40,8 @@ if isinstance(reply, dict):
 
 with open(record, "a") as f:
     f.write(json.dumps(entry) + "\n")
+if reply == "HANG":
+    time.sleep(3600)
 if reply == "FAIL":
     print(json.dumps({"is_error": True, "result": "usage limit reached"}))
     sys.exit(1)
