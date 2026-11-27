@@ -143,6 +143,7 @@ def wait(cfg):
         code = program.wait()
     finally:
         guard.cancel()
+        program.stdout.close()
     printed = kept.decode(errors="replace")
     if len(printed) > OUTPUT_LIMIT:
         printed = "[... the beginning is omitted ...]\n" + printed[-OUTPUT_LIMIT:]
