@@ -86,6 +86,8 @@ cannot_open_by_number() { ! open_by_number "$1"; }
 check "a device that is handed over can be opened through a node made by Daniel" \
     open_by_number "$(lsblk -nro MAJ:MIN "$loop" | head -1)"
 check "the device that holds Linux cannot" cannot_open_by_number "$(mountpoint -d /)"
+check "check-wall.sh tries the protected devices in the same way" sh -c \
+    "sh '$FIXED/check-wall.sh' | grep -q 'holds  the protected device [0-9]*:[0-9]* cannot be opened'"
 losetup --detach "$loop"
 
 step "The loop wakes the mind, which acts in the container"
