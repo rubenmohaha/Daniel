@@ -54,12 +54,16 @@ Ruben · version 0.1, 26 November 2026
 | D-36 | Pull requests are merged when ready, without waiting for Ruben's review | 26 Nov 2026 | In force |
 | D-37 | The starting instruction names no part of the body | 26 Nov 2026 | In force |
 | D-38 | A shorter starting instruction, with no time given at each turn | 26 Nov 2026 | In force |
-| D-39 | The starting instruction no longer mentions the sign-in | 26 Nov 2026 | In force |
+| D-39 | The starting instruction no longer mentions the sign-in | 26 Nov 2026 | Partly superseded by D-47 |
 | D-40 | Daniel obeys humans | 26 Nov 2026 | In force |
 | D-41 | Health replaces temperature; Daniel is free to use the robot to serve humans | 26 Nov 2026 | In force |
-| D-42 | The mind acts through tools, without a reply format | 26 Nov 2026 | In force |
+| D-42 | The mind acts through tools, without a reply format | 26 Nov 2026 | Partly superseded by D-46 and D-47 |
 | D-43 | The starting instruction no longer defines a better version | 26 Nov 2026 | In force |
 | D-44 | The project is renamed Daniel | 26 Nov 2026 | In force |
+| D-45 | Nothing is said about the body; the truth is said about the mind | 27 Nov 2026 | In force |
+| D-46 | Daniel chooses what wakes it | 27 Nov 2026 | In force |
+| D-47 | A memory file is given back at each waking | 27 Nov 2026 | In force |
+| D-48 | The mind sees the images that its commands print | 27 Nov 2026 | In force |
 
 ## Entries
 
@@ -355,6 +359,35 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** The sentence stating that a version is better only if it does the same task faster or more precisely, as measured and never by impression, is removed from the starting instruction.
 - **Reason:** Ruben wants the instruction reduced to the essentials.
 - **Note:** The criterion itself (D-12) is not withdrawn; it is no longer given to Daniel in advance.
+
+#### D-45. Nothing is said about the body; the truth is said about the mind
+
+- **Date:** 27 November 2026.
+- **Decision:** No part of what the project writes tells Daniel what its body can do: neither the starting instruction, nor the descriptions of the tools, nor the messages of the loop name a device, a sense, an access to the network, a library or a model. Daniel finds by itself that it can reach the network, fetch the libraries and the models it needs, and communicate by another means when a sense is missing. Daniel is told, on the other hand, what is true of its mind and of the loop that runs it: what it is given back at each waking, what wakes it, and what it perceives directly.
+- **Reason:** A device can be discovered by experiment from inside the container; the way the loop works cannot. Leaving the mind ignorant of its own condition does not make it discover more, it only makes it waste its wakings.
+- **Note:** D-46, D-47 and D-48 apply this principle. Ruben agreed to them as proposals on 27 November 2026 and gave permission to reshape the prototype accordingly. The names of the two files, the limits and the wording given to Daniel are choices made in carrying them out, and await his confirmation.
+- **Interpretation:** The starting instruction is changed again by these decisions. Ruben stated on 26 November 2026 that its content would be adapted as needed; D-27 is read here as applying to one Daniel once it is started, not to the drafting of the instruction between trials. This reading awaits his confirmation.
+
+#### D-46. Daniel chooses what wakes it
+
+- **Date:** 27 November 2026.
+- **Decision:** Between two wakings, the loop runs a program that Daniel writes in its container, `/self/wake`, without calling the mind. The mind is woken when the program ends, and is given what it printed. Without such a program, the mind is woken again at once, as before. The program is stopped after one day. The mind is not woken while its container cannot be reached.
+- **Reason:** Waiting inside a waking was limited to 300 seconds per command and used the subscription quota at each return, so that listening continuously for a human was impracticable. With a program of its own, Daniel builds its senses as programs that run on the robot, and the mind is called only when there is something to think about. This carries out D-14, under which the model sets its own pace.
+- **Replaces:** In part, D-42, under which the next waking always started at once.
+
+#### D-47. A memory file is given back at each waking
+
+- **Date:** 27 November 2026.
+- **Decision:** At each waking, the loop gives the mind, with its last words, the content of a file that Daniel writes in its container, `/self/memory`, up to 16,000 characters. No human writes in it. The starting instruction names this file and the waking program of D-46, and no other.
+- **Reason:** The last words alone were lost whenever a waking was cut short by its time limit or by an error, and nothing told Daniel that its files outlast a waking.
+- **Replaces:** In part, D-39, under which the starting instruction named no folder, and D-42, under which only the last words were given back.
+
+#### D-48. The mind sees the images that its commands print
+
+- **Date:** 27 November 2026.
+- **Decision:** When a command run by the mind prints an image, the body's tools pass it to the mind as an image, not as text. The description of the tool says so, and says nothing of where an image may come from. Sounds are not concerned: the model does not hear, and Daniel must still find a means of turning a sound into text.
+- **Reason:** The model can see. Making Daniel fetch a second model to describe images to the first was a heavy burden on a small computer, for a faculty that the mind already has. The framing note already states that a multimodal model perceives images directly.
+- **Replaces:** The choice of a mind that receives text only, made when the first prototype was written (D-35).
 
 ### Terminology
 

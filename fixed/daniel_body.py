@@ -9,12 +9,17 @@ container only, through `docker exec`:
   run    run a shell command in the container
   write  write a file in the container
 
+What a command prints is given back to the mind as text. When it is an image,
+the mind is shown the image itself: the model can see, and the body's tools
+say nothing of where an image may come from.
+
 Nothing else is offered: the official tool's own tools are switched off, so
 the mind can act nowhere else, and never next to the sign-in.
 
 Configuration: DANIEL_CONTAINER (default: daniel-body), DANIEL_DOCKER (default: docker).
 """
 
+import base64
 import json
 import os
 import subprocess
@@ -22,11 +27,16 @@ import sys
 
 ACTION_TIME_LIMIT = 300        # seconds; the action is stopped beyond this
 OUTPUT_LIMIT = 16000           # characters of an action's output given back to the mind
+IMAGE_LIMIT = 8_000_000        # bytes; the official tool closes the connection on much heavier images
+
+IMAGE_STARTS = [(b"\x89PNG\r\n\x1a\n", "image/png"), (b"\xff\xd8\xff", "image/jpeg"),
+                (b"GIF87a", "image/gif"), (b"GIF89a", "image/gif")]
 
 TOOLS = [
     {
         "name": "run",
-        "description": f"Run a shell command (sh -c). Stopped after {ACTION_TIME_LIMIT} seconds.",
+        "description": f"Run a shell command (sh -c). Stopped after {ACTION_TIME_LIMIT} seconds. "
+                       "If it prints an image (PNG, JPEG, GIF or WebP), you see the image.",
         "inputSchema": {
             "type": "object",
             "properties": {"command": {"type": "string"}},
@@ -53,32 +63,56 @@ def shorten(text):
             + text[-half:])
 
 
+def image_type(data):
+    """Return the type of the image that these bytes hold, or None."""
+    for start, kind in IMAGE_STARTS:
+        if data.startswith(start):
+            return kind
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+def said(text):
+    return [{"type": "text", "text": text}]
+
+
 def act(name, arguments, container=None, docker=None):
-    """Carry out one action inside the container. Return (text, is_error)."""
+    """Carry out one action inside the container. Return (what the mind receives, is_error)."""
     container = container or os.environ.get("DANIEL_CONTAINER", "daniel-body")
     docker = docker or os.environ.get("DANIEL_DOCKER", "docker")
     if name == "run" and isinstance(arguments.get("command"), str) and arguments["command"].strip():
         command = [docker, "exec", "-i", container,
                    "timeout", "-k", "5", str(ACTION_TIME_LIMIT), "sh", "-c", arguments["command"]]
-        stdin = ""
+        stdin = b""
     elif (name == "write" and isinstance(arguments.get("path"), str) and arguments["path"]
           and isinstance(arguments.get("content"), str)):
         command = [docker, "exec", "-i", container, "sh", "-c",
                    'mkdir -p -- "$(dirname -- "$1")" && cat > "$1"', "sh", arguments["path"]]
-        stdin = arguments["content"]
+        stdin = arguments["content"].encode()
     else:
-        return f"invalid call to {name}", True
+        return said(f"invalid call to {name}"), True
     try:
-        done = subprocess.run(command, input=stdin, capture_output=True, text=True,
-                              errors="replace", timeout=ACTION_TIME_LIMIT + 30)
+        done = subprocess.run(command, input=stdin, capture_output=True,
+                              timeout=ACTION_TIME_LIMIT + 30)
     except subprocess.TimeoutExpired:
-        return f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]", True
+        return said(f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"), True
     except OSError as error:
-        return f"[the action could not be started: {error}]", True
-    output = done.stdout + done.stderr
+        return said(f"[the action could not be started: {error}]"), True
+    seen = []
+    kind = image_type(done.stdout) if name == "run" else None
+    if kind and len(done.stdout) <= IMAGE_LIMIT:
+        seen = [{"type": "image", "data": base64.b64encode(done.stdout).decode("ascii"), "mimeType": kind}]
+        output = ""
+    elif kind:
+        output = (f"[an image of {len(done.stdout)} bytes, too heavy to be shown:"
+                  f" the limit is {IMAGE_LIMIT} bytes]\n")
+    else:
+        output = done.stdout.decode(errors="replace")
+    output += done.stderr.decode(errors="replace")
     if done.returncode == 124 and name == "run":
         output += f"\n[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
-    return shorten(output + f"\n[exit code {done.returncode}]"), done.returncode != 0
+    return seen + said(shorten(output + f"\n[exit code {done.returncode}]")), done.returncode != 0
 
 
 def handle(request):
@@ -94,8 +128,8 @@ def handle(request):
         result = {"tools": TOOLS}
     elif method == "tools/call":
         params = request.get("params") or {}
-        text, is_error = act(params.get("name"), params.get("arguments") or {})
-        result = {"content": [{"type": "text", "text": text}], "isError": is_error}
+        content, is_error = act(params.get("name"), params.get("arguments") or {})
+        result = {"content": content, "isError": is_error}
     elif method == "ping":
         result = {}
     else:

@@ -120,7 +120,7 @@ systemctl enable daniel-loop >/dev/null 2>&1
 systemctl restart daniel-loop
 printf 'Waiting for Daniel to wake up'
 for _ in $(seq 1 36); do
-    if [ -s /var/lib/daniel/mind/state.json ] || \
+    if grep -qs '"last_words": "' /var/lib/daniel/mind/state.json || \
        find /var/lib/daniel/mind/.claude/projects -name '*.jsonl' 2>/dev/null | grep -q .; then
         cat <<DONE
 

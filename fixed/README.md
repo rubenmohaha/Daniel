@@ -4,7 +4,7 @@ This folder contains everything the project writes for the first prototype, as d
 
 | File | Role |
 | --- | --- |
-| [`daniel_loop.py`](daniel_loop.py) | The loop: wakes the mind again and again, and keeps its last words between wakings |
+| [`daniel_loop.py`](daniel_loop.py) | The loop: wakes the mind again and again, runs Daniel's own waking program between two wakings, and gives the mind back its last words and its memory file |
 | [`daniel_body.py`](daniel_body.py) | The body's tools, `run` and `write`: the only way the mind can act, inside the container only |
 | [`starting-instruction.md`](starting-instruction.md) | The starting instruction, read by the mind at every waking and fixed for the whole life of Daniel |
 | [`daniel_devices.py`](daniel_devices.py) | Lists the devices handed to Daniel's container: all of them, without interpretation, except the excluded ones |
@@ -21,17 +21,31 @@ The loop runs continuously under the mind account and wakes the mind again and a
 
 - the pinned model version (`--model`);
 - none of the official tool's own tools (`--tools ""`) and no connector (`--strict-mcp-config`), so that the mind cannot act on the machine where the sign-in is held;
-- the body's tools as its only tools ([`daniel_body.py`](daniel_body.py), given with `--mcp-config` and approved in advance with `--allowedTools`): `run`, which runs a shell command inside the container, and `write`, which writes a file there. Both go through `docker exec`, with the command passed as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind;
+- the body's tools as its only tools ([`daniel_body.py`](daniel_body.py), given with `--mcp-config` and approved in advance with `--allowedTools`): `run`, which runs a shell command inside the container, and `write`, which writes a file there. Both go through `docker exec`, with the command passed as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind. When a command prints an image, the mind is shown the image itself;
 - the starting instruction as system prompt (`--system-prompt`);
-- a message containing the mind's last words from its previous waking, or `Begin.` the first time. Neither the time nor any signal for the instincts is passed: Daniel finds them itself.
+- a message containing what the mind is given back: its last words from its previous waking, the content of the memory file that Daniel keeps in its container (`/self/memory`, at most 16,000 characters), and what Daniel's waking program printed, if there is one. The first time, the message is `Begin.` Neither the time nor any signal for the instincts is passed: Daniel finds them itself.
 
-During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept and given back at the next waking, which starts at once. The mind sets its own pace: it can rest by running a command such as `sleep` in its container. A waking is stopped after six hours.
+During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept for the next waking. A waking is stopped after six hours.
+
+Between two wakings, the loop runs the program `/self/wake` inside the container, if Daniel has written one, and wakes the mind when that program ends, with its exit code and what it printed (the last 16,000 characters). The mind is not called while the program runs, so waiting uses none of the subscription quota. Daniel thus decides what wakes it, and sets its own pace: whatever its program watches or waits for, the mind is called only when there is something to think about. The program is stopped after one day. Without such a program, the mind is woken again at once.
 
 The official tool adds a few lines of its own to the context, besides the starting instruction: a sentence stating that the model is an agent built on Anthropic's Agent SDK, and a short description of the environment of the official tool (working folder, platform, version of the Linux kernel). This was observed by running the unmodified tool against a local stand-in for Anthropic's service.
 
-When the mind cannot be reached, because the subscription quota is exhausted, the network is down or Ruben has blocked access from his account, the loop waits and tries again, from one minute up to one hour between attempts. Daniel can do nothing in the meantime.
+When the mind cannot be reached, because the subscription quota is exhausted, the network is down or Ruben has blocked access from his account, the loop waits and tries again, from one minute up to one hour between attempts. The mind is not called in the meantime; what Daniel has left running in its container goes on. The loop waits in the same way when the container cannot be reached, so that the mind is never woken without its body.
 
-The loop keeps only the mind's last words, in `/var/lib/daniel/mind/state.json`, so that a restart resumes where it stopped. It writes nothing else. Its messages about an unreachable mind go to the Linux system journal.
+The loop keeps only the mind's last words and, until the mind has received it, what the waking program printed, in `/var/lib/daniel/mind/state.json`, so that a restart resumes where it stopped. It writes nothing else. Its messages about an unreachable mind or container go to the Linux system journal.
+
+## What Daniel is told
+
+Nothing in the starting instruction, in the descriptions of the tools or in the messages of the loop describes the body: no device, no sense, no network, no library, no model. Daniel finds these by itself, from inside its container.
+
+Daniel is told the truth about its mind, because no experiment inside the container could reveal how the loop works. Three facts are given, and nothing else:
+
+- the mind keeps nothing from one waking to the next; it is given back its last words and its memory file (starting instruction);
+- the program `/self/wake`, if Daniel has written it, decides when the mind wakes (starting instruction);
+- an image printed by a command is seen by the mind (description of the tool `run`).
+
+The limits are not announced in advance, but each is stated when it is met: a memory file or an output cut short, an image too heavy to be shown, or a program stopped after its time limit, is reported as such to the mind.
 
 ## Daniel's container
 
@@ -68,8 +82,8 @@ On the robot, without modifying anything:
 
 - the exchanges with the mind are stored by the official tool under `/var/lib/daniel/mind/.claude/projects/`;
 - what Daniel has written is in `/var/lib/daniel/self/`;
-- the last thought and the last action are in `/var/lib/daniel/mind/state.json`;
-- `journalctl -u daniel-loop` shows when the mind could not be reached.
+- the mind's last words are in `/var/lib/daniel/mind/state.json`;
+- `journalctl -u daniel-loop` shows when the mind or the container could not be reached.
 
 ## Tests
 
@@ -83,8 +97,9 @@ The plan left the following points open. The simplest option was chosen in each 
 
 - **One call to the official tool per waking.** The mind decides how long each waking lasts. Every use of a tool within a waking sends the whole waking back to the model, so long wakings use the subscription quota faster.
 - **Tools instead of a reply format.** The mind acts through two tools, `run` and `write`, rather than through a reply in a fixed format (decided by Ruben on 26 November 2026).
-- **Time limits.** 300 seconds per action and six hours per waking.
-- **Text only.** The mind receives text, not images or sounds. To perceive an image or a sound, Daniel must find or fetch, inside its container, a means of turning it into text, consistent with the decision that Daniel fetches the models it needs.
+- **Time limits.** 300 seconds per action, six hours per waking, and one day per wait between two wakings.
+- **Images are seen, sounds are not.** The model can see: an image printed by a command (PNG, JPEG, GIF or WebP) is passed to the mind as an image, and nothing tells Daniel where an image may come from. The model cannot hear: to perceive a sound, Daniel must find or fetch, inside its container, a means of turning it into text, consistent with the decision that Daniel fetches the models it needs. This was checked with the unmodified official tool and the pinned model: the four formats reach the model, an image of 9 MB is seen, and at 18 MB the official tool closes its connection to the body's tools. An image above 8 MB is therefore not passed on, and the mind is told so.
+- **The waking program is not stopped with the loop.** If the loop is restarted while the waking program runs, that program keeps running inside the container, and the loop starts it a second time. A restart of the robot stops both.
 - **The loop reaches the container through Docker.** The mind account therefore belongs to the `docker` group, which on Linux is equivalent to administrator rights on the robot. This does not open anything to Daniel, which never runs under the mind account, but it means that the mind account must be protected like an administrator account.
 - **Clocks are excluded.** The plan states that Daniel cannot change the clock; the real-time clock devices are therefore not handed over, which the plan did not list explicitly.
 

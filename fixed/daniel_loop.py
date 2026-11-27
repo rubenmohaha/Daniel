@@ -2,18 +2,26 @@
 """The loop: the part of Daniel that runs continuously and that Daniel cannot modify.
 
 The loop wakes the mind, again and again. Each time, it gives the mind the
-starting instruction and the last words the mind wrote before it stopped.
-The mind then acts as long as it wishes, with the body's tools (see
-daniel_body.py), which act inside Daniel's container only. When it stops, its
-last words are kept for the next waking, and the loop wakes it again.
+starting instruction, the last words the mind wrote before it stopped, and
+the memory file that Daniel keeps in its container. The mind then acts as
+long as it wishes, with the body's tools (see daniel_body.py), which act
+inside Daniel's container only. When it stops, its last words are kept for
+the next waking.
+
+Between two wakings, the loop runs the waking program that Daniel has
+written in its container, if there is one, without calling the mind. The
+mind is woken when that program ends, and receives what it printed. Without
+such a program, the mind is woken again at once. Daniel thus decides what
+wakes it, and waiting costs nothing.
 
 The mind is reached through Anthropic's official command-line tool, `claude`,
 unmodified, called without a screen. Its own tools are switched off; the only
 tools it has are the body's. This program never reads, copies or handles the
 credentials of the official tool.
 
-The loop keeps only the mind's last words, so that a restart resumes where
-it stopped.
+The loop keeps only the mind's last words and what the waking program
+printed until the mind has received it, so that a restart resumes where it
+stopped.
 
 Configuration, read from the environment (see daniel.env.example):
 
@@ -30,13 +38,19 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+
+from daniel_body import OUTPUT_LIMIT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 SESSION_TIME_LIMIT = 6 * 3600      # seconds; a waking is stopped beyond this
-RETRY_FIRST, RETRY_MAX = 60, 3600  # waiting when the mind cannot be reached
+WAIT_LIMIT = 24 * 3600             # seconds; the waking program is stopped beyond this
+RETRY_FIRST, RETRY_MAX = 60, 3600  # waiting when the mind or the body cannot be reached
 BODY_TOOLS = "mcp__body__run,mcp__body__write"
+WAKE_PROGRAM = "/self/wake"        # in the container: written by Daniel, run between two wakings
+MEMORY_FILE = "/self/memory"       # in the container: written by Daniel, given back at each waking
 
 
 class Config:
@@ -92,6 +106,75 @@ def wake(cfg, instruction, message):
     return str(reply.get("result", ""))
 
 
+def in_body(cfg, limit, *command):
+    """Run a command in Daniel's container, stopped after `limit` seconds."""
+    try:
+        return subprocess.run(
+            [cfg.docker, "exec", cfg.container, "timeout", "-k", "5", str(limit), *command],
+            stdin=subprocess.DEVNULL, capture_output=True, timeout=limit + 30)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise RuntimeError(f"Daniel's container could not be reached: {error}")
+
+
+def wait(cfg):
+    """Run Daniel's waking program until it ends. Return what it printed, or None without one."""
+    found = in_body(cfg, 30, "sh", "-c", f"[ -e {WAKE_PROGRAM} ] && echo yes || echo no")
+    answer = found.stdout.strip()
+    if answer not in (b"yes", b"no"):
+        detail = found.stderr.decode(errors="replace").strip() or f"exit code {found.returncode}"
+        raise RuntimeError(f"Daniel's container could not be reached: {detail[:500]}")
+    if answer == b"no":
+        return None
+    try:
+        program = subprocess.Popen(
+            [cfg.docker, "exec", cfg.container, "timeout", "-k", "5", str(WAIT_LIMIT), WAKE_PROGRAM],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    except OSError as error:
+        raise RuntimeError(f"Daniel's container could not be reached: {error}")
+    guard = threading.Timer(WAIT_LIMIT + 30, program.kill)  # should Docker itself not return
+    guard.start()
+    try:
+        kept = b""  # only the end is kept, however much is printed and however long it lasts
+        while True:
+            chunk = program.stdout.read1(65536)
+            if not chunk:
+                break
+            kept = (kept + chunk)[-4 * OUTPUT_LIMIT:]
+        code = program.wait()
+    finally:
+        guard.cancel()
+        program.stdout.close()
+    printed = kept.decode(errors="replace")
+    if len(printed) > OUTPUT_LIMIT:
+        printed = "[... the beginning is omitted ...]\n" + printed[-OUTPUT_LIMIT:]
+    if printed and not printed.endswith("\n"):
+        printed += "\n"
+    if code == 124:
+        printed += f"[stopped after the time limit of {WAIT_LIMIT} seconds]\n"
+    return printed + f"[exit code {code}]"
+
+
+def memory(cfg):
+    """Return what Daniel keeps in its memory file, or None."""
+    text = in_body(cfg, 30, "head", "-c", str(4 * OUTPUT_LIMIT + 4), MEMORY_FILE).stdout
+    text = text.decode(errors="replace")
+    if len(text) > OUTPUT_LIMIT:
+        text = text[:OUTPUT_LIMIT] + f"\n[... only the first {OUTPUT_LIMIT} characters are given ...]"
+    return text.strip() or None
+
+
+def waking_message(last_words, kept, printed):
+    """What the mind receives when it wakes."""
+    parts = []
+    if last_words:
+        parts.append("Your last words:\n" + last_words)
+    if kept:
+        parts.append(f"Your file {MEMORY_FILE}:\n" + kept)
+    if printed is not None:
+        parts.append(f"Printed by {WAKE_PROGRAM}:\n" + printed)
+    return "\n\n".join(parts) or "Begin."
+
+
 def load_state(cfg):
     try:
         with open(os.path.join(cfg.state_dir, "state.json")) as f:
@@ -109,7 +192,13 @@ def save_state(cfg, state):
 
 
 def one_waking(cfg, instruction, state):
-    state["last_words"] = wake(cfg, instruction, state.get("last_words") or "Begin.")
+    """Wait as Daniel has chosen, then wake the mind once."""
+    if "printed" not in state:
+        state["printed"] = wait(cfg)
+        save_state(cfg, state)  # not lost if the mind cannot be reached, or if the loop restarts
+    message = waking_message(state.get("last_words"), memory(cfg), state["printed"])
+    state["last_words"] = wake(cfg, instruction, message)
+    del state["printed"]
 
 
 def main():
@@ -123,8 +212,8 @@ def main():
             one_waking(cfg, instruction, state)
             retry = RETRY_FIRST
         except RuntimeError as error:
-            # Quota exhausted, network down, or access blocked from the account:
-            # Daniel can do nothing until the mind answers again.
+            # Quota exhausted, network down, access blocked from the account, or
+            # container stopped: the mind is not woken until both answer again.
             print(f"{error}; next attempt in {retry} s", file=sys.stderr, flush=True)
             time.sleep(retry)
             retry = min(retry * 2, RETRY_MAX)
