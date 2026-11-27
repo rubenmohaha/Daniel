@@ -95,6 +95,17 @@ assert first["tools"] == ["run", "write"], first["tools"]
 assert first["results"][0]["content"][0]["text"].startswith("daniel\n"), first["results"]
 assert second["stdin"] == "Your last words:\nI am here.\n\nYour file /self/memory:\nI woke once", second["stdin"]
 PYTHON
+step "A container made by an earlier version is set aside, not deleted"
+systemctl stop daniel-body
+docker run --detach --name daniel-body --restart always debian:stable-slim sleep infinity >/dev/null
+docker exec daniel-body sh -c 'echo precious > /installed-by-daniel'
+check "the service starts" systemctl start daniel-body
+check "the new container answers, with what Daniel keeps" inside "[ -e /self/kept ] && [ -e /usr/local/kept ]"
+check "the earlier container still exists, stopped for good" same \
+    "$(docker container inspect --format '{{.State.Running}} {{.HostConfig.RestartPolicy.Name}}' daniel-body-old 2>&1)" "false no"
+check "what Daniel had installed in it is still there" sh -c \
+    "docker cp daniel-body-old:/installed-by-daniel - | tar -xO | grep -q precious"
+
 [ "$failures" = 0 ] || journalctl -u daniel-loop -u daniel-body -n 40 --no-pager
 
 printf '\n%s check(s) failed.\n' "$failures"

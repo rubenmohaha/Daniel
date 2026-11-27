@@ -49,6 +49,7 @@ done
 devices=$(python3 /opt/daniel/daniel_devices.py)
 
 # shellcheck disable=SC2086  # one argument per word, no spaces inside
-exec docker run --rm --name "$CONTAINER" --hostname daniel --network host \
+exec docker run --rm --name "$CONTAINER" --network host \
+    --hostname daniel --add-host daniel:127.0.1.1 \
     --volume "$ROOT/self:/self" --workdir /self $volumes $devices \
     "$IMAGE" sh -c "$FIRST"
