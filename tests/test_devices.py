@@ -46,6 +46,15 @@ class Devices(unittest.TestCase):
         handed = self.handed(["bsg/0:0:0:0", "bsg/1:0:0:0", "odd name", "video0"], ["sda"])
         self.assertEqual(handed, {"video0"})
 
+    def test_another_name_for_a_protected_device_is_left_out(self):
+        dev = tempfile.mkdtemp()
+        for name, kind, numbers in [("root", 0o060000, (8, 1)), ("dm-0", 0o060000, (253, 0)),
+                                    ("dm-1", 0o060000, (253, 1)), ("ttyS1", 0o020000, (8, 1))]:
+            os.mknod(os.path.join(dev, name), 0o600 | kind, os.makedev(*numbers))
+        handed = daniel_devices.devices(dev, (set(), set()), {(8, 1), (253, 0)})
+        # dm-1 is another volume; ttyS1 is a character device that only shares the numbers
+        self.assertEqual({os.path.relpath(path, dev) for path in handed}, {"dm-1", "ttyS1"})
+
     def test_sd_card_system_disk(self):
         handed = self.handed(["mmcblk0", "mmcblk0p1", "mmcblk0p2", "mmcblk0boot0", "mmcblk0rpmb",
                               "mmcblk1", "mmcblk1p1", "gpiochip0"], ["mmcblk0"])
