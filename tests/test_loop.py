@@ -279,6 +279,60 @@ class Waiting(unittest.TestCase):
             self.assertFalse(os.path.exists(os.path.join(tmp, "record")))
 
 
+class Feeling(unittest.TestCase):
+    """What Daniel's own program prints is what it feels: after each action, and when it wakes."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.home = fake_body(self.tmp)
+
+    def act(self, tool="run", **arguments):
+        return daniel_body.act(tool, arguments or {"command": "echo done"}, docker=FAKE_DOCKER)[0]
+
+    def test_what_the_program_prints_follows_the_result_of_each_action(self):
+        put(self.home, "feel", "#!/bin/sh\necho 'reserve: 12 of 100'\n", program=True)
+        ran = self.act()
+        self.assertEqual([block["text"] for block in ran], ["done\n\n[exit code 0]", "You feel:\nreserve: 12 of 100"])
+        wrote = self.act("write", path="/self/notes", content="a note")
+        self.assertEqual(wrote[-1]["text"], "You feel:\nreserve: 12 of 100")
+
+    def test_nothing_is_felt_without_a_program_or_when_it_prints_nothing(self):
+        self.assertEqual(len(self.act()), 1)
+        put(self.home, "feel", "#!/bin/sh\nexit 0\n", program=True)
+        self.assertEqual(len(self.act()), 1)
+
+    def test_a_program_that_fails_is_reported_with_what_it_printed(self):
+        put(self.home, "feel", "#!/bin/sh\necho 'no reading' >&2\nexit 3\n", program=True)
+        self.assertEqual(self.act()[-1]["text"], "You feel:\nno reading\n[exit code 3]")
+
+    def test_what_it_prints_beyond_the_limit_is_cut_and_the_mind_is_told(self):
+        put(self.home, "feel", "#!/bin/sh\nhead -c 5000 /dev/zero | tr '\\0' F\n", program=True)
+        felt = self.act()[-1]["text"]
+        self.assertEqual(felt.count("F"), daniel_body.FEEL_LIMIT)
+        self.assertIn(f"only the first {daniel_body.FEEL_LIMIT} characters", felt)
+
+    def test_keeping_and_recalling_memories_are_not_followed_by_a_feeling(self):
+        put(self.home, "feel", "#!/bin/sh\necho 'reserve: 12 of 100'\n", program=True)
+        self.assertEqual(len(self.act("remember", name="left side", text="slower")), 1)
+        self.assertEqual(len(self.act("recall", about="side")), 1)
+
+    def test_what_daniel_feels_is_given_last_when_it_wakes(self):
+        put(self.home, "feel", "#!/bin/sh\necho 'reserve: 12 of 100'\n", program=True)
+        put(self.home, "wake", "#!/bin/sh\necho 'a sound'\n", program=True)
+        fake_mind(self.tmp, "ok")
+        daniel_loop.one_waking(config(self.tmp), "I", {})
+        self.assertEqual(received(self.tmp), [
+            "Printed by /self/wake:\na sound\n[exit code 0]\n\nYou feel:\nreserve: 12 of 100"])
+
+    def test_the_mind_is_not_woken_without_its_body_even_when_an_output_awaits_it(self):
+        fake_mind(self.tmp, "ok")
+        state = {"last_words": "kept", "printed": "heard\n[exit code 0]"}
+        with self.assertRaisesRegex(RuntimeError, "container"):
+            daniel_loop.one_waking(config(self.tmp, DANIEL_DOCKER="false"), "I", state)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "record")))
+        self.assertEqual(state, {"last_words": "kept", "printed": "heard\n[exit code 0]"})
+
+
 class BodyServer(unittest.TestCase):
     def test_protocol(self):
         self.assertEqual(daniel_body.handle({"method": "notifications/initialized"}), None)
@@ -469,6 +523,14 @@ class Container(unittest.TestCase):
                                 " | grep -c '^sleep 30 $' || true"],
                                capture_output=True, text=True).stdout.strip()
         self.assertEqual(still, "0")  # the stopped command does not keep running
+
+    def test_a_feeling_program_that_lasts_is_stopped_and_the_mind_is_told(self):
+        put(self.self_dir, "feel", "#!/bin/sh\necho before\nsleep 30\n", program=True)
+        self.addCleanup(os.remove, os.path.join(self.self_dir, "feel"))
+        limit, daniel_body.FEEL_TIME_LIMIT = daniel_body.FEEL_TIME_LIMIT, 2
+        self.addCleanup(setattr, daniel_body, "FEEL_TIME_LIMIT", limit)
+        content, _ = daniel_body.act("run", {"command": "echo done"}, container=self.name)
+        self.assertEqual(content[-1]["text"], "You feel:\nbefore\n[stopped after the time limit of 2 seconds]")
 
     def test_long_output_is_shortened(self):
         content, _ = daniel_body.act("run", {"command": "yes | head -c 100000"}, container=self.name)

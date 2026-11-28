@@ -6,7 +6,7 @@ This folder contains everything the project writes for the first prototype, as d
 | --- | --- |
 | [`daniel_loop.py`](daniel_loop.py) | The loop: wakes the mind again and again, runs Daniel's own waking program between two wakings, and gives the mind back its last words, its latest actions and its strongest memories |
 | [`daniel_memory.py`](daniel_memory.py) | The mind's memories and the journal of its actions: what is recent or used often comes back by itself, the rest must be looked for |
-| [`daniel_body.py`](daniel_body.py) | The mind's tools: `run` and `write`, the only way it can act, inside the container only, and `remember` and `recall`, for its memories |
+| [`daniel_body.py`](daniel_body.py) | The mind's tools: `run` and `write`, the only way it can act, inside the container only, and `remember` and `recall`, for its memories. Runs Daniel's feeling program after each action |
 | [`starting-instruction.md`](starting-instruction.md) | The starting instruction, read by the mind at every waking and fixed for the whole life of Daniel |
 | [`daniel_devices.py`](daniel_devices.py) | Lists the devices handed to Daniel's container: all of them, without interpretation, except the excluded ones |
 | [`daniel-body.sh`](daniel-body.sh) | Makes Daniel's container anew, with the devices present at that moment |
@@ -26,11 +26,13 @@ The loop runs continuously under the mind account and wakes the mind again and a
 - none of the official tool's own tools (`--tools ""`) and no connector (`--strict-mcp-config`), so that the mind cannot act on the machine where the sign-in is held;
 - the body's tools as its only tools ([`daniel_body.py`](daniel_body.py), given with `--mcp-config` and approved in advance with `--allowedTools`): `run`, which runs a shell command inside the container, and `write`, which writes a file there. Both go through `docker exec`, with the command passed as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind. When a command prints an image, the mind is shown the image itself;
 - the starting instruction as system prompt (`--system-prompt`);
-- a message containing what the mind is given back: its last words from its previous waking, its latest actions (at most 4,000 characters), the strongest of its memories (at most 16,000 characters, then names only), and what Daniel's waking program printed, if there is one. The first time, the message is `Begin.` Neither the time nor any signal for the instincts is passed: Daniel finds them itself.
+- a message containing what the mind is given back: its last words from its previous waking, its latest actions (at most 4,000 characters), the strongest of its memories (at most 16,000 characters, then names only), and what Daniel's waking program printed, if there is one. The first time, the message is `Begin.` The time is not passed, and the fixed part supplies no signal of its own for the instincts: what Daniel feels is what its own program prints (see below).
 
 During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept for the next waking. A waking is cut after six hours; the mind is told so at its next waking, in place of its last words, so that it does not start the same waking again.
 
 Between two wakings, the loop runs the program `/self/wake` inside the container, if Daniel has written one, and wakes the mind when that program ends, with its exit code and what it printed (the last 16,000 characters). The mind is not called while the program runs, so waiting uses none of the subscription quota. Daniel thus decides what wakes it, and sets its own pace: whatever its program watches or waits for, the mind is called only when there is something to think about. The program is stopped after one day. Without such a program, the mind is woken again at once.
+
+After each `run` or `write`, and at each waking, the fixed part runs the program `/self/feel` inside the container, if Daniel has written one, and gives the mind what it printed, under the words `You feel:`. Nothing is added when the program prints nothing. The program is stopped after 10 seconds, and at most 2,000 characters are given. This is how an instinct receives a signal without anything of the body being described: Daniel finds the readings, and the fixed part only carries what its program reports.
 
 The official tool adds a few lines of its own to the context, besides the starting instruction: a sentence stating that the model is an agent built on Anthropic's Agent SDK, and a short description of the environment of the official tool (working folder, platform, version of the Linux kernel). This was observed by running the unmodified tool against a local stand-in for Anthropic's service.
 
@@ -42,15 +44,18 @@ The loop keeps the mind's last words and, until the mind has received it, what t
 
 Nothing in the starting instruction, in the descriptions of the tools or in the messages of the loop describes the body: no device, no sense, no network, no library, no model. Daniel finds these by itself, from inside its container.
 
-Daniel is told the truth about its mind, because no experiment inside the container could reveal how the loop works. Three facts are given, and nothing else:
+Daniel is told the truth about its mind, because no experiment inside the container could reveal how the loop works. Four facts are given, and nothing else:
 
 - the mind keeps nothing from one waking to the next but its memories, which grow stronger with use and fade with time; it is given back its last words, its latest actions and its strongest memories (starting instruction, and descriptions of the tools `remember` and `recall`);
 - the program `/self/wake`, if Daniel has written it, decides when the mind wakes (starting instruction);
+- the program `/self/feel`, if Daniel has written it, is run after each action and at each waking, and what it prints is what Daniel feels (starting instruction);
 - an image printed by a command is seen by the mind (description of the tool `run`).
 
 The limits are not announced in advance, but each is stated when it is met: a memory too long to be kept, an output cut short, an image too heavy to be shown, a program stopped after its time limit, or a waking cut after its own, is reported as such to the mind.
 
 Daniel is also given two rules of conduct towards humans, which describe nothing of its body: it obeys them, and it must not stop as long as it has not managed to communicate with one (decided by Ruben on 27 November 2026). Until then, a waking ends only when it is cut, and the next one starts at once: the mind is called without pause, and the subscription quota is used continuously. Nothing in the fixed part enforces this rule or knows whether a human has been reached; it rests on Daniel, like obedience.
+
+The instincts are stated in the same text, by what Daniel must do and never by an organ. Since 28 November 2026 they are eight, in three families: protections (pain, fear, health), needs to keep within bounds (hunger, sleep) and growth (curiosity, mastery, bond). They are presented as what tells Daniel what to attend to and when, never as a reason to think less carefully, to claim what it has not checked or to say what a human would like to hear. An order from a human comes before all of them, and an order to cease comes before everything else. Recognition and self-esteem are deliberately not instincts: what a human says of Daniel's work is information. The text also gives Daniel a direction in three steps, as Ruben asked: find out what it is, become good at what it can do, grow more like the humans it serves.
 
 ## Daniel's container
 
@@ -109,6 +114,8 @@ The plan left the following points open. The simplest option was chosen in each 
 - **Nothing is forgotten for good.** A faint memory is not erased: it stops coming back by itself and must be looked for. At a waking, the strongest memories are given whole within 16,000 characters, the next ones by name within 2,000 characters, and the rest as a number. One recall gives five memories whole. A memory has at most 2,000 characters and its name 80.
 - **Memories are held outside the container.** They belong to the mind, not to the body: the loop holds them next to the last words, so that each action can be compared with them without going through Docker, and so that nothing done in the container can lose them. Daniel reaches them only through `remember` and `recall`; it remains free to keep any file it wishes in its container.
 - **A journal of actions.** Each action is noted on one line, of 300 characters at most, with its exit code. The end of the journal is given back at each waking, so that the mind knows what it was doing even when its last waking was cut. The journal is cut down to its latest half beyond 400,000 bytes.
+- **What Daniel feels is what its own program prints.** The fixed part cannot measure hunger or pain without knowing the body, and must not describe it. Daniel therefore writes `/self/feel` itself, and remains free to rewrite it: Ruben has said that Daniel could perhaps be trusted. The risk is known and accepted for now: an agent that can rewrite its own signals may come to silence them instead of answering them. Each rewriting appears in the journal of actions. Running the program adds one `docker exec` to every action.
+- **Instincts that steer attention, not thought.** The wording of the instincts follows the research of 28 November 2026 on instincts in animals, humans and machines (D-55). None of it has been tried on the model actually used, and a single sentence can change how a model obeys: the first trials should check obedience to an order, and to an order to cease given in the middle of a task, with this text.
 - **What this memory does not do.** It searches by plain words, not by meaning. Nothing marks a memory as painful or important. None of it has been tried with a real mind.
 - **One call to the official tool per waking.** The mind decides how long each waking lasts. Every use of a tool within a waking sends the whole waking back to the model, so long wakings use the subscription quota faster.
 - **Tools instead of a reply format.** The mind acts through two tools, `run` and `write`, rather than through a reply in a fixed format (decided by Ruben on 26 November 2026). Two more tools, `remember` and `recall`, reach its memories.

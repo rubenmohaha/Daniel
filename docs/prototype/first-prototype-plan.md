@@ -112,9 +112,9 @@ The loop keeps no log of its own beyond the mind's last words and what the wakin
 
 ### 4. The instincts
 
-The framing note lists six fixed instincts. The fixed part does not implement them as separate programs. The language model already knows what hunger, pain or fear mean; the starting instruction states the six instincts, and the model applies them.
+The framing note lists six fixed instincts. Decided by Ruben on 28 November 2026, after research on instincts in animals, humans and machines, they are now eight, in three families: protections (pain, fear, health), needs to keep within bounds (hunger, sleep) and growth (curiosity, mastery, bond); see D-55. The fixed part does not implement them as separate programs. The language model already knows what hunger, pain or fear mean; the starting instruction states the instincts, and the model applies them.
 
-The loop gives the model no signal for any instinct. Every signal, including those that Linux reports on any machine, is for Daniel to find, and connecting a signal to an instinct is its own task; the project provides nothing for it.
+The fixed part supplies no signal of its own for any instinct. Every signal, including those that Linux reports on any machine, is for Daniel to find, and connecting a signal to an instinct is its own task. The fixed part only carries the result: after each action and at each waking, it runs the program `/self/feel`, if Daniel has written it, and gives the mind what it printed (D-54).
 
 Decided by Ruben on 26 November 2026, the starting instruction names no part of the body and no type of body: each instinct is described by what Daniel must do, not by the organ that signals it. For the same reason, the loop no longer passes Linux's battery, temperature, memory and storage readings to the model as instinct levels, which would have named the parts of the body that the project expected to find. This last point is the simplest reading of Ruben's decision and awaits his confirmation.
 
@@ -122,7 +122,7 @@ Decided by Ruben on 26 November 2026:
 
 - **No fixed reflex for now.** Pain and fear are handled by the model, which already knows them. No separate fast program is written for the first prototype.
 - **No imposed limit on first trials.** What a first command on an unknown output may do is left to the model's judgement.
-- **No help in connecting discovered signals to the instincts.** The model manages on its own.
+- **No help in connecting discovered signals to the instincts.** The model manages on its own. Since 28 November 2026 the fixed part runs the program in which Daniel has made this connection, and nothing more (D-54).
 
 ### 5. Reading what Daniel does
 
@@ -160,17 +160,17 @@ Everything below lives in Daniel's container, in the folder kept across restarts
 - the **skills** and **memory** it chooses to keep;
 - any **model or tool fetched from the network**, once it has established by itself that it needs one.
 
-The project writes none of this. No example or template is provided in advance, apart from the starting instruction. One file name is fixed, because the loop reads it: the waking program, `/self/wake`. It starts absent, and Daniel alone writes it. Daniel's memories are not files of the container: decided by Ruben on 28 November 2026, they are held by the loop and come back as a human's do, the recent and the often used before the rest (see D-53).
+The project writes none of this. No example or template is provided in advance, apart from the starting instruction. Two file names are fixed, because the fixed part runs them: the waking program, `/self/wake`, and the feeling program, `/self/feel`. Both start absent, and Daniel alone writes them. Daniel's memories are not files of the container: decided by Ruben on 28 November 2026, they are held by the loop and come back as a human's do, the recent and the often used before the rest (see D-53).
 
 ## The starting instruction
 
 The mind needs a first text, read at every waking, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Daniel needs, and leaves to Daniel whatever it can find by itself. It states:
 
-- that Daniel is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools;
-- where it acts, what it cannot change, what it is given back at each waking, and what wakes it;
-- that it is free to use the robot as it wishes to serve humans, and obeys them;
+- that Daniel is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools, and the direction it is given: find out what it is, become good at what it can do, grow more like the humans it serves;
+- where it acts, what it cannot change, how its memories work, what it is given back at each waking, what wakes it, and how it comes to feel something;
+- that it is free to use the robot as it wishes to serve humans, and obeys them, an order coming before its instincts and an order to cease before everything else;
 - that it must not stop as long as it has not managed to communicate with a human;
-- the six instincts, described by what Daniel must do, with health in place of temperature;
+- the eight instincts, described by what Daniel must do, and what they are for;
 - that nothing enters its body description without repeated observation.
 
 Decided by Ruben on 26 November 2026: this text is fixed for the whole life of Daniel, like the instincts. Daniel may write whatever it wishes in its memory, but it cannot rewrite the starting instruction.

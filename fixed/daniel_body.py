@@ -18,6 +18,11 @@ loop holds outside the container (see daniel_memory.py):
 Each action is noted in the mind's journal, and strengthens the memories that
 name what it touches.
 
+After each action in the container, the server runs the program `/self/feel`
+if Daniel has written it, and adds what it printed to the result: this is
+what Daniel feels. The fixed part supplies no signal of its own, since it
+knows nothing of the body; Daniel connects what it has found to this program.
+
 What a command prints is given back to the mind as text. When it is an image,
 the mind is shown the image itself: the model can see, and the body's tools
 say nothing of where an image may come from.
@@ -40,6 +45,9 @@ import daniel_memory as memories
 ACTION_TIME_LIMIT = 300        # seconds; the action is stopped beyond this
 OUTPUT_LIMIT = 16000           # characters of an action's output given back to the mind
 IMAGE_LIMIT = 8_000_000        # bytes; the official tool closes the connection on much heavier images
+FEEL_PROGRAM = "/self/feel"    # in the container: written by Daniel, run after each action and at each waking
+FEEL_TIME_LIMIT = 10           # seconds; the feeling program is stopped beyond this
+FEEL_LIMIT = 2000              # characters of what it prints given to the mind
 
 IMAGE_STARTS = [(b"\x89PNG\r\n\x1a\n", "image/png"), (b"\xff\xd8\xff", "image/jpeg"),
                 (b"GIF87a", "image/gif"), (b"GIF89a", "image/gif")]
@@ -107,6 +115,32 @@ def said(text):
     return [{"type": "text", "text": text}]
 
 
+def feel(container, docker):
+    """Run the program in which Daniel says what it feels, if it has written one. Return what it printed."""
+    try:
+        done = subprocess.run(
+            [docker, "exec", container, "timeout", "-k", "5", str(FEEL_TIME_LIMIT), "sh", "-c",
+             f"[ -e {FEEL_PROGRAM} ] || exit 0; exec {FEEL_PROGRAM}"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            timeout=FEEL_TIME_LIMIT + 30)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return f"[{FEEL_PROGRAM} could not be run: {error}]"
+    printed = done.stdout.decode(errors="replace").strip()
+    if len(printed) > FEEL_LIMIT:
+        printed = printed[:FEEL_LIMIT] + f"\n[... only the first {FEEL_LIMIT} characters are given ...]"
+    if done.returncode == 124:
+        printed += f"\n[stopped after the time limit of {FEEL_TIME_LIMIT} seconds]"
+    elif done.returncode:
+        printed += f"\n[exit code {done.returncode}]"
+    return printed.strip()
+
+
+def felt(container, docker):
+    """What is added to the result of an action: what Daniel feels, if anything."""
+    printed = feel(container, docker)
+    return said("You feel:\n" + printed) if printed else []
+
+
 def noted(mind, action, outcome=""):
     """Note an action in the journal, and strengthen the memories that name what it touches.
 
@@ -161,7 +195,7 @@ def act(name, arguments, container=None, docker=None, mind=None):
                               timeout=ACTION_TIME_LIMIT + 30)
     except subprocess.TimeoutExpired:
         outcome = f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
-        return said(outcome + noted(mind, action, outcome)), True
+        return said(outcome + noted(mind, action, outcome)) + felt(container, docker), True
     except OSError as error:
         outcome = f"[the action could not be started: {error}]"
         return said(outcome + noted(mind, action, outcome)), True
@@ -179,7 +213,8 @@ def act(name, arguments, container=None, docker=None, mind=None):
     if done.returncode == 124 and name == "run":
         output += f"\n[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
     outcome = f"[exit code {done.returncode}]"
-    return seen + said(shorten(output + "\n" + outcome) + noted(mind, action, outcome)), done.returncode != 0
+    told = said(shorten(output + "\n" + outcome) + noted(mind, action, outcome))
+    return seen + told + felt(container, docker), done.returncode != 0
 
 
 def handle(request):
