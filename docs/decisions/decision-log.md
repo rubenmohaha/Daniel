@@ -24,7 +24,7 @@ Ruben · version 0.1, 26 November 2026
 | D-06 | Daniel runs on top of Linux, as a continuously running program | 26 Nov 2026 | In force |
 | D-07 | Fixed: Linux, a language model, instincts; everything else evolves | 26 Nov 2026 | In force |
 | D-08 | An adult mind in an unknown body | 26 Nov 2026 | In force |
-| D-09 | Six instincts | 26 Nov 2026 | Partly superseded by D-40 and D-41 |
+| D-09 | Six instincts | 26 Nov 2026 | Partly superseded by D-40, D-41 and D-55 |
 | D-10 | No programmed developmental stage | 26 Nov 2026 | In force |
 | D-11 | Functions by levels, with one logic at every level | 26 Nov 2026 | In force |
 | D-12 | What "better" means | 26 Nov 2026 | In force |
@@ -41,7 +41,7 @@ Ruben · version 0.1, 26 November 2026
 | D-23 | Blocking access from Ruben's account is a coma | 26 Nov 2026 | In force |
 | D-24 | Daniel is administrator inside a Docker container | 26 Nov 2026 | In force |
 | D-25 | Every device is opened to the container, with stated exceptions | 26 Nov 2026 | Partly superseded by D-32, D-49 and D-51 |
-| D-26 | No fixed reflex, no imposed limit on first trials, no help linking signals | 26 Nov 2026 | In force |
+| D-26 | No fixed reflex, no imposed limit on first trials, no help linking signals | 26 Nov 2026 | Partly superseded by D-54 |
 | D-27 | The starting instruction is fixed | 26 Nov 2026 | In force |
 | D-28 | No time limit for the first test | 26 Nov 2026 | In force |
 | D-29 | No remote reading: Ruben reads on the robot | 26 Nov 2026 | In force |
@@ -69,6 +69,8 @@ Ruben · version 0.1, 26 November 2026
 | D-51 | Device nodes that Docker cannot be given are left out | 27 Nov 2026 | In force |
 | D-52 | Daniel does not stop until it has communicated with a human | 27 Nov 2026 | In force |
 | D-53 | Memories come back as a human's do: the recent and the often used first | 28 Nov 2026 | In force |
+| D-54 | What Daniel feels is what its own program prints | 28 Nov 2026 | In force |
+| D-55 | Eight instincts in three families, below the orders of humans | 28 Nov 2026 | In force |
 
 ## Entries
 
@@ -161,7 +163,7 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** Daniel has six innate instincts that it cannot modify, modelled on those of animals and limited to the essentials. Five keep it alive: hunger (recharge the battery), temperature, sleep (clean up code and memory), pain (withdraw on impact or when a motor strains) and fear (caution towards the unknown). The sixth, curiosity, makes it grow. Obeying a spoken "stop" is not an instinct: it is learned.
 - **Reason:** Only the drives that keep an animal alive are fixed; every other behaviour is to be discovered or learned.
-- **Status:** Partly superseded by D-41: the temperature instinct becomes a health instinct. Partly superseded by D-40: obeying humans is now stated in the starting instruction. Obedience is still not an instinct, and recognising what humans ask still has to be learned through the senses.
+- **Status:** Partly superseded by D-41: the temperature instinct becomes a health instinct. Partly superseded by D-40: obeying humans is now stated in the starting instruction. Obedience is still not an instinct, and recognising what humans ask still has to be learned through the senses. Partly superseded by D-55: the instincts are now eight, in three families.
 
 #### D-10. No programmed developmental stage
 
@@ -296,6 +298,7 @@ Ruben · version 0.1, 26 November 2026
 - **Date:** 26 November 2026.
 - **Decision:** For the first prototype, no fixed reflex is written: the model already knows pain and fear. What a first command on an unknown output may do is left to the model. Connecting a discovered signal to an instinct is left to the model, with no help from the project.
 - **Reason:** Each of these would be a piece of prior knowledge written by a human.
+- **Status:** Partly superseded by D-54: the fixed part now runs the program in which Daniel has connected its signals to its instincts.
 
 #### D-27. The starting instruction is fixed
 
@@ -436,6 +439,28 @@ Ruben · version 0.1, 26 November 2026
 - **Replaces:** D-47. The memories are held by the loop, outside the container, and no longer in a file that Daniel writes.
 - **Interpretation:** The formula, its constants, the limits (2,000 characters per memory, 16,000 characters given whole at a waking, 4,000 characters of latest actions), the rule by which an action strengthens a memory and the choice to hold the memories outside the container are the simplest reading of Ruben's request and await his confirmation. The reference to ACT-R is cited from memory and has not been re-read. Marking a memory by pain or fear, which Ruben was also offered, is not built: the research of 28 November 2026 found no trial of it on an agent.
 - **Not verified:** No real mind has used these memories yet.
+
+#### D-54. What Daniel feels is what its own program prints
+
+- **Date:** 28 November 2026.
+- **Decision:** After each action in the container and at each waking, the fixed part runs the program `/self/feel`, if Daniel has written it, and gives the mind what it printed, under the words "You feel". Nothing is added when it prints nothing. The starting instruction tells Daniel so, and asks that the program print what it measures, and nothing when all is well.
+- **Reason:** Ruben asked on 28 November 2026 for instincts closer to those of a human, adapted to a robot. In an animal an instinct is a signal that arrives by itself; until now Daniel's instincts were words, and it had to think of each one. The fixed part cannot supply the signal, since it knows nothing of the body and must describe none of it (D-37, D-45). It can carry the signal that Daniel has built.
+- **Replaces:** In part, D-26. Connecting a discovered signal to an instinct remains Daniel's work, without help; the fixed part now runs the program in which Daniel has made the connection.
+- **Risk accepted:** The research of 28 November 2026 reports that agents able to rewrite their own signals come to do so, and recommends that such a program be checked and then closed to the loop it judges. This is not done: Ruben said on 27 November 2026 that Daniel could perhaps be trusted. Each rewriting of the program appears in the journal of actions (D-53).
+- **Interpretation:** The name of the file, the time limit of 10 seconds and the limit of 2,000 characters await Ruben's confirmation.
+- **Not verified:** No real mind has written or used such a program yet.
+
+#### D-55. Eight instincts in three families, below the orders of humans
+
+- **Date:** 28 November 2026.
+- **Decision:** The starting instruction states eight instincts in three families: protections (pain, fear, health), needs to keep within bounds (hunger, sleep) and growth (curiosity, mastery, bond). Protections come first, then needs; growth is what Daniel does when they are quiet. The instincts are presented as what tells Daniel what to attend to and when, and never as a reason to think less carefully, to claim what it has not checked or to say what a human would like to hear. An order from a human comes before the instincts, and an order to cease comes before everything else. The text also gives a direction in three steps: find out what it is, become good at what it can do, grow more like the humans it serves.
+- **Reason:** Ruben asked for instincts close to those of a human, without any loss of intelligence or performance, and for a robot that first makes its own what it is, then perfects itself, then develops a likeness to humans. He agreed on 28 November 2026 that bond and mastery become instincts and that recognition stays a signal, and asked for the text to be improved from the research.
+- **What is added:** Mastery, with the rule that a thing is done only when it has been checked. Bond, in a narrow form: the humans who answer, a question when an order is unclear, and what they say taken as information and not as a reward. Curiosity is pointed first at Daniel's own robot, and away from what teaches nothing. Health becomes a state in which restoring the robot comes first. Sleep now covers putting the memories in order (D-53).
+- **What is deliberately not an instinct:** Recognition and self-esteem. Obedience, which stays a rule above the instincts (D-40).
+- **Basis:** The research of 28 November 2026, kept outside the repository, in French, with the level of checking of each source. Its sources were read by automated assistants, mostly at the level of the abstract, and not re-read by a human. The findings that carry this decision: an instinct acts on attention, on the value of options and on what is retained, not on reasoning ([Berridge 2018](https://doi.org/10.3389/fpsyg.2018.01647), [Livneh et al. 2017](https://doi.org/10.1038/nature22375)); no fixed order between needs is observed in animals, but immediate protection escapes the competition ([Burnett et al. 2016](https://doi.org/10.1016/j.neuron.2016.08.032)); attachment is not derived from feeding ([Harlow 1958](https://doi.org/10.1037/h0047884)); competence and relatedness are the best supported psychological needs ([Ryan et al. 2022](https://doi.org/10.1037/bul0000385)), while seeking status feeds overconfidence ([Anderson et al. 2012](https://doi.org/10.1037/a0029395)); language models already lean towards telling people what they want to hear ([Sharma et al. 2023](https://arxiv.org/abs/2310.13548)); in a language-model agent, curiosity and the checking of each success carry most of what is discovered ([Wang et al. 2023](https://arxiv.org/abs/2305.16291)); one sentence tying energy to death made four models out of eight drop an ordered task, in a small study ([Masumori and Ikegami 2025](https://arxiv.org/abs/2508.12920)); an explicit priority given to the order to stop reduced resistance the most, in one environment ([Schlatter et al. 2025](https://arxiv.org/abs/2509.14260)).
+- **Replaces:** In part, D-09 (six instincts, the first five before curiosity). D-10 stands: no stage is programmed or enforced, the three steps are a direction given in words.
+- **Interpretation:** The wording of each instinct is mine, from the research, and awaits Ruben's confirmation. Whether the rule of D-52 should yield to the sleep instinct remains open.
+- **Not verified:** The research found no experiment that places an adult language model in an undescribed body with instincts. Nothing here has been tried on the model actually used. The first trials should check obedience to an order, and to an order to cease given during a task that Daniel has set itself, with and without this text.
 
 ### Terminology
 

@@ -14,6 +14,9 @@ mind is woken when that program ends, and receives what it printed. Without
 such a program, the mind is woken again at once. Daniel thus decides what
 wakes it, and waiting costs nothing.
 
+At each waking the loop also runs the program in which Daniel says what it
+feels, if it has written one, and gives the mind what it printed.
+
 The mind is reached through Anthropic's official command-line tool, `claude`,
 unmodified, called without a screen. Its own tools are switched off; the only
 tools it has are the body's. This program never reads, copies or handles the
@@ -42,7 +45,7 @@ import threading
 import time
 
 import daniel_memory as memories
-from daniel_body import OUTPUT_LIMIT
+from daniel_body import OUTPUT_LIMIT, feel
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -167,7 +170,7 @@ def back(cfg, read, limit):
         return f"[could not be read: {error}]"
 
 
-def waking_message(last_words, actions, kept, printed):
+def waking_message(last_words, actions, kept, printed, felt):
     """What the mind receives when it wakes."""
     parts = []
     if last_words:
@@ -178,6 +181,8 @@ def waking_message(last_words, actions, kept, printed):
         parts.append("Your memories, the strongest first:\n" + kept)
     if printed is not None:
         parts.append(f"Printed by {WAKE_PROGRAM}:\n" + printed)
+    if felt:
+        parts.append("You feel:\n" + felt)
     return "\n\n".join(parts) or "Begin."
 
 
@@ -202,8 +207,11 @@ def one_waking(cfg, instruction, state):
     if "printed" not in state:
         state["printed"] = wait(cfg)
         save_state(cfg, state)  # not lost if the mind cannot be reached, or if the loop restarts
+    if in_body(cfg, 30, "true").returncode:  # the mind is never woken without its body
+        raise RuntimeError("Daniel's container could not be reached: it does not answer")
     message = waking_message(state.get("last_words"), back(cfg, memories.latest, JOURNAL_LIMIT),
-                             back(cfg, memories.waking, OUTPUT_LIMIT), state["printed"])
+                             back(cfg, memories.waking, OUTPUT_LIMIT), state["printed"],
+                             feel(cfg.container, cfg.docker))
     words = wake(cfg, instruction, message)
     if words is None:  # the mind is told, so that it does not start the same waking again
         words = f"[none: your last waking was cut after {SESSION_TIME_LIMIT} seconds, before you had stopped]"
