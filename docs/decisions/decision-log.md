@@ -74,6 +74,8 @@ Ruben · version 0.1, 26 November 2026
 | D-56 | A long waking is summed up beyond a set size, and Daniel is told | 28 Nov 2026 | In force |
 | D-57 | The README presents the project to a newcomer, with the first run as its evidence | 28 Nov 2026 | In force |
 | D-58 | A summary of the mind's reasoning is kept with its stored exchanges | 28 Nov 2026 | In force |
+| D-59 | In the long term: a robot maker lets several minds learn one robot, keeps the best and deploys it on the others | 28 Nov 2026 | In force |
+| D-60 | The mind may be a model that runs locally or a remote one reached by an API | 28 Nov 2026 | In force |
 
 ## Entries
 
@@ -141,6 +143,14 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** Ruben asked for the project to be called Daniel instead of Ipse.
 - **Note:** The earlier entries of this log now use the new name, including those written before the rename. A robot set up under the former name keeps its old account, container, service and folders (`ipse-mind`, `ipse-body`, `ipse-loop`, `/var/lib/ipse`); the installation script does not migrate them.
 - **Replaces:** The name Ipse.
+
+#### D-59. In the long term: a robot maker lets several minds learn one robot, keeps the best and deploys it on the others
+
+- **Date:** 28 November 2026.
+- **Decision:** In the long term, Daniel is meant for a firm that manufactures robots. One or several minds learn the same robot, the best is selected, and it is deployed, with what it has learned, on the other robots.
+- **Reason:** Stated by Ruben on 28 November 2026 as the objective in the long term. It says for whom the standard of D-05 is meant, and does not replace it.
+- **Interpretation:** Ruben spoke of training one or several AIs. This is read in the sense the project already gives to learning: the model stays fixed (D-07), and what a mind has learned is what it has written, that is its memories, its programs and what it has installed. "Several" is read as several language models tried on the same robot, each from an empty state, and "deployed trained" as copying that written state to robots of the same make. These readings are mine and await Ruben's confirmation.
+- **Not designed:** A way to take out what a Daniel has learned and to put it into another robot, without the sign-in of its owner. A measure by which the best is chosen. What a copied memory is worth on a robot that differs from the first: the starting instruction lets nothing enter the description of the body unless it has been observed repeatedly, and a copied memory has not been observed on the new body.
 
 ### The model
 
@@ -234,6 +244,15 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** Being an adult mind, Daniel knows how to use Linux and may use it to find out what is connected. The inventory provides hypotheses and experiment confirms them: nothing enters the body description without having been observed. Where Linux reports nothing, as with raw inputs and outputs on a board such as a Raspberry Pi, Daniel tests its outputs and looks for the stimuli that come back. The project's commitment becomes: no human-written description of the robot.
 - **Reason:** An adult knows how to look at what it has before using it; what Linux cannot report, such as which motor turns which wheel, can still only be learned by trying.
 - **Replaces:** The stricter reading of "the body is discovered, not described", under which the model would not read the hardware configuration at all.
+
+#### D-60. The mind may be a model that runs locally or a remote one reached by an API
+
+- **Date:** 28 November 2026.
+- **Decision:** The language model must be able to run locally, or to be a remote model reached through an API, for example.
+- **Reason:** Stated by Ruben on 28 November 2026, together with the objective of D-59: a robot maker must be able to choose and to compare minds.
+- **State today:** The fixed part reaches one kind of mind only: an Anthropic model, through the official command-line tool and a personal sign-in, chosen to keep the cost of the first trials within an existing subscription (first prototype plan). The framing note keeps a model with open weights, embedded in the robot, as its working reference (D-17). A personal subscription is intended for individual use: a firm would need another way in any case.
+- **Interpretation:** "Locally" is read as on the robot itself or on a machine of the same site. This reading is mine.
+- **Not designed, not verified:** How the loop reaches another mind. The official tool does more than pass messages: it carries the calls of the tools, shows the mind the images that its commands print, sums up a long waking (D-56) and keeps a summary of the reasoning (D-58); another way of reaching a mind has to provide each of these or do without. No local model has been tried: whether one discovers a body as the model used on 28 November 2026 did is not known.
 
 ### First prototype
 

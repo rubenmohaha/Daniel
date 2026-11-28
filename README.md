@@ -17,6 +17,7 @@
   <a href="#quick-start">Quick start</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#status">Status</a> ·
+  <a href="#where-this-is-going">Where this is going</a> ·
   <a href="#documentation">Documentation</a>
 </p>
 
@@ -117,6 +118,16 @@ Daniel is a research prototype. What follows separates what has been observed fr
 | The wall holds against every attempt listed in [`check-wall.sh`](fixed/check-wall.sh) | The same code on two very different bodies, and recovery after motor cables are swapped |
 
 The [decision log](docs/decisions/decision-log.md) records every choice made so far, with its date, its reason and what has not been verified.
+
+## Where this is going
+
+Daniel is meant, in the long term, for a firm that builds robots:
+
+1. **Several minds learn the same robot.** Each starts from nothing, on the same machine.
+2. **The best is kept.**
+3. **It is deployed on the other robots, with what it has learned**: its memories, its programs, what it has installed.
+
+The mind should be any language model, running locally or reached through an API. Today there is one way only, Anthropic's command-line tool, and none of the three steps exists yet.
 
 ## Documentation
 
