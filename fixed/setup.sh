@@ -17,7 +17,7 @@ done
 
 # 1. The fixed part, owned by root and read-only for everyone else.
 install -d -m 755 /opt/daniel /etc/daniel
-install -m 644 daniel_loop.py daniel_body.py daniel_devices.py daniel-body.sh starting-instruction.md /opt/daniel/
+install -m 644 daniel_loop.py daniel_body.py daniel_memory.py daniel_devices.py daniel-body.sh starting-instruction.md /opt/daniel/
 [ -e /etc/daniel/daniel.env ] || install -m 644 daniel.env.example /etc/daniel/daniel.env
 
 # 2. The mind account. It holds the sign-in; only the loop and the official tool run there.

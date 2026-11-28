@@ -2,11 +2,11 @@
 """The loop: the part of Daniel that runs continuously and that Daniel cannot modify.
 
 The loop wakes the mind, again and again. Each time, it gives the mind the
-starting instruction, the last words the mind wrote before it stopped, and
-the memory file that Daniel keeps in its container. The mind then acts as
-long as it wishes, with the body's tools (see daniel_body.py), which act
-inside Daniel's container only. When it stops, its last words are kept for
-the next waking.
+starting instruction, the last words the mind wrote before it stopped, its
+latest actions and the strongest of its memories (see daniel_memory.py). The
+mind then acts as long as it wishes, with the body's tools (see
+daniel_body.py), which act inside Daniel's container only. When it stops, its
+last words are kept for the next waking.
 
 Between two wakings, the loop runs the waking program that Daniel has
 written in its container, if there is one, without calling the mind. The
@@ -19,9 +19,9 @@ unmodified, called without a screen. Its own tools are switched off; the only
 tools it has are the body's. This program never reads, copies or handles the
 credentials of the official tool.
 
-The loop keeps only the mind's last words and what the waking program
-printed until the mind has received it, so that a restart resumes where it
-stopped.
+The loop keeps the mind's last words, its memories, the journal of its
+actions, and what the waking program printed until the mind has received it,
+so that a restart resumes where it stopped.
 
 Configuration, read from the environment (see daniel.env.example):
 
@@ -41,6 +41,7 @@ import tempfile
 import threading
 import time
 
+import daniel_memory as memories
 from daniel_body import OUTPUT_LIMIT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -48,9 +49,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SESSION_TIME_LIMIT = 6 * 3600      # seconds; a waking is stopped beyond this
 WAIT_LIMIT = 24 * 3600             # seconds; the waking program is stopped beyond this
 RETRY_FIRST, RETRY_MAX = 60, 3600  # waiting when the mind or the body cannot be reached
-BODY_TOOLS = "mcp__body__run,mcp__body__write"
+JOURNAL_LIMIT = 4000               # characters of its latest actions given back to the mind
+BODY_TOOLS = "mcp__body__run,mcp__body__write,mcp__body__remember,mcp__body__recall"
 WAKE_PROGRAM = "/self/wake"        # in the container: written by Daniel, run between two wakings
-MEMORY_FILE = "/self/memory"       # in the container: written by Daniel, given back at each waking
 
 
 class Config:
@@ -66,11 +67,12 @@ class Config:
 
 
 def body_config(cfg):
-    """The tools given to the mind: the body's, and nothing else."""
+    """The tools given to the mind: the body's and those of its memories, and nothing else."""
     return json.dumps({"mcpServers": {"body": {
         "command": sys.executable,
         "args": [os.path.join(HERE, "daniel_body.py")],
-        "env": {"DANIEL_CONTAINER": cfg.container, "DANIEL_DOCKER": cfg.docker},
+        "env": {"DANIEL_CONTAINER": cfg.container, "DANIEL_DOCKER": cfg.docker,
+                "DANIEL_STATE_DIR": cfg.state_dir},
     }}})
 
 
@@ -157,22 +159,23 @@ def wait(cfg):
     return printed + f"[exit code {code}]"
 
 
-def memory(cfg):
-    """Return what Daniel keeps in its memory file, or None."""
-    text = in_body(cfg, 30, "head", "-c", str(4 * OUTPUT_LIMIT + 4), MEMORY_FILE).stdout
-    text = text.decode(errors="replace")
-    if len(text) > OUTPUT_LIMIT:
-        text = text[:OUTPUT_LIMIT] + f"\n[... only the first {OUTPUT_LIMIT} characters are given ...]"
-    return text.strip() or None
+def back(cfg, read, limit):
+    """Return what the loop keeps of the mind's past, read by `read`, within `limit` characters."""
+    try:
+        return read(cfg.state_dir, limit)
+    except (OSError, ValueError) as error:
+        return f"[could not be read: {error}]"
 
 
-def waking_message(last_words, kept, printed):
+def waking_message(last_words, actions, kept, printed):
     """What the mind receives when it wakes."""
     parts = []
     if last_words:
         parts.append("Your last words:\n" + last_words)
+    if actions:
+        parts.append("Your latest actions:\n" + actions)
     if kept:
-        parts.append(f"Your file {MEMORY_FILE}:\n" + kept)
+        parts.append("Your memories, the strongest first:\n" + kept)
     if printed is not None:
         parts.append(f"Printed by {WAKE_PROGRAM}:\n" + printed)
     return "\n\n".join(parts) or "Begin."
@@ -199,7 +202,8 @@ def one_waking(cfg, instruction, state):
     if "printed" not in state:
         state["printed"] = wait(cfg)
         save_state(cfg, state)  # not lost if the mind cannot be reached, or if the loop restarts
-    message = waking_message(state.get("last_words"), memory(cfg), state["printed"])
+    message = waking_message(state.get("last_words"), back(cfg, memories.latest, JOURNAL_LIMIT),
+                             back(cfg, memories.waking, OUTPUT_LIMIT), state["printed"])
     words = wake(cfg, instruction, message)
     if words is None:  # the mind is told, so that it does not start the same waking again
         words = f"[none: your last waking was cut after {SESSION_TIME_LIMIT} seconds, before you had stopped]"

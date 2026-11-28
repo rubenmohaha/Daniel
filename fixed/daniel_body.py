@@ -3,11 +3,20 @@
 
 A small server, in the format the official tool `claude` uses for tools
 (MCP, JSON-RPC over standard input and output). The official tool starts it
-under the mind account. It offers two tools, and both act inside Daniel's
-container only, through `docker exec`:
+under the mind account. Two of its tools act, inside Daniel's container only,
+through `docker exec`:
 
   run    run a shell command in the container
   write  write a file in the container
+
+Two others reach what the mind keeps from one waking to the next, which the
+loop holds outside the container (see daniel_memory.py):
+
+  remember  keep a memory under a name
+  recall    look for memories by a few words
+
+Each action is noted in the mind's journal, and strengthens the memories that
+name what it touches.
 
 What a command prints is given back to the mind as text. When it is an image,
 the mind is shown the image itself: the model can see, and the body's tools
@@ -16,7 +25,8 @@ say nothing of where an image may come from.
 Nothing else is offered: the official tool's own tools are switched off, so
 the mind can act nowhere else, and never next to the sign-in.
 
-Configuration: DANIEL_CONTAINER (default: daniel-body), DANIEL_DOCKER (default: docker).
+Configuration: DANIEL_CONTAINER (default: daniel-body), DANIEL_DOCKER (default: docker),
+DANIEL_STATE_DIR (default: /var/lib/daniel/mind).
 """
 
 import base64
@@ -24,6 +34,8 @@ import json
 import os
 import subprocess
 import sys
+
+import daniel_memory as memories
 
 ACTION_TIME_LIMIT = 300        # seconds; the action is stopped beyond this
 OUTPUT_LIMIT = 16000           # characters of an action's output given back to the mind
@@ -52,6 +64,24 @@ TOOLS = [
             "required": ["path", "content"],
         },
     },
+    {
+        "name": "remember",
+        "description": "Keep a memory under a short name. The same name again replaces it.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"name": {"type": "string"}, "text": {"type": "string"}},
+            "required": ["name", "text"],
+        },
+    },
+    {
+        "name": "recall",
+        "description": "Look for memories by a few words. Those found come back whole.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"about": {"type": "string"}},
+            "required": ["about"],
+        },
+    },
 ]
 
 
@@ -77,28 +107,64 @@ def said(text):
     return [{"type": "text", "text": text}]
 
 
-def act(name, arguments, container=None, docker=None):
-    """Carry out one action inside the container. Return (what the mind receives, is_error)."""
+def noted(mind, action, outcome=""):
+    """Note an action in the journal, and strengthen the memories that name what it touches.
+
+    Return what to add to the mind's result: nothing, unless its memories could not be reached.
+    """
+    try:
+        memories.note(mind, action, outcome)
+        memories.stirred(mind, action)
+    except (OSError, ValueError) as error:
+        return f"\n[your memories could not be reached: {error}]"
+    return ""
+
+
+def given(arguments, key):
+    """Return a text argument of a call, or nothing if it is missing, empty or not a text."""
+    value = arguments.get(key)
+    return value if isinstance(value, str) and value.strip() else ""
+
+
+def act(name, arguments, container=None, docker=None, mind=None):
+    """Carry out one action of the mind. Return (what the mind receives, is_error)."""
     container = container or os.environ.get("DANIEL_CONTAINER", "daniel-body")
     docker = docker or os.environ.get("DANIEL_DOCKER", "docker")
-    if name == "run" and isinstance(arguments.get("command"), str) and arguments["command"].strip():
+    mind = mind or os.environ.get("DANIEL_STATE_DIR", "/var/lib/daniel/mind")
+    if name == "remember" and given(arguments, "name") and given(arguments, "text"):
+        try:
+            told, refused = memories.remember(mind, arguments["name"], arguments["text"])
+            memories.note(mind, "remember: " + " ".join(arguments["name"].split()),
+                          "[not kept]" if refused else "")
+        except (OSError, ValueError) as error:
+            return said(f"[your memories could not be reached: {error}]"), True
+        return said(told), refused
+    if name == "recall" and given(arguments, "about"):
+        try:
+            found = memories.recall(mind, arguments["about"])
+            memories.note(mind, "recall: " + arguments["about"])
+        except (OSError, ValueError) as error:
+            return said(f"[your memories could not be reached: {error}]"), True
+        return said(found), False
+    if name == "run" and given(arguments, "command"):
         command = [docker, "exec", "-i", container,
                    "timeout", "-k", "5", str(ACTION_TIME_LIMIT), "sh", "-c", arguments["command"]]
-        stdin = b""
-    elif (name == "write" and isinstance(arguments.get("path"), str) and arguments["path"]
-          and isinstance(arguments.get("content"), str)):
+        stdin, action = b"", "run: " + arguments["command"]
+    elif name == "write" and given(arguments, "path") and isinstance(arguments.get("content"), str):
         command = [docker, "exec", "-i", container, "sh", "-c",
                    'mkdir -p -- "$(dirname -- "$1")" && cat > "$1"', "sh", arguments["path"]]
-        stdin = arguments["content"].encode()
+        stdin, action = arguments["content"].encode(), "write: " + arguments["path"]
     else:
         return said(f"invalid call to {name}"), True
     try:
         done = subprocess.run(command, input=stdin, capture_output=True,
                               timeout=ACTION_TIME_LIMIT + 30)
     except subprocess.TimeoutExpired:
-        return said(f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"), True
+        outcome = f"[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
+        return said(outcome + noted(mind, action, outcome)), True
     except OSError as error:
-        return said(f"[the action could not be started: {error}]"), True
+        outcome = f"[the action could not be started: {error}]"
+        return said(outcome + noted(mind, action, outcome)), True
     seen = []
     kind = image_type(done.stdout) if name == "run" else None
     if kind and len(done.stdout) <= IMAGE_LIMIT:
@@ -112,7 +178,8 @@ def act(name, arguments, container=None, docker=None):
     output += done.stderr.decode(errors="replace")
     if done.returncode == 124 and name == "run":
         output += f"\n[stopped after the time limit of {ACTION_TIME_LIMIT} seconds]"
-    return seen + said(shorten(output + f"\n[exit code {done.returncode}]")), done.returncode != 0
+    outcome = f"[exit code {done.returncode}]"
+    return seen + said(shorten(output + "\n" + outcome) + noted(mind, action, outcome)), done.returncode != 0
 
 
 def handle(request):
