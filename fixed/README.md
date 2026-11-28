@@ -108,7 +108,7 @@ On the robot, without modifying anything:
 
 The tests also run on Linux for every pull request, as root and with Docker, so that none is skipped there ([`tests.yml`](../.github/workflows/tests.yml)).
 
-The same workflow runs a system test, [`tests/system_test.sh`](../tests/system_test.sh), which sets Daniel up for real on a throwaway machine, with the stand-in for the mind: it runs `setup.sh` and `check-wall.sh`, restarts the container with a device added and then removed, and lets the loop wake the mind under its service. It refuses to run anywhere else, since it creates an account, a container and services.
+The same workflow runs a system test, [`tests/system_test.sh`](../tests/system_test.sh), which sets Daniel up for real on a throwaway machine, with the stand-in for the mind: it runs `setup.sh` and `check-wall.sh`, restarts the container with a device added and then removed, lets the loop wake the mind under its service, and runs the installation script at a terminal of its own, typing what the owner types: the sign-in code, then the answer to the question asked before Daniel is started. It refuses to run anywhere else, since it creates an account, a container and services.
 
 ## Choices made in this prototype
 
