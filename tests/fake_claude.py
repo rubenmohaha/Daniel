@@ -9,10 +9,27 @@ simulate a mind that does not stop, or an object
 the stand-in starts the tool server named in --mcp-config, as the official
 tool does, calls the tools in order, records their results, and ends with the
 final text.
+
+It also stands in for the sign-in, as far as the installation script uses it:
+`auth status` says whether a code has been received, and `auth login` asks for
+a code and reads it from where a person would type it.
 """
 import json, os, subprocess, sys, time
 
 argv = sys.argv[1:]
+if argv[:1] == ["auth"]:
+    signed_in = os.path.expanduser("~/.fake-claude-signed-in")
+    if argv[1] == "login":
+        sys.stdout.write("Paste code here if prompted > ")
+        sys.stdout.flush()
+        code = sys.stdin.readline().strip()
+        if not code:
+            sys.exit(1)
+        with open(signed_in, "w") as f:
+            f.write(code)
+    else:
+        print(json.dumps({"loggedIn": os.path.exists(signed_in)}, indent=2))
+    sys.exit(0)
 record = os.environ["FAKE_CLAUDE_RECORD"]
 entry = {"argv": argv, "stdin": sys.stdin.read(), "cwd": os.getcwd(), "results": []}
 with open(os.environ["FAKE_CLAUDE_REPLIES"]) as f:
