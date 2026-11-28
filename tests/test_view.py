@@ -215,6 +215,24 @@ class Collected(unittest.TestCase):
         self.assertEqual(state["capacity"]["success"][-1], 67)
         self.assertEqual(state["loop"], "active")
 
+    def test_a_daniel_that_acted_before_the_loop_took_notes_is_not_said_never_to_have_woken(self):
+        lines(os.path.join(self.mind, "journal"), [{"at": NOON - 700, "did": "run: ls [exit code 0]"}])
+        now = self.state()["now"]
+        self.assertEqual((now["state"], now["since"]), ("stopped", NOON - 700))
+
+    def test_before_the_first_note_of_the_loop_the_wakings_are_those_of_the_stored_exchanges(self):
+        folder = os.path.join(self.mind, ".claude", "projects", "workdir")
+        lines(os.path.join(folder, "one.jsonl"), [said(NOON - 3000, run("a", "ls")), result(NOON - 2400, "a", "x")])
+        lines(os.path.join(folder, "two.jsonl"), [said(NOON - 900, run("b", "ls")), result(NOON - 250, "b", "x")])
+        self.assertEqual(self.state()["days"][-1]["segments"],
+                         [[NOON - 3000, NOON - 2400, "acting"], [NOON - 900, NOON - 250, "acting"]])
+        lines(os.path.join(self.mind, "wakings"), [{"at": NOON - 300, "what": "started"}, {"at": NOON - 200, "what": "woken"}])
+        state = self.state()
+        self.assertEqual(state["days"][-1]["segments"], [
+            [NOON - 3000, NOON - 2400, "acting"], [NOON - 900, NOON - 300, "acting"],
+            [NOON - 300, NOON - 200, "waiting"], [NOON - 200, NOON, "acting"]])
+        self.assertEqual(state["now"]["wakings_today"], 3)
+
     def test_what_is_added_later_is_read_once(self):
         journal = os.path.join(self.mind, "journal")
         lines(journal, [{"at": NOON - 50, "did": "run: ls [exit code 0]"}])

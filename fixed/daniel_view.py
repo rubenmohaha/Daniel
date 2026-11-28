@@ -165,7 +165,7 @@ class Exchanges:
 
     def __init__(self):
         self.thoughts, self.decisions, self.thread, self.feelings, self.signs = [], [], [], [], []
-        self.pending, self.answered = {}, {}
+        self.pending, self.answered, self.wakings = {}, {}, {}
 
     def feed(self, entry, source):
         if not isinstance(entry, dict) or not isinstance(entry.get("message"), dict):
@@ -175,6 +175,8 @@ class Exchanges:
             return
         if not self.signs or at - self.signs[-1] >= 30:
             self.signs.append(at)
+        seen = self.wakings.setdefault(source, [at, at])  # one waking of the mind fills one stored exchange
+        seen[0], seen[1] = min(seen[0], at), max(seen[1], at)
         if entry.get("type") == "user":
             if isinstance(content, str):
                 self.felt(at, content.rpartition("\n\n")[2] if "\n\n" in content else content)
@@ -225,6 +227,7 @@ class Exchanges:
             setattr(self, name, [item for item in getattr(self, name) if item[0] >= before])
         self.signs = [at for at in self.signs if at >= before]
         self.pending = {ident: action for ident, action in self.pending.items() if action["at"] >= before}
+        self.wakings = {source: seen for source, seen in self.wakings.items() if seen[1] >= before}
 
 
 def states(notes, signs, now, running):
@@ -335,14 +338,17 @@ class Collector:
         loop, body = active(LOOP_UNIT), active(BODY_UNIT)
         done, told = self.actions.all, self.exchanges
         signs = sorted([action["at"] for action in done] + told.signs)
-        spans = states(self.notes, signs, now, loop == "active")
+        # Before the loop took notes, on an earlier installation, the wakings are those of the stored exchanges.
+        first = self.notes[0]["at"] if self.notes else now
+        earlier = sorted([start, min(end, first), "acting"] for start, end in told.wakings.values() if start < min(end, first))
+        spans = earlier + states(self.notes, signs, now, loop == "active")
         today = midnight(now)
 
         current = spans[-1] if spans and spans[-1][1] >= now else None
         last = self.notes[-1] if self.notes else None
         moment_now = {
-            "state": current[2] if current else "stopped" if self.notes else "never",
-            "since": current[0] if current else spans[-1][1] if spans else None,
+            "state": current[2] if current else "stopped" if self.notes or signs else "never",
+            "since": current[0] if current else max([span[1] for span in spans[-1:]] + signs[-1:], default=None),
             "why": last["why"] if last and current and current[2] == "unreachable" else "",
             "wakings_today": sum(1 for start, _, state in spans if state == "acting" and start >= today),
             "last_action_at": done[-1]["at"] if done else None,
