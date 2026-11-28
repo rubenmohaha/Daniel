@@ -72,6 +72,7 @@ Ruben · version 0.1, 26 November 2026
 | D-54 | What Daniel feels is what its own program prints | 28 Nov 2026 | In force |
 | D-55 | Eight instincts in three families, below the orders of humans | 28 Nov 2026 | In force |
 | D-56 | A long waking is summed up beyond a set size, and Daniel is told | 28 Nov 2026 | In force |
+| D-57 | The README presents the project to a newcomer, with the first run as its evidence | 28 Nov 2026 | In force |
 
 ## Entries
 
@@ -122,6 +123,15 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** Every change still goes through a pull request, but each pull request is merged as soon as it is ready, without waiting for Ruben's review. Ruben is told in one line what has entered the main branch.
 - **Reason:** Ruben asked for pull requests to be merged automatically, for the open ones and all the following ones.
 - **Replaces:** The review of every pull request by Ruben before merging (D-02).
+
+#### D-57. The README presents the project to a newcomer, with the first run as its evidence
+
+- **Date:** 28 November 2026.
+- **Decision:** The README at the root of the repository opens with a banner, one sentence that says what Daniel is, and the account of its first run. The installation command, the way the system works, its status and the documents follow. The layout is the one common to widely followed repositories: banner, badges, short links, a demonstration first, then a quick start. Nothing is claimed that has not been observed: what is not yet shown is listed next to what is, under Status.
+- **Reason:** Ruben asked on 28 November 2026 for the GitHub repository to be more appealing, taking after repositories with many stars.
+- **Observed:** The account of the first run is taken from the exchanges stored by the official tool on the trial machine: the times, the order of the actions and Daniel's own sentences, from the first entry at 15:57:54 UTC to the start of its first wait at 16:03:15, after 29 actions.
+- **Interpretation:** The wording, the choice of what is shown of the first run, the banner and the picture for shared links ([`docs/assets`](../assets)) are mine and await Ruben's confirmation, as do the description and the topics of the repository on GitHub, changed in the same spirit.
+- **Replaces:** The list of principles of the earlier README, which still named six instincts, temperature among them; the instincts are eight since D-55.
 
 #### D-44. The project is renamed Daniel
 
