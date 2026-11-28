@@ -10,6 +10,9 @@ the stand-in starts the tool server named in --mcp-config, as the official
 tool does, calls the tools in order, records their results, and ends with the
 final text.
 
+When FAKE_CLAUDE_REFUSES names an option, a call that carries it is refused as
+the official tool refuses an option it does not know, and noted apart.
+
 It also stands in for the sign-in, as far as the installation script uses it:
 `auth status` says whether a code has been received, and `auth login` asks for
 a code. Like the official tool, it asks on its own terminal, whatever it is
@@ -41,6 +44,11 @@ if argv[:1] == ["auth"]:
         print(json.dumps({"loggedIn": os.path.exists(signed_in)}, indent=2))
     sys.exit(0)
 record = os.environ["FAKE_CLAUDE_RECORD"]
+refused = os.environ.get("FAKE_CLAUDE_REFUSES")  # an option that this version of the tool does not know
+if refused and refused in argv:
+    with open(record + ".refused", "a") as f:
+        f.write(json.dumps(argv) + "\n")
+    sys.exit(f"error: unknown option '{refused}'")
 entry = {"argv": argv, "stdin": sys.stdin.read(), "cwd": os.getcwd(), "results": []}
 with open(os.environ["FAKE_CLAUDE_REPLIES"]) as f:
     replies = f.read().splitlines()

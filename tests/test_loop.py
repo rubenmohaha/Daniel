@@ -103,6 +103,26 @@ class Loop(unittest.TestCase):
         argv = calls(tmp)[0]["argv"]
         self.assertEqual(argv[argv.index("--autocompact") + 1], "200000")
 
+    def test_the_official_tool_is_asked_to_keep_a_summary_of_the_reasoning_of_the_mind(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "hello")
+        daniel_loop.one_waking(config(tmp), "INSTRUCTION", {})
+        argv = calls(tmp)[0]["argv"]
+        self.assertEqual(argv[argv.index("--thinking-display") + 1], "summarized")
+
+    def test_a_tool_that_does_not_know_that_option_still_wakes_the_mind(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "first words", "second words")
+        os.environ["FAKE_CLAUDE_REFUSES"] = "--thinking-display"
+        self.addCleanup(os.environ.pop, "FAKE_CLAUDE_REFUSES")
+        cfg, state = config(tmp), {}
+        daniel_loop.one_waking(cfg, "I", state)
+        daniel_loop.one_waking(cfg, "I", state)
+        self.assertEqual(received(tmp), ["Begin.", "Your last words:\nfirst words"])
+        self.assertEqual(state["last_words"], "second words")
+        with open(os.path.join(tmp, "record.refused")) as f:
+            self.assertEqual(len(f.readlines()), 1)  # asked once, then no more
+
     def test_last_words_are_given_back(self):
         tmp = tempfile.mkdtemp()
         fake_mind(tmp, "first words", "second words")

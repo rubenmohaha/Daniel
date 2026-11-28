@@ -9,6 +9,9 @@ daniel_body.py), which act inside Daniel's container only. When it stops, its
 last words are kept for the next waking. When a waking grows long, the
 official tool replaces what the mind has done and seen in it by a summary,
 and the waking goes on; the mind is told of this in the starting instruction.
+The official tool is also asked to keep a summary of the mind's reasoning in
+the exchanges it stores, for the humans who read them; a version of the tool
+that does not know how is used without it.
 
 Between two wakings, the loop runs the waking program that Daniel has
 written in its container, if there is one, without calling the mind. The
@@ -57,6 +60,7 @@ WAIT_LIMIT = 24 * 3600             # seconds; the waking program is stopped beyo
 RETRY_FIRST, RETRY_MAX = 60, 3600  # waiting when the mind or the body cannot be reached
 JOURNAL_LIMIT = 4000               # characters of its latest actions given back to the mind
 BODY_TOOLS = "mcp__body__run,mcp__body__write,mcp__body__remember,mcp__body__recall"
+REASONING = ["--thinking-display", "summarized"]  # a summary of the mind's reasoning is kept with its exchanges
 WAKE_PROGRAM = "/self/wake"        # in the container: written by Daniel, run between two wakings
 
 
@@ -70,6 +74,7 @@ class Config:
         self.instruction = env.get("DANIEL_INSTRUCTION", os.path.join(HERE, "starting-instruction.md"))
         self.claude = env.get("DANIEL_CLAUDE", "claude")
         self.docker = env.get("DANIEL_DOCKER", "docker")
+        self.reasoning = True  # until the official tool says that it does not know the option
 
 
 def body_config(cfg):
@@ -100,6 +105,8 @@ def wake(cfg, instruction, message):
         "--autocompact", str(THREAD_LIMIT),  # a long waking is summed up well before the model's own limit
         "--output-format", "json",
     ]
+    if cfg.reasoning:
+        command += REASONING
     try:
         done = subprocess.run(command, input=message, capture_output=True, text=True,
                               cwd=workdir, timeout=SESSION_TIME_LIMIT)
@@ -107,6 +114,12 @@ def wake(cfg, instruction, message):
         return None
     except OSError as error:
         raise RuntimeError(f"the official tool could not be started: {error}")
+    if cfg.reasoning and done.returncode != 0 and "unknown option" in done.stderr and REASONING[0] in done.stderr:
+        # The option is not among those the tool lists: a version without it must not keep the mind asleep.
+        print(f"the official tool does not know {REASONING[0]}: the mind is woken without it, "
+              "and its reasoning is not kept", file=sys.stderr, flush=True)
+        cfg.reasoning = False
+        return wake(cfg, instruction, message)
     try:
         reply = json.loads(done.stdout)
     except ValueError:

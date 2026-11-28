@@ -73,6 +73,7 @@ Ruben · version 0.1, 26 November 2026
 | D-55 | Eight instincts in three families, below the orders of humans | 28 Nov 2026 | In force |
 | D-56 | A long waking is summed up beyond a set size, and Daniel is told | 28 Nov 2026 | In force |
 | D-57 | The README presents the project to a newcomer, with the first run as its evidence | 28 Nov 2026 | In force |
+| D-58 | A summary of the mind's reasoning is kept with its stored exchanges | 28 Nov 2026 | In force |
 
 ## Entries
 
@@ -482,6 +483,15 @@ Ruben · version 0.1, 26 November 2026
 - **Consequence for the sleep instinct:** An exception to D-52 in favour of sleep had been considered on the ground that a waking without end fills the thread. That ground no longer holds: the thread is summed up without Daniel stopping. What is left to sleep is the order of its memories and of its programs. No exception to D-52 is written; the question stays with Ruben.
 - **Interpretation:** The size was proposed as "200,000 for example" and accepted as such; it and the wording given to Daniel await Ruben's confirmation.
 - **Not verified:** The size of 200,000 itself was not tried. The summary is written by the tool with instructions of its own: nothing guarantees that it keeps a given detail, and no summary has yet been observed on a real waking of Daniel.
+
+#### D-58. A summary of the mind's reasoning is kept with its stored exchanges
+
+- **Date:** 28 November 2026.
+- **Decision:** The loop asks the official tool to keep a summary of the mind's reasoning in the exchanges it stores (option `--thinking-display summarized`). When the tool answers that it does not know the option, the loop says so in the system journal and wakes the mind without it, for as long as it runs.
+- **Reason:** Ruben asked on 28 November 2026 whether Daniel's train of thought could be reached, for a page on which a human follows what Daniel does, and answered yes when asked whether the option should be added. Called as the loop calls it, the tool stored every step of reasoning empty.
+- **Observed:** On 28 November 2026, with the unmodified tool (version 2.1.332) and the pinned model. Without the option, or with `omitted`: a step of reasoning is stored with no text; on Daniel's first run, 57 steps out of 57. With `summarized`: a summary of a few sentences in the first person, 284 characters for one step in a first trial, then 1,253 characters for four steps when the loop's own call was used with the starting instruction and the body's tools. With a name that the tool does not know, the tool answered `error: unknown option`, and the loop woke the mind without it.
+- **Interpretation:** Ruben's "yes" answered a question that offered two moments, now or with the page; it is read as now. Nothing is added to what Daniel is told, on the ground that its exchanges were already stored and readable on the robot; whether Daniel should be told that its reasoning can be read stays with Ruben.
+- **Not verified:** Whether the option changes the quota used or the time of a waking. The summary is written by Anthropic's service: nothing guarantees that it keeps a given detail. The option is not among those the tool's help lists, and may not last.
 
 ### Terminology
 
