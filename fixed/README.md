@@ -15,8 +15,11 @@ This folder contains everything the project writes for the first prototype, as d
 | [`daniel-loop.service`](daniel-loop.service) | Runs the loop under the mind account and restarts it after a crash or a power cut |
 | [`daniel.env.example`](daniel.env.example) | Configuration, including the pinned model version |
 | [`check-wall.sh`](check-wall.sh) | Checks from inside the container that the wall holds, by trying what Daniel must not be able to do |
+| [`daniel_view.py`](daniel_view.py) | The page on which a human follows Daniel: one program reads what the mind has recorded, another serves the page on the local network |
+| [`daniel-view.html`](daniel-view.html) | The page itself: one screen, drawn again every few seconds, without a button |
+| [`daniel-view-collect.service`](daniel-view-collect.service), [`daniel-view.service`](daniel-view.service) | Run the two programs of the page, each under its own account |
 
-The fixed part uses only Python 3 and its standard library, Docker, and the standard tools of a Linux system. It contains about 700 lines of code, comments excluded.
+The fixed part uses only Python 3 and its standard library, Docker, and the standard tools of a Linux system. The loop, the body's tools, the memories and the setup contain about 700 lines of code, comments excluded; the page adds about 700, half of them in the page itself.
 
 ## How it works
 
@@ -42,7 +45,7 @@ The official tool adds a few lines of its own to the context, besides the starti
 
 When the mind cannot be reached, because the subscription quota is exhausted, the network is down or Ruben has blocked access from his account, the loop waits and tries again, from one minute up to one hour between attempts. The mind is not called in the meantime; what Daniel has left running in its container goes on. The loop waits in the same way when the container cannot be reached, so that the mind is never woken without its body.
 
-The loop keeps the mind's last words and, until the mind has received it, what the waking program printed, in `/var/lib/daniel/mind/state.json`, so that a restart resumes where it stopped. Next to it are the mind's memories (`memories.json`) and the journal of its actions (`journal`). It writes nothing else. Its messages about an unreachable mind or container go to the Linux system journal.
+The loop keeps the mind's last words and, until the mind has received it, what the waking program printed, in `/var/lib/daniel/mind/state.json`, so that a restart resumes where it stopped. Next to it are the mind's memories (`memories.json`), the journal of its actions (`journal`) and the notes of its wakings (`wakings`): each start of the loop, each time the mind was woken, stopped or was cut, and each time the mind or the body could not be reached. It writes nothing else. Its messages about an unreachable mind or container go to the Linux system journal.
 
 ## What Daniel is told
 
@@ -92,6 +95,25 @@ The same steps can be done by hand, as root, on a Linux machine with Docker, Pyt
 
 The official tool deletes its stored exchanges after 30 days by default. To keep them longer, set `cleanupPeriodDays` in `/var/lib/daniel/mind/.claude/settings.json` during step 2.
 
+## Following Daniel on a page
+
+From any device on the robot's local network, a browser opens `http://ROBOT:8642`, where `ROBOT` is the address of the robot. The installation script prints the address. The page is one screen, drawn again every three seconds, in English, or in French when the browser asks for French. It shows:
+
+- **the state of the moment**, in one sentence: awake, waiting, mind out of reach or stopped, and since when;
+- **seven days, then today in detail**, on the same hours of the day: when the mind acted, waited or could not be reached; then, for today, the actions per minute, the time the mind takes to decide, the size of the thread of the waking against the size at which it is summed up, the moments when Daniel reported a feeling and the actions that failed;
+- **four measures of what Daniel can do**, day by day: the programs it wrote and then used again, the share of its actions that succeeded, the share that touched a place never touched before, and the time it takes to decide;
+- **the machine**: processor, working memory and disk;
+- **the train of thought**: the summary of the mind's latest reasoning and the two before, or its own words when it wrote some;
+- **what it is doing**: the action under way and the four before, with their outcome;
+- **what keeps it busy**: the places most touched in the last hour, by the names Daniel writes;
+- **its strongest memories**, by name.
+
+The page only shows. It has no button, accepts nothing that is sent to it, and serves two things: itself and the state. Everything Daniel wrote is placed on it as text, never as markup, since a browser would run what it is given as markup. Nothing is fetched from outside the robot.
+
+Two programs make it, so that what listens on the network cannot read the mind's folder, where the sign-in is held. [`daniel_view.py collect`](daniel_view.py) runs under the mind account: every two seconds it reads the notes of the wakings, the journal, the memories and the exchanges stored by the official tool, and writes one file, `/var/lib/daniel/view/state.json`. It opens no connection. `daniel_view.py serve` runs under an account of its own, `daniel-view`, which can read that file and nothing of the mind.
+
+The port is set by `DANIEL_VIEW_PORT` in `/etc/daniel/daniel.env`. Both services are started at setup and at each start of the robot, whether Daniel runs or not: `sudo systemctl disable --now daniel-view daniel-view-collect` stops the page.
+
 ## Reading what Daniel does
 
 On the robot, without modifying anything:
@@ -99,7 +121,7 @@ On the robot, without modifying anything:
 - the exchanges with the mind are stored by the official tool under `/var/lib/daniel/mind/.claude/projects/`: what the mind wrote, what it did and what it received, and a summary of its reasoning before each action. That summary is written by Anthropic's service, not by the mind, and appears when a step of reasoning ends;
 - what Daniel has written is in `/var/lib/daniel/self/`;
 - the mind's last words are in `/var/lib/daniel/mind/state.json`;
-- its actions, one per line with the time, are in `/var/lib/daniel/mind/journal`, and its memories, with the time of each use, in `/var/lib/daniel/mind/memories.json`;
+- its actions, one per line with the time, are in `/var/lib/daniel/mind/journal`, its memories, with the time of each use, in `/var/lib/daniel/mind/memories.json`, and the notes of its wakings in `/var/lib/daniel/mind/wakings`;
 - `journalctl -u daniel-loop` shows when the mind or the container could not be reached;
 - `journalctl -u daniel-body` shows each start of the container.
 
@@ -109,7 +131,7 @@ On the robot, without modifying anything:
 
 The tests also run on Linux for every pull request, as root and with Docker, so that none is skipped there ([`tests.yml`](../.github/workflows/tests.yml)).
 
-The same workflow runs a system test, [`tests/system_test.sh`](../tests/system_test.sh), which sets Daniel up for real on a throwaway machine, with the stand-in for the mind: it runs `setup.sh` and `check-wall.sh`, restarts the container with a device added and then removed, lets the loop wake the mind under its service, and runs the installation script at a terminal of its own, typing what the owner types: the sign-in code, then the answer to the question asked before Daniel is started. It refuses to run anywhere else, since it creates an account, a container and services.
+The same workflow runs a system test, [`tests/system_test.sh`](../tests/system_test.sh), which sets Daniel up for real on a throwaway machine, with the stand-in for the mind: it runs `setup.sh` and `check-wall.sh`, restarts the container with a device added and then removed, lets the loop wake the mind under its service, reads the page while the loop runs and after it has stopped, checks that the account that serves the page can read nothing of the mind, and runs the installation script at a terminal of its own, typing what the owner types: the sign-in code, then the answer to the question asked before Daniel is started. It refuses to run anywhere else, since it creates an account, a container and services.
 
 ## Choices made in this prototype
 
@@ -124,6 +146,10 @@ The plan left the following points open. The simplest option was chosen in each 
 - **What this memory does not do.** It searches by plain words, not by meaning. Nothing marks a memory as painful or important. None of it has been tried with a real mind.
 - **One call to the official tool per waking.** The mind decides how long each waking lasts. Every use of a tool within a waking sends the whole waking back to the model, so long wakings use the subscription quota faster.
 - **A long waking is summed up by the official tool.** Ruben pointed out on 28 November 2026 that the official tool compacts a conversation by itself. The loop only sets the size at which it does so, 200,000 tokens, so that a waking of several hours does not send back several hundred thousand tokens at each action. Daniel is told, since it could not find this out before it had lost something. Checked on 28 November 2026 with the unmodified tool, called as the loop calls it, and the size set to 100,000: the thread was summed up twice, at about 78,000 and 73,000 tokens, each time down to about 12,000; the starting instruction kept applying and the task went on; the twelve values to report, eight of them held by the summaries alone, were all reported correctly. The summary is written by the tool with instructions of its own, and nothing guarantees that it keeps a given detail. The size of 200,000 itself was not tried.
+- **A page to follow Daniel, on the local network only.** Ruben asked on 28 November 2026 for a simple page, reachable from outside the robot, on which Daniel's state can be followed with graphs: its thoughts, what it feels and what it can do, all on one screen. He chose the local network only, and no gauge per instinct: the instincts are sentences, and a gauge would be invented. What the page shows is therefore measured or quoted, never interpreted: a feeling is what `/self/feel` printed, a thought is what the mind wrote or the summary of its reasoning, and what Daniel can do is given by four counts rather than by one mark.
+- **What the page cannot know.** The summary of the reasoning is written by Anthropic's service, not by Daniel, and appears when a step of reasoning ends. The thoughts, the time to decide, the size of the thread and the feelings are read in the exchanges stored by the official tool, in a form that the tool may change and that it deletes after 30 days by default: if it changes, these parts of the page stay empty and the rest goes on. A program counts as written when the mind used `write`, or sent the output of a command to a file; it counts as used again when a later command names it. The places are the first two names of each path in a command. Before a new start of the loop, the loop is shown only up to its last sign of life.
+- **Daniel can open the page.** It shares the robot's network: it can read on the page what is shown of it, the summary of its own reasoning included, and can listen on the page's port whenever the service that serves the page is stopped. Nothing is said to Daniel of the page.
+- **The names on the page are Daniel's.** No sense and no organ is named in the code of the page: the places are shown as Daniel writes them in its commands.
 - **A summary of the mind's reasoning is kept.** Ruben asked on 28 November 2026 whether Daniel's train of thought could be followed. Called as the loop calls it, the official tool stores each step of reasoning empty: on Daniel's first run, 57 steps out of 57. With the option `--thinking-display summarized` it stores a summary instead, a few sentences in the first person. Checked on 28 November 2026 with the unmodified tool (version 2.1.332), the pinned model and the loop's own call: four steps of reasoning, 1,253 characters of summaries. The option exists in the tool but is not among those its help lists, so a later version may drop it: when the tool answers that it does not know the option, the loop notes it in the system journal and wakes the mind without it, as was checked with a name that the tool does not know. Nothing is added to what Daniel is told. Not measured: whether the option changes the quota used or the time of a waking.
 - **A result too large is replaced by its beginning.** Observed in the same trial: the official tool replaces a tool result of more than about 50,000 characters by its first 2,000 and the path of a file that the mind cannot open (a result of 49,032 characters came whole, one of 54,400 did not). What the body's tools return as text stays well below that: 16,000 characters of output per action, and 2,000 of what Daniel feels.
 - **Tools instead of a reply format.** The mind acts through two tools, `run` and `write`, rather than through a reply in a fixed format (decided by Ruben on 26 November 2026). Two more tools, `remember` and `recall`, reach its memories.

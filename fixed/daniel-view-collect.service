@@ -1,0 +1,15 @@
+[Unit]
+Description=Daniel view: reads what the mind has recorded, for the page
+After=daniel-loop.service
+
+[Service]
+# Under the mind account, which alone can read the mind's folder. It opens no connection.
+User=daniel-mind
+EnvironmentFile=/etc/daniel/daniel.env
+ExecStart=/usr/bin/python3 /opt/daniel/daniel_view.py collect
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

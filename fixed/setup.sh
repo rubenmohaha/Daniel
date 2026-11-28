@@ -1,13 +1,15 @@
 #!/bin/sh
 # One-time setup of Daniel on a Linux machine. Run as root, from this folder.
 #
-# Creates the mind account, the service that runs Daniel's container, and the
-# loop service. The container is started; the loop is installed but not
-# started: the sign-in to the Anthropic account and the choice of the model
-# version are done afterwards by a human (see README.md).
+# Creates the mind account, the service that runs Daniel's container, the
+# loop service, and the two services of the page on which a human follows
+# Daniel. The container and the page are started; the loop is installed but
+# not started: the sign-in to the Anthropic account and the choice of the
+# model version are done afterwards by a human (see README.md).
 set -eu
 
 MIND_USER=daniel-mind
+VIEW_USER=daniel-view
 ROOT=/var/lib/daniel
 
 [ "$(id -u)" = 0 ] || { echo "setup.sh must be run as root" >&2; exit 1; }
@@ -17,7 +19,8 @@ done
 
 # 1. The fixed part, owned by root and read-only for everyone else.
 install -d -m 755 /opt/daniel /etc/daniel
-install -m 644 daniel_loop.py daniel_body.py daniel_memory.py daniel_devices.py daniel-body.sh starting-instruction.md /opt/daniel/
+install -m 644 daniel_loop.py daniel_body.py daniel_memory.py daniel_devices.py daniel-body.sh starting-instruction.md \
+    daniel_view.py daniel-view.html /opt/daniel/
 [ -e /etc/daniel/daniel.env ] || install -m 644 daniel.env.example /etc/daniel/daniel.env
 
 # 2. The mind account. It holds the sign-in; only the loop and the official tool run there.
@@ -40,6 +43,18 @@ install -m 644 daniel-body.service /etc/systemd/system/daniel-body.service
 install -m 644 daniel-loop.service /etc/systemd/system/daniel-loop.service
 systemctl daemon-reload
 systemctl enable --now daniel-body
+
+# 6. The page on which a human follows Daniel, from the local network. One program reads
+#    the mind's folder, under the mind account, and writes what the page shows in a folder
+#    of its own. Another serves the page, under an account that cannot read the mind's folder.
+if ! id "$VIEW_USER" >/dev/null 2>&1; then
+    useradd --system --no-create-home --shell /usr/sbin/nologin "$VIEW_USER"
+fi
+install -d -m 755 -o "$MIND_USER" "$ROOT/view"
+install -m 644 daniel-view-collect.service daniel-view.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable daniel-view-collect daniel-view >/dev/null 2>&1
+systemctl restart daniel-view-collect daniel-view
 
 [ "${DANIEL_QUIET:-0}" = 1 ] && exit 0
 

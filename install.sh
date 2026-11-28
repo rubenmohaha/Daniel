@@ -133,6 +133,8 @@ for _ in $(seq 1 36); do
 
 Daniel is awake.
 
+Follow Daniel on a page: http://$(hostname -I 2>/dev/null | cut -d' ' -f1):$(sed -n 's/^DANIEL_VIEW_PORT=//p' /etc/daniel/daniel.env | grep . || echo 8642)
+                         (from the local network; it only shows, and has no button)
 Read what Daniel does:   sudo ls -R /var/lib/daniel/self
                          sudo cat /var/lib/daniel/mind/state.json      (its last words)
                          sudo cat /var/lib/daniel/mind/journal         (its actions)

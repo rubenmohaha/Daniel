@@ -101,6 +101,19 @@ printf 'FAKE_CLAUDE_REPLIES=%s\nFAKE_CLAUDE_RECORD=%s\n' "$MIND/replies" "$MIND/
 systemctl start daniel-loop
 check "the mind has spoken within a minute" sh -c \
     "for _ in \$(seq 60); do grep -qs '\"last_words\": \"I am here.\"' $MIND/state.json && [ \$(wc -l < $MIND/record) -ge 2 ] && exit 0; sleep 1; done; exit 1"
+check "the page says that the loop runs and counts what the mind has done" python3 - <<'PYTHON'
+import json, time, urllib.request
+for _ in range(30):
+    state = json.load(urllib.request.urlopen("http://127.0.0.1:8642/state.json"))
+    if state["loop"] == "active" and state["today"]["actions"] >= 4 and state["memories"]["count"]:
+        break
+    time.sleep(1)
+assert state["loop"] == "active" and state["body"] == "active", (state["loop"], state["body"])
+assert state["today"]["actions"] >= 4, state["today"]
+assert state["now"]["state"] in ("acting", "waiting") and state["now"]["wakings_today"], state["now"]
+assert state["memories"]["strongest"][0][0] == "first waking", state["memories"]
+assert state["actions"][0]["tool"] in ("run", "write", "remember"), state["actions"]
+PYTHON
 systemctl stop daniel-loop
 check "its tools acted in the container, and it was given back its last words, its latest actions, its memories and what it feels" python3 - "$MIND/record" <<'PYTHON'
 import json, sys
@@ -114,6 +127,26 @@ assert second["stdin"] == ("Your last words:\nI am here.\n\nYour latest actions:
     "Your memories, the strongest first:\n[first waking]\nI woke once.\n\n"
     "You feel:\nreserve: 12 of 100"), second["stdin"]
 PYTHON
+step "The page on which a human follows Daniel"
+check "the page is served on the robot's network" sh -c "curl -fsS http://127.0.0.1:8642/ | grep -q '<title>Daniel</title>'"
+check "once the loop is stopped, the page says so" python3 - <<'PYTHON'
+import json, time, urllib.request
+for _ in range(20):
+    state = json.load(urllib.request.urlopen("http://127.0.0.1:8642/state.json"))
+    if state["loop"] != "active":
+        break
+    time.sleep(1)
+assert state["loop"] == "inactive" and state["now"]["state"] == "stopped", (state["loop"], state["now"])
+PYTHON
+check "the account that serves the page cannot read the mind's folder" sh -c "! runuser -u daniel-view -- ls $MIND"
+check "nor the last words of the mind" sh -c "! runuser -u daniel-view -- cat $MIND/state.json"
+check "the account that serves the page can change nothing of what it shows" sh -c \
+    "! runuser -u daniel-view -- sh -c 'echo x > /var/lib/daniel/view/state.json'"
+check "the page accepts nothing" sh -c \
+    "[ \"\$(curl -s -o /dev/null -w '%{http_code}' -X POST -d x http://127.0.0.1:8642/)\" = 501 ]"
+check "it serves nothing but the page and the state" sh -c \
+    "[ \"\$(curl -s -o /dev/null -w '%{http_code}' --path-as-is http://127.0.0.1:8642/../mind/state.json)\" = 404 ]"
+
 step "The installation script, run at a terminal as the owner runs it"
 # The script fetches Daniel from a repository: it is given this version, without the network.
 rm -rf /tmp/daniel-origin /opt/daniel-source "$MIND/.fake-claude-signed-in"

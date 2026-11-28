@@ -29,7 +29,10 @@ credentials of the official tool.
 
 The loop keeps the mind's last words, its memories, the journal of its
 actions, and what the waking program printed until the mind has received it,
-so that a restart resumes where it stopped.
+so that a restart resumes where it stopped. It also notes each time it starts,
+each time the mind is woken, stops or is cut, and each time the mind or the
+body cannot be reached: the page on which a human follows Daniel is drawn
+from these notes (see daniel_view.py).
 
 Configuration, read from the environment (see daniel.env.example):
 
@@ -62,6 +65,7 @@ JOURNAL_LIMIT = 4000               # characters of its latest actions given back
 BODY_TOOLS = "mcp__body__run,mcp__body__write,mcp__body__remember,mcp__body__recall"
 REASONING = ["--thinking-display", "summarized"]  # a summary of the mind's reasoning is kept with its exchanges
 WAKE_PROGRAM = "/self/wake"        # in the container: written by Daniel, run between two wakings
+WAKINGS_ROOM = 200000              # bytes; the notes of the wakings are cut down to their latest half beyond twice this
 
 
 class Config:
@@ -203,6 +207,22 @@ def waking_message(last_words, actions, kept, printed, felt):
     return "\n\n".join(parts) or "Begin."
 
 
+def note(cfg, what, why=""):
+    """Note that the loop has started, that the mind was woken, has stopped or was cut, or that it could not be reached."""
+    entry = {"at": time.time(), "what": what, **({"why": why[:200]} if why else {})}
+    path = os.path.join(cfg.state_dir, "wakings")
+    try:
+        os.makedirs(cfg.state_dir, exist_ok=True)
+        with open(path, "a") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        if os.path.getsize(path) > 2 * WAKINGS_ROOM:
+            with open(path) as f:
+                lines = f.readlines()
+            memories.keep(cfg.state_dir, "wakings", "".join(lines[len(lines) // 2:]))
+    except OSError:
+        pass  # a note that cannot be written must not keep the mind asleep
+
+
 def load_state(cfg):
     try:
         with open(os.path.join(cfg.state_dir, "state.json")) as f:
@@ -221,15 +241,21 @@ def save_state(cfg, state):
 
 def one_waking(cfg, instruction, state):
     """Wait as Daniel has chosen, then wake the mind once."""
-    if "printed" not in state:
-        state["printed"] = wait(cfg)
-        save_state(cfg, state)  # not lost if the mind cannot be reached, or if the loop restarts
-    if in_body(cfg, 30, "true").returncode:  # the mind is never woken without its body
-        raise RuntimeError("Daniel's container could not be reached: it does not answer")
-    message = waking_message(state.get("last_words"), back(cfg, memories.latest, JOURNAL_LIMIT),
-                             back(cfg, memories.waking, OUTPUT_LIMIT), state["printed"],
-                             feel(cfg.container, cfg.docker))
-    words = wake(cfg, instruction, message)
+    try:
+        if "printed" not in state:
+            state["printed"] = wait(cfg)
+            save_state(cfg, state)  # not lost if the mind cannot be reached, or if the loop restarts
+        if in_body(cfg, 30, "true").returncode:  # the mind is never woken without its body
+            raise RuntimeError("Daniel's container could not be reached: it does not answer")
+        message = waking_message(state.get("last_words"), back(cfg, memories.latest, JOURNAL_LIMIT),
+                                 back(cfg, memories.waking, OUTPUT_LIMIT), state["printed"],
+                                 feel(cfg.container, cfg.docker))
+        note(cfg, "woken")
+        words = wake(cfg, instruction, message)
+    except RuntimeError as error:
+        note(cfg, "unreachable", str(error))
+        raise
+    note(cfg, "stopped" if words is not None else "cut")
     if words is None:  # the mind is told, so that it does not start the same waking again
         words = f"[none: your last waking was cut after {SESSION_TIME_LIMIT} seconds, before you had stopped]"
     state["last_words"] = words
@@ -241,6 +267,7 @@ def main():
     with open(cfg.instruction) as f:
         instruction = f.read()
     state = load_state(cfg)
+    note(cfg, "started")
     retry = RETRY_FIRST
     while True:
         try:

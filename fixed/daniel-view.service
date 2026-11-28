@@ -1,0 +1,21 @@
+[Unit]
+Description=Daniel view: serves the page on the local network
+After=network.target
+
+[Service]
+# Under an account of its own, which cannot read the mind's folder: what
+# listens on the network holds nothing but what the page shows.
+User=daniel-view
+EnvironmentFile=/etc/daniel/daniel.env
+ExecStart=/usr/bin/python3 /opt/daniel/daniel_view.py serve
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
