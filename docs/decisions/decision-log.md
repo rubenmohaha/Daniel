@@ -62,12 +62,13 @@ Ruben · version 0.1, 26 November 2026
 | D-44 | The project is renamed Daniel | 26 Nov 2026 | In force |
 | D-45 | Nothing is said about the body; the truth is said about the mind | 27 Nov 2026 | In force |
 | D-46 | Daniel chooses what wakes it | 27 Nov 2026 | In force |
-| D-47 | A memory file is given back at each waking | 27 Nov 2026 | In force |
+| D-47 | A memory file is given back at each waking | 27 Nov 2026 | Superseded by D-53 |
 | D-48 | The mind sees the images that its commands print | 27 Nov 2026 | In force |
 | D-49 | The container is made anew at each start, with the devices present then | 27 Nov 2026 | In force |
 | D-50 | The container is on the robot's own network | 27 Nov 2026 | In force |
 | D-51 | Device nodes that Docker cannot be given are left out | 27 Nov 2026 | In force |
 | D-52 | Daniel does not stop until it has communicated with a human | 27 Nov 2026 | In force |
+| D-53 | Memories come back as a human's do: the recent and the often used first | 28 Nov 2026 | In force |
 
 ## Entries
 
@@ -385,6 +386,7 @@ Ruben · version 0.1, 26 November 2026
 - **Decision:** At each waking, the loop gives the mind, with its last words, the content of a file that Daniel writes in its container, `/self/memory`, up to 16,000 characters. No human writes in it. The starting instruction names this file and the waking program of D-46, and no other.
 - **Reason:** The last words alone were lost whenever a waking was cut short by its time limit or by an error, and nothing told Daniel that its files outlast a waking.
 - **Replaces:** In part, D-39, under which the starting instruction named no folder, and D-42, under which only the last words were given back.
+- **Status:** Superseded by D-53: the memory file gives way to separate memories held by the loop.
 
 #### D-48. The mind sees the images that its commands print
 
@@ -423,6 +425,17 @@ Ruben · version 0.1, 26 November 2026
 - **Reason:** Ruben compared Daniel to a human, who is awake through the day and rests only at night.
 - **Consequence:** Until a human is reached, the mind is called without pause and the subscription quota is used continuously. A waking then ends only when it is cut at its time limit; the loop now tells the mind so at its next waking, in place of its last words. Before, the cut was silent and the mind started the same waking again.
 - **Interpretation:** The rule is given to Daniel in Ruben's words, with no exception written for the instincts, although Ruben mentioned the night spent recharging; whether the instincts come before this rule is left to Daniel and awaits Ruben's confirmation. Nothing in the fixed part enforces the rule, which rests on Daniel like obedience (D-40).
+
+#### D-53. Memories come back as a human's do: the recent and the often used first
+
+- **Date:** 28 November 2026.
+- **Decision:** Daniel keeps separate memories, each under a name, with two tools, `remember` and `recall`. A memory grows stronger each time it is used and fades with time. At each waking the strongest come back whole, the next by name, and the others must be looked for. Nothing is erased. The loop also notes each action in a journal and gives its end back at each waking.
+- **Reason:** Ruben asked on 28 November 2026 for a memory like a human's, which recalls the latest things done better than the old ones, and what is done regularly better than what is never done. The memory file of D-47 did the opposite once it was full: only its beginning was given back, so the latest lines written at its end were the first to be lost.
+- **How:** The strength of a memory is the sum, over its uses, of the age of the use raised to the power -0.5, after the base-level learning equation of the ACT-R theory of human memory. A use is keeping the memory, recalling it, or an action that holds one of its words when few memories hold that word. The journal answers the first half of the request directly: after a waking that was cut, the mind had only what it had thought of writing down.
+- **Consistency with D-45:** Memory belongs to the mind, so the fixed part may build it and tell Daniel the truth about it. The starting instruction and the two tools describe nothing of the body.
+- **Replaces:** D-47. The memories are held by the loop, outside the container, and no longer in a file that Daniel writes.
+- **Interpretation:** The formula, its constants, the limits (2,000 characters per memory, 16,000 characters given whole at a waking, 4,000 characters of latest actions), the rule by which an action strengthens a memory and the choice to hold the memories outside the container are the simplest reading of Ruben's request and await his confirmation. The reference to ACT-R is cited from memory and has not been re-read. Marking a memory by pain or fear, which Ruben was also offered, is not built: the research of 28 November 2026 found no trial of it on an agent.
+- **Not verified:** No real mind has used these memories yet.
 
 ### Terminology
 

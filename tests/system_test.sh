@@ -93,7 +93,7 @@ losetup --detach "$loop"
 step "The loop wakes the mind, which acts in the container"
 install -D -m 755 "$HERE/fake_claude.py" "$MIND/.local/bin/claude"
 cat > "$MIND/replies" <<'REPLY'
-{"calls": [{"name": "run", "arguments": {"command": "hostname; echo I woke once > /self/memory"}}], "final": "I am here."}
+{"calls": [{"name": "run", "arguments": {"command": "hostname"}}, {"name": "remember", "arguments": {"name": "first waking", "text": "I woke once."}}], "final": "I am here."}
 REPLY
 chown -R daniel-mind "$MIND/.local" "$MIND/replies"
 sed -i 's/^DANIEL_MODEL=.*/DANIEL_MODEL=test-model-version/' /etc/daniel/daniel.env
@@ -102,13 +102,14 @@ systemctl start daniel-loop
 check "the mind has spoken within a minute" sh -c \
     "for _ in \$(seq 60); do grep -qs '\"last_words\": \"I am here.\"' $MIND/state.json && [ \$(wc -l < $MIND/record) -ge 2 ] && exit 0; sleep 1; done; exit 1"
 systemctl stop daniel-loop
-check "its tools acted in the container, and it was given back its last words and its memory" python3 - "$MIND/record" <<'PYTHON'
+check "its tools acted in the container, and it was given back its last words, its latest actions and its memories" python3 - "$MIND/record" <<'PYTHON'
 import json, sys
 first, second = [json.loads(line) for line in open(sys.argv[1])][:2]
 assert first["stdin"] == "Begin.", first["stdin"]
-assert first["tools"] == ["run", "write"], first["tools"]
+assert first["tools"] == ["run", "write", "remember", "recall"], first["tools"]
 assert first["results"][0]["content"][0]["text"].startswith("daniel\n"), first["results"]
-assert second["stdin"] == "Your last words:\nI am here.\n\nYour file /self/memory:\nI woke once", second["stdin"]
+assert second["stdin"] == ("Your last words:\nI am here.\n\nYour latest actions:\nrun: hostname [exit code 0]\n"
+    "remember: first waking\n\nYour memories, the strongest first:\n[first waking]\nI woke once."), second["stdin"]
 PYTHON
 step "A container made by an earlier version is set aside, not deleted"
 systemctl stop daniel-body

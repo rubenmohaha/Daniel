@@ -3,7 +3,7 @@
 The mind is replaced by a stand-in (fake_claude.py) that starts the body's
 tool server as the official tool does. Docker is replaced by a stand-in
 (fake_docker.py) that runs the commands on this machine, in a folder that
-stands for /self. The tests of the class Container need Docker and start a
+stands for /self. What the loop keeps of the mind goes to a throwaway folder. The tests of the class Container need Docker and start a
 throwaway container instead.
 """
 import base64
@@ -13,12 +13,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "fixed"))
 import daniel_body  # noqa: E402
 import daniel_loop  # noqa: E402
+import daniel_memory  # noqa: E402
 
 HAVE_DOCKER = shutil.which("docker") and subprocess.run(
     ["docker", "info"], capture_output=True).returncode == 0
@@ -30,6 +32,7 @@ def fake_body(tmp):
     home = os.path.join(tmp, "self")
     os.makedirs(home, exist_ok=True)
     os.environ["FAKE_DOCKER_SELF"] = home
+    os.environ["DANIEL_STATE_DIR"] = os.path.join(tmp, "mind")  # for the body's tools called directly
     return home
 
 
@@ -86,7 +89,9 @@ class Loop(unittest.TestCase):
         self.assertIn("--strict-mcp-config", argv)
         servers = json.loads(argv[argv.index("--mcp-config") + 1])["mcpServers"]
         self.assertEqual(list(servers), ["body"])
-        self.assertEqual(argv[argv.index("--allowedTools") + 1], "mcp__body__run,mcp__body__write")
+        self.assertEqual(servers["body"]["env"]["DANIEL_STATE_DIR"], os.path.join(tmp, "mind"))
+        self.assertEqual(argv[argv.index("--allowedTools") + 1],
+                         "mcp__body__run,mcp__body__write,mcp__body__remember,mcp__body__recall")
         self.assertEqual(argv[argv.index("--system-prompt") + 1], "INSTRUCTION")
         self.assertEqual(os.path.realpath(calls(tmp)[0]["cwd"]),
                          os.path.realpath(os.path.join(tmp, "mind", "workdir")))
@@ -140,49 +145,85 @@ class Loop(unittest.TestCase):
 
 
 class Memory(unittest.TestCase):
-    """The file that Daniel keeps is given back to the mind at each waking."""
+    """What the mind remembers, and what it has just done, come back at the next waking."""
 
-    def test_the_memory_file_is_given_at_each_waking_after_the_last_words(self):
+    def test_what_the_mind_remembers_is_given_back_at_each_waking_after_its_last_words(self):
         tmp = tempfile.mkdtemp()
         cfg = config(tmp)
-        put(os.environ["FAKE_DOCKER_SELF"], "memory", "My left side is slower.\n")
-        fake_mind(tmp, "I rest.", "I rest again.")
+        fake_mind(tmp, {"calls": [{"name": "remember", "arguments": {
+            "name": "left side", "text": "My left side is slower."}}], "final": "I rest."},
+            "I rest again.", "ok")
+        state = {}
+        for _ in range(3):
+            daniel_loop.one_waking(cfg, "I", state)
+        self.assertEqual(calls(tmp)[0]["results"],
+                         [{"content": [{"type": "text", "text": "kept"}], "isError": False}])
+        back = ("Your latest actions:\nremember: left side\n\n"
+                "Your memories, the strongest first:\n[left side]\nMy left side is slower.")
+        self.assertEqual(received(tmp), ["Begin.", "Your last words:\nI rest.\n\n" + back,
+                                         "Your last words:\nI rest again.\n\n" + back])
+
+    def test_the_mind_finds_a_memory_again_by_its_words(self):
+        tmp = tempfile.mkdtemp()
+        cfg = config(tmp)
+        daniel_memory.remember(cfg.state_dir, "left side", "My left side is slower.")
+        daniel_memory.remember(cfg.state_dir, "noise", "A hum comes back every evening.")
+        fake_mind(tmp, {"calls": [{"name": "recall", "arguments": {"about": "which side is slower?"}}],
+                        "final": "ok"})
+        daniel_loop.one_waking(cfg, "I", {})
+        self.assertEqual(calls(tmp)[0]["results"], [{"content": [
+            {"type": "text", "text": "[left side]\nMy left side is slower."}], "isError": False}])
+
+    def test_what_the_mind_has_just_done_is_given_back_with_its_outcome(self):
+        tmp = tempfile.mkdtemp()
+        cfg = config(tmp)
+        fake_mind(tmp, {"calls": [
+            {"name": "run", "arguments": {"command": "echo hello; exit 3"}},
+            {"name": "write", "arguments": {"path": "/self/notes", "content": "a note\n"}},
+        ], "final": "done"}, "ok")
         state = {}
         daniel_loop.one_waking(cfg, "I", state)
         daniel_loop.one_waking(cfg, "I", state)
-        self.assertEqual(received(tmp), [
-            "Your file /self/memory:\nMy left side is slower.",
-            "Your last words:\nI rest.\n\nYour file /self/memory:\nMy left side is slower.",
-        ])
+        self.assertEqual(received(tmp)[1], "Your last words:\ndone\n\nYour latest actions:\n"
+                         "run: echo hello; exit 3 [exit code 3]\nwrite: /self/notes [exit code 0]")
 
-    def test_an_empty_memory_file_adds_nothing(self):
+    def test_the_latest_actions_come_back_even_when_the_waking_was_cut(self):
         tmp = tempfile.mkdtemp()
         cfg = config(tmp)
-        put(os.environ["FAKE_DOCKER_SELF"], "memory", " \n")
-        fake_mind(tmp, "ok")
-        daniel_loop.one_waking(cfg, "I", {})
-        self.assertEqual(received(tmp), ["Begin."])
+        daniel_memory.note(cfg.state_dir, "run: ls /dev", "[exit code 0]")
+        fake_mind(tmp, "HANG", "ok")
+        limit, daniel_loop.SESSION_TIME_LIMIT = daniel_loop.SESSION_TIME_LIMIT, 1
+        self.addCleanup(setattr, daniel_loop, "SESSION_TIME_LIMIT", limit)
+        state = {}
+        daniel_loop.one_waking(cfg, "I", state)
+        daniel_loop.one_waking(cfg, "I", state)
+        self.assertIn("\n\nYour latest actions:\nrun: ls /dev [exit code 0]", received(tmp)[1])
 
-    def test_a_memory_file_too_long_is_cut_and_the_mind_is_told(self):
+    def test_doing_what_a_memory_names_makes_it_stronger(self):
         tmp = tempfile.mkdtemp()
         cfg = config(tmp)
-        put(os.environ["FAKE_DOCKER_SELF"], "memory", "Z" * 70000 + "THE END")
-        fake_mind(tmp, "ok")
+        daniel_memory.remember(cfg.state_dir, "eye", "What /self/eye gives is a picture of the front.",
+                               now=time.time() - 3600)
+        fake_mind(tmp, {"calls": [{"name": "run", "arguments": {"command": "cat /self/eye"}}], "final": "ok"})
         daniel_loop.one_waking(cfg, "I", {})
-        message = received(tmp)[0]
-        self.assertEqual(message.count("Z"), 16000)
-        self.assertNotIn("THE END", message)
-        self.assertIn("only the first 16000 characters", message)
+        self.assertEqual(len(daniel_memory.load(cfg.state_dir)["eye"]["uses"]), 2)
 
-    def test_a_memory_file_of_characters_that_take_several_bytes_is_not_cut_early(self):
+    def test_memories_that_cannot_be_read_are_reported_to_the_mind(self):
         tmp = tempfile.mkdtemp()
         cfg = config(tmp)
-        put(os.environ["FAKE_DOCKER_SELF"], "memory", "\U0001F916" * 16000)  # four bytes each
-        fake_mind(tmp, "ok")
+        os.makedirs(cfg.state_dir)
+        put(cfg.state_dir, "memories.json", "{ this is not what the loop wrote")
+        fake_mind(tmp, {"calls": [
+            {"name": "remember", "arguments": {"name": "left side", "text": "My left side is slower."}},
+            {"name": "run", "arguments": {"command": "echo hello"}},
+        ], "final": "ok"})
         daniel_loop.one_waking(cfg, "I", {})
-        message = received(tmp)[0]
-        self.assertEqual(message.count("\U0001F916"), 16000)
-        self.assertNotIn("only the first", message)
+        self.assertIn("Your memories, the strongest first:\n[could not be read: ", received(tmp)[0])
+        kept, ran = calls(tmp)[0]["results"]
+        self.assertTrue(kept["isError"])
+        self.assertIn("[your memories could not be reached: ", kept["content"][0]["text"])
+        self.assertFalse(ran["isError"])
+        self.assertIn("hello\n\n[exit code 0]\n[your memories could not be reached: ", ran["content"][0]["text"])
 
 
 class Waiting(unittest.TestCase):
@@ -197,15 +238,6 @@ class Waiting(unittest.TestCase):
         daniel_loop.one_waking(cfg, "I", {})
         self.assertEqual(received(tmp), [
             "Printed by /self/wake:\nsomeone said: come here\nand a warning\n[exit code 3]"])
-
-    def test_the_memory_file_is_read_after_the_waking_program_has_run(self):
-        tmp = tempfile.mkdtemp()
-        cfg = config(tmp)
-        put(os.environ["FAKE_DOCKER_SELF"], "wake",
-            '#!/bin/sh\necho "noted while waiting" > "$(dirname "$0")/memory"\n', program=True)
-        fake_mind(tmp, "ok")
-        daniel_loop.one_waking(cfg, "I", {})
-        self.assertIn("Your file /self/memory:\nnoted while waiting", received(tmp)[0])
 
     def test_what_was_printed_is_kept_until_the_mind_has_received_it(self):
         tmp = tempfile.mkdtemp()
@@ -254,12 +286,13 @@ class BodyServer(unittest.TestCase):
                                  "params": {"protocolVersion": "2025-06-18"}})
         self.assertEqual(init["result"]["protocolVersion"], "2025-06-18")
         tools = daniel_body.handle({"id": 2, "method": "tools/list"})["result"]["tools"]
-        self.assertEqual([t["name"] for t in tools], ["run", "write"])
+        self.assertEqual([t["name"] for t in tools], ["run", "write", "remember", "recall"])
         self.assertIn("error", daniel_body.handle({"id": 3, "method": "resources/list"}))
 
     def test_invalid_calls_are_refused_without_acting(self):
         for name, arguments in [("run", {}), ("run", {"command": " "}), ("write", {"path": "x"}),
-                                ("delete", {"path": "x"})]:
+                                ("remember", {"name": "x"}), ("remember", {"name": " ", "text": "t"}),
+                                ("recall", {}), ("recall", {"about": " "}), ("delete", {"path": "x"})]:
             content, is_error = daniel_body.act(name, arguments, docker="/nonexistent")
             self.assertTrue(is_error)
             self.assertIn("invalid call", text_of(content))
@@ -348,10 +381,12 @@ class Container(unittest.TestCase):
     def tearDownClass(cls):
         subprocess.run(["docker", "rm", "-f", cls.name], capture_output=True)
 
+    def setUp(self):
+        fake_body(tempfile.mkdtemp())  # what the body's tools note goes to a throwaway folder
+
     def tearDown(self):
-        for name in ["wake", "memory"]:
-            if os.path.exists(os.path.join(self.self_dir, name)):
-                os.remove(os.path.join(self.self_dir, name))
+        if os.path.exists(os.path.join(self.self_dir, "wake")):
+            os.remove(os.path.join(self.self_dir, "wake"))
 
     def config(self, tmp):
         return config(tmp, DANIEL_CONTAINER=self.name, DANIEL_DOCKER="docker")
@@ -366,7 +401,7 @@ class Container(unittest.TestCase):
         state = {}
         daniel_loop.one_waking(self.config(tmp), "I", state)
         record = calls(tmp)[0]
-        self.assertEqual(record["tools"], ["run", "write"])
+        self.assertEqual(record["tools"], ["run", "write", "remember", "recall"])
         ran, wrote = record["results"]
         self.assertTrue(ran["isError"])
         self.assertIn("\n0\n", ran["content"][0]["text"])
@@ -377,17 +412,14 @@ class Container(unittest.TestCase):
             self.assertEqual(f.read(), "a line; with $pecial `chars`\n")
         self.assertEqual(state["last_words"], "I have written my first note.")
 
-    def test_the_waking_program_and_the_memory_file_are_those_of_the_container(self):
+    def test_the_waking_program_is_that_of_the_container(self):
         tmp = tempfile.mkdtemp()
         put(self.self_dir, "wake", "#!/bin/sh\necho \"heard in $(hostname)\"\n", program=True)
-        put(self.self_dir, "memory", "I am in a container.\n")
         container = subprocess.run(["docker", "exec", self.name, "hostname"],
                                    capture_output=True, text=True).stdout.strip()
         fake_mind(tmp, "ok")
         daniel_loop.one_waking(self.config(tmp), "I", {})
-        self.assertEqual(received(tmp), [
-            "Your file /self/memory:\nI am in a container.\n\n"
-            f"Printed by /self/wake:\nheard in {container}\n[exit code 0]"])
+        self.assertEqual(received(tmp), [f"Printed by /self/wake:\nheard in {container}\n[exit code 0]"])
 
     def test_a_waking_program_that_cannot_be_run_is_reported_to_the_mind(self):
         tmp = tempfile.mkdtemp()

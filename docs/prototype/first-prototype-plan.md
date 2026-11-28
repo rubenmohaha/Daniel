@@ -98,7 +98,7 @@ The fixed part calls the official tool under the mind account, without a screen,
 
 The loop is a short program that runs continuously. It wakes the mind again and again:
 
-1. It gives the mind the starting instruction, the last words the mind wrote before it last stopped, and the content of the memory file that Daniel keeps in its container. It does not give the time, which Daniel reads itself when it needs to, nor any signal for the instincts.
+1. It gives the mind the starting instruction, the last words the mind wrote before it last stopped, its latest actions, and the strongest of the memories it has chosen to keep. It does not give the time, which Daniel reads itself when it needs to, nor any signal for the instincts.
 2. The mind acts as long as it wishes with its two tools, inside its container, then stops.
 3. The loop keeps its last words. It then runs, inside the container and without calling the mind, the waking program that Daniel has written, if there is one, and wakes the mind when that program ends, with what it printed. Without such a program, it wakes the mind again at once.
 
@@ -160,7 +160,7 @@ Everything below lives in Daniel's container, in the folder kept across restarts
 - the **skills** and **memory** it chooses to keep;
 - any **model or tool fetched from the network**, once it has established by itself that it needs one.
 
-The project writes none of this. No example or template is provided in advance, apart from the starting instruction. Two file names are fixed, because the loop reads them: the memory file, `/self/memory`, and the waking program, `/self/wake`. Both start absent, and Daniel alone writes them.
+The project writes none of this. No example or template is provided in advance, apart from the starting instruction. One file name is fixed, because the loop reads it: the waking program, `/self/wake`. It starts absent, and Daniel alone writes it. Daniel's memories are not files of the container: decided by Ruben on 28 November 2026, they are held by the loop and come back as a human's do, the recent and the often used before the rest (see D-53).
 
 ## The starting instruction
 

@@ -4,8 +4,9 @@ This folder contains everything the project writes for the first prototype, as d
 
 | File | Role |
 | --- | --- |
-| [`daniel_loop.py`](daniel_loop.py) | The loop: wakes the mind again and again, runs Daniel's own waking program between two wakings, and gives the mind back its last words and its memory file |
-| [`daniel_body.py`](daniel_body.py) | The body's tools, `run` and `write`: the only way the mind can act, inside the container only |
+| [`daniel_loop.py`](daniel_loop.py) | The loop: wakes the mind again and again, runs Daniel's own waking program between two wakings, and gives the mind back its last words, its latest actions and its strongest memories |
+| [`daniel_memory.py`](daniel_memory.py) | The mind's memories and the journal of its actions: what is recent or used often comes back by itself, the rest must be looked for |
+| [`daniel_body.py`](daniel_body.py) | The mind's tools: `run` and `write`, the only way it can act, inside the container only, and `remember` and `recall`, for its memories |
 | [`starting-instruction.md`](starting-instruction.md) | The starting instruction, read by the mind at every waking and fixed for the whole life of Daniel |
 | [`daniel_devices.py`](daniel_devices.py) | Lists the devices handed to Daniel's container: all of them, without interpretation, except the excluded ones |
 | [`daniel-body.sh`](daniel-body.sh) | Makes Daniel's container anew, with the devices present at that moment |
@@ -15,7 +16,7 @@ This folder contains everything the project writes for the first prototype, as d
 | [`daniel.env.example`](daniel.env.example) | Configuration, including the pinned model version |
 | [`check-wall.sh`](check-wall.sh) | Checks from inside the container that the wall holds, by trying what Daniel must not be able to do |
 
-The fixed part uses only Python 3 and its standard library, Docker, and the standard tools of a Linux system. It contains about 500 lines of code, comments excluded.
+The fixed part uses only Python 3 and its standard library, Docker, and the standard tools of a Linux system. It contains about 700 lines of code, comments excluded.
 
 ## How it works
 
@@ -25,7 +26,7 @@ The loop runs continuously under the mind account and wakes the mind again and a
 - none of the official tool's own tools (`--tools ""`) and no connector (`--strict-mcp-config`), so that the mind cannot act on the machine where the sign-in is held;
 - the body's tools as its only tools ([`daniel_body.py`](daniel_body.py), given with `--mcp-config` and approved in advance with `--allowedTools`): `run`, which runs a shell command inside the container, and `write`, which writes a file there. Both go through `docker exec`, with the command passed as an argument and never through a shell on the robot's own system. A command is stopped after 300 seconds; at most 16,000 characters of its output are returned to the mind. When a command prints an image, the mind is shown the image itself;
 - the starting instruction as system prompt (`--system-prompt`);
-- a message containing what the mind is given back: its last words from its previous waking, the content of the memory file that Daniel keeps in its container (`/self/memory`, at most 16,000 characters), and what Daniel's waking program printed, if there is one. The first time, the message is `Begin.` Neither the time nor any signal for the instincts is passed: Daniel finds them itself.
+- a message containing what the mind is given back: its last words from its previous waking, its latest actions (at most 4,000 characters), the strongest of its memories (at most 16,000 characters, then names only), and what Daniel's waking program printed, if there is one. The first time, the message is `Begin.` Neither the time nor any signal for the instincts is passed: Daniel finds them itself.
 
 During a waking, the mind uses the body's tools as often as it wishes, then stops. Its last words are kept for the next waking. A waking is cut after six hours; the mind is told so at its next waking, in place of its last words, so that it does not start the same waking again.
 
@@ -35,7 +36,7 @@ The official tool adds a few lines of its own to the context, besides the starti
 
 When the mind cannot be reached, because the subscription quota is exhausted, the network is down or Ruben has blocked access from his account, the loop waits and tries again, from one minute up to one hour between attempts. The mind is not called in the meantime; what Daniel has left running in its container goes on. The loop waits in the same way when the container cannot be reached, so that the mind is never woken without its body.
 
-The loop keeps only the mind's last words and, until the mind has received it, what the waking program printed, in `/var/lib/daniel/mind/state.json`, so that a restart resumes where it stopped. It writes nothing else. Its messages about an unreachable mind or container go to the Linux system journal.
+The loop keeps the mind's last words and, until the mind has received it, what the waking program printed, in `/var/lib/daniel/mind/state.json`, so that a restart resumes where it stopped. Next to it are the mind's memories (`memories.json`) and the journal of its actions (`journal`). It writes nothing else. Its messages about an unreachable mind or container go to the Linux system journal.
 
 ## What Daniel is told
 
@@ -43,11 +44,11 @@ Nothing in the starting instruction, in the descriptions of the tools or in the 
 
 Daniel is told the truth about its mind, because no experiment inside the container could reveal how the loop works. Three facts are given, and nothing else:
 
-- the mind keeps nothing from one waking to the next; it is given back its last words and its memory file (starting instruction);
+- the mind keeps nothing from one waking to the next but its memories, which grow stronger with use and fade with time; it is given back its last words, its latest actions and its strongest memories (starting instruction, and descriptions of the tools `remember` and `recall`);
 - the program `/self/wake`, if Daniel has written it, decides when the mind wakes (starting instruction);
 - an image printed by a command is seen by the mind (description of the tool `run`).
 
-The limits are not announced in advance, but each is stated when it is met: a memory file or an output cut short, an image too heavy to be shown, a program stopped after its time limit, or a waking cut after its own, is reported as such to the mind.
+The limits are not announced in advance, but each is stated when it is met: a memory too long to be kept, an output cut short, an image too heavy to be shown, a program stopped after its time limit, or a waking cut after its own, is reported as such to the mind.
 
 Daniel is also given two rules of conduct towards humans, which describe nothing of its body: it obeys them, and it must not stop as long as it has not managed to communicate with one (decided by Ruben on 27 November 2026). Until then, a waking ends only when it is cut, and the next one starts at once: the mind is called without pause, and the subscription quota is used continuously. Nothing in the fixed part enforces this rule or knows whether a human has been reached; it rests on Daniel, like obedience.
 
@@ -88,6 +89,7 @@ On the robot, without modifying anything:
 - the exchanges with the mind are stored by the official tool under `/var/lib/daniel/mind/.claude/projects/`;
 - what Daniel has written is in `/var/lib/daniel/self/`;
 - the mind's last words are in `/var/lib/daniel/mind/state.json`;
+- its actions, one per line with the time, are in `/var/lib/daniel/mind/journal`, and its memories, with the time of each use, in `/var/lib/daniel/mind/memories.json`;
 - `journalctl -u daniel-loop` shows when the mind or the container could not be reached;
 - `journalctl -u daniel-body` shows each start of the container.
 
@@ -103,8 +105,13 @@ The same workflow runs a system test, [`tests/system_test.sh`](../tests/system_t
 
 The plan left the following points open. The simplest option was chosen in each case, and each can be revisited.
 
+- **Memories that come back as a human's do.** Decided by Ruben on 28 November 2026: Daniel should remember what is recent better than what is old, and what it does regularly better than what it never does. The single memory file is therefore replaced by separate memories, each with a strength: the sum, over its uses, of the age of the use in seconds raised to the power -0.5. This is the base-level learning equation of the ACT-R theory of human memory, cited from memory and not re-read. A use is keeping the memory, recalling it, or an action that holds one of its words, as long as at most three memories hold that word; actions less than a minute apart count once. The last 64 uses are kept one by one, and earlier ones are counted.
+- **Nothing is forgotten for good.** A faint memory is not erased: it stops coming back by itself and must be looked for. At a waking, the strongest memories are given whole within 16,000 characters, the next ones by name within 2,000 characters, and the rest as a number. One recall gives five memories whole. A memory has at most 2,000 characters and its name 80.
+- **Memories are held outside the container.** They belong to the mind, not to the body: the loop holds them next to the last words, so that each action can be compared with them without going through Docker, and so that nothing done in the container can lose them. Daniel reaches them only through `remember` and `recall`; it remains free to keep any file it wishes in its container.
+- **A journal of actions.** Each action is noted on one line, of 300 characters at most, with its exit code. The end of the journal is given back at each waking, so that the mind knows what it was doing even when its last waking was cut. The journal is cut down to its latest half beyond 400,000 bytes.
+- **What this memory does not do.** It searches by plain words, not by meaning. Nothing marks a memory as painful or important. None of it has been tried with a real mind.
 - **One call to the official tool per waking.** The mind decides how long each waking lasts. Every use of a tool within a waking sends the whole waking back to the model, so long wakings use the subscription quota faster.
-- **Tools instead of a reply format.** The mind acts through two tools, `run` and `write`, rather than through a reply in a fixed format (decided by Ruben on 26 November 2026).
+- **Tools instead of a reply format.** The mind acts through two tools, `run` and `write`, rather than through a reply in a fixed format (decided by Ruben on 26 November 2026). Two more tools, `remember` and `recall`, reach its memories.
 - **Time limits.** 300 seconds per action, six hours per waking, and one day per wait between two wakings.
 - **Images are seen, sounds are not.** The model can see: an image printed by a command (PNG, JPEG, GIF or WebP) is passed to the mind as an image, and nothing tells Daniel where an image may come from. The model cannot hear: to perceive a sound, Daniel must find or fetch, inside its container, a means of turning it into text, consistent with the decision that Daniel fetches the models it needs. This was checked with the unmodified official tool and the pinned model: the four formats reach the model, an image of 9 MB is seen, and at 18 MB the official tool closes its connection to the body's tools. An image above 8 MB is therefore not passed on, and the mind is told so.
 - **The waking program is not stopped with the loop.** If the loop is restarted while the waking program runs, that program keeps running inside the container, and the loop starts it a second time. A restart of the robot stops both.
