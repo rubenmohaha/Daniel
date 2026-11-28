@@ -167,7 +167,7 @@ The project writes none of this. No example or template is provided in advance, 
 The mind needs a first text, read at every waking, telling it what it is and where it stands. Its current text is [`fixed/starting-instruction.md`](../../fixed/starting-instruction.md). Decided by Ruben on 26 November 2026, it is kept as short as possible: it names no part of the body, does not mention the clock beyond what Daniel needs, and leaves to Daniel whatever it can find by itself. It states:
 
 - that Daniel is a mind in a robot based on Linux, which must learn by itself to discover its senses and its tools, and the direction it is given: find out what it is, become good at what it can do, grow more like the humans it serves;
-- where it acts, what it cannot change, how its memories work, what it is given back at each waking, what wakes it, and how it comes to feel something;
+- where it acts, what it cannot change, how its memories work, what it is given back at each waking, that a long waking is summed up without it, what wakes it, and how it comes to feel something;
 - that it is free to use the robot as it wishes to serve humans, and obeys them, an order coming before its instincts and an order to cease before everything else;
 - that it must not stop as long as it has not managed to communicate with a human;
 - the eight instincts, described by what Daniel must do, and what they are for;

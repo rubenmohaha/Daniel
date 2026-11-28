@@ -6,7 +6,9 @@ starting instruction, the last words the mind wrote before it stopped, its
 latest actions and the strongest of its memories (see daniel_memory.py). The
 mind then acts as long as it wishes, with the body's tools (see
 daniel_body.py), which act inside Daniel's container only. When it stops, its
-last words are kept for the next waking.
+last words are kept for the next waking. When a waking grows long, the
+official tool replaces what the mind has done and seen in it by a summary,
+and the waking goes on; the mind is told of this in the starting instruction.
 
 Between two wakings, the loop runs the waking program that Daniel has
 written in its container, if there is one, without calling the mind. The
@@ -50,6 +52,7 @@ from daniel_body import OUTPUT_LIMIT, feel
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 SESSION_TIME_LIMIT = 6 * 3600      # seconds; a waking is stopped beyond this
+THREAD_LIMIT = 200000              # tokens; near this, the official tool sums up the thread of a waking
 WAIT_LIMIT = 24 * 3600             # seconds; the waking program is stopped beyond this
 RETRY_FIRST, RETRY_MAX = 60, 3600  # waiting when the mind or the body cannot be reached
 JOURNAL_LIMIT = 4000               # characters of its latest actions given back to the mind
@@ -94,6 +97,7 @@ def wake(cfg, instruction, message):
         "--mcp-config", body_config(cfg),
         "--allowedTools", BODY_TOOLS,        # the body's tools need no approval
         "--system-prompt", instruction,
+        "--autocompact", str(THREAD_LIMIT),  # a long waking is summed up well before the model's own limit
         "--output-format", "json",
     ]
     try:
