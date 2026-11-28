@@ -45,6 +45,12 @@ fail() { printf '\nSTOPPED: %s\n' "$1" >&2; exit 1; }
 [ "$(id -u)" = 0 ] || fail "run this script with sudo"
 command -v systemctl >/dev/null || fail "this Linux system does not use systemd"
 { : </dev/tty; } 2>/dev/null || fail "no terminal: connect with 'ssh -t' so that questions can be answered"
+# The terminal, by its own name. On systems where sudo opens a terminal of its
+# own, sudo passes on what is typed only to a program that reads from the very
+# terminal sudo was started from: read through /dev/tty, the sign-in code would
+# be shown on the screen and never reach the official tool.
+terminal=/dev/$(ps -o tty= -p $$ 2>/dev/null | tr -d ' ')
+[ -c "$terminal" ] || terminal=/dev/tty
 
 step "1/7 Installing what is missing (git, Python, Docker)"
 if command -v apt-get >/dev/null; then
@@ -91,7 +97,7 @@ if signed_in; then
 else
     echo "Sign in with your Claude subscription. If the robot has no screen, open the"
     echo "link shown below on your own computer, then paste the code back here."
-    as_mind "$CLAUDE" auth login --claudeai </dev/tty
+    as_mind "$CLAUDE" auth login --claudeai <"$terminal"
     signed_in || fail "the sign-in did not succeed; run this script again to retry"
     echo "ok"
 fi

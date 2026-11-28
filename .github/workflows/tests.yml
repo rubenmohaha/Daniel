@@ -22,8 +22,14 @@ jobs:
       - name: Run the tests
         run: sudo python3 -m unittest discover -v tests
 
+  # On two versions of Ubuntu, whose sudo is not the same program: the
+  # installation script depends on how sudo hands the terminal to what it starts.
   system:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
       - name: Set Daniel up on this machine and check the whole chain

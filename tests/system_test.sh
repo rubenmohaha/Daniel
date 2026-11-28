@@ -114,6 +114,21 @@ assert second["stdin"] == ("Your last words:\nI am here.\n\nYour latest actions:
     "Your memories, the strongest first:\n[first waking]\nI woke once.\n\n"
     "You feel:\nreserve: 12 of 100"), second["stdin"]
 PYTHON
+step "The installation script, run at a terminal as the owner runs it"
+# The script fetches Daniel from a repository: it is given this version, without the network.
+rm -rf /tmp/daniel-origin /opt/daniel-source "$MIND/.fake-claude-signed-in"
+cp -r "$HERE/.." /tmp/daniel-origin && rm -rf /tmp/daniel-origin/.git
+git -C /tmp/daniel-origin init -q -b main && git -C /tmp/daniel-origin add -A && git -C /tmp/daniel-origin \
+    -c user.name=test -c user.email=test@example.invalid commit -q -m "The version under test"
+git clone -q /tmp/daniel-origin /opt/daniel-source
+echo "sudo: $(sudo --version 2>&1 | head -1)"
+check "the script asks for the sign-in, then whether to start, and ends well" python3 "$HERE/at_a_terminal.py" \
+    "Paste code here=the-code-typed-by-the-owner" "Type yes to start=yes" -- sudo bash "$HERE/../install.sh"
+check "the code typed at the terminal reached the official tool" same \
+    "$(cat "$MIND/.fake-claude-signed-in" 2>&1)" "the-code-typed-by-the-owner"
+check "Daniel was started" systemctl is-active daniel-loop
+systemctl disable --now daniel-loop >/dev/null 2>&1
+
 step "A container made by an earlier version is set aside, not deleted"
 systemctl stop daniel-body
 docker run --detach --name daniel-body --restart always debian:stable-slim sleep infinity >/dev/null
