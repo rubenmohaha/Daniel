@@ -76,6 +76,7 @@ Ruben · version 0.1, 26 November 2026
 | D-58 | A summary of the mind's reasoning is kept with its stored exchanges | 28 Nov 2026 | In force |
 | D-59 | In the long term: a robot maker lets several minds learn one robot, keeps the best and deploys it on the others | 28 Nov 2026 | In force |
 | D-60 | The mind may be a model that runs locally or a remote one reached by an API | 28 Nov 2026 | In force |
+| D-61 | A page on the local network shows Daniel's state, thoughts and progress, and only shows | 28 Nov 2026 | In force |
 
 ## Entries
 
@@ -511,6 +512,16 @@ Ruben · version 0.1, 26 November 2026
 - **Observed:** On 28 November 2026, with the unmodified tool (version 2.1.332) and the pinned model. Without the option, or with `omitted`: a step of reasoning is stored with no text; on Daniel's first run, 57 steps out of 57. With `summarized`: a summary of a few sentences in the first person, 284 characters for one step in a first trial, then 1,253 characters for four steps when the loop's own call was used with the starting instruction and the body's tools. With a name that the tool does not know, the tool answered `error: unknown option`, and the loop woke the mind without it.
 - **Interpretation:** Ruben's "yes" answered a question that offered two moments, now or with the page; it is read as now. Nothing is added to what Daniel is told, on the ground that its exchanges were already stored and readable on the robot; whether Daniel should be told that its reasoning can be read stays with Ruben.
 - **Not verified:** Whether the option changes the quota used or the time of a waking. The summary is written by Anthropic's service: nothing guarantees that it keeps a given detail. The option is not among those the tool's help lists, and may not last.
+
+#### D-61. A page on the local network shows Daniel's state, thoughts and progress, and only shows
+
+- **Date:** 28 November 2026.
+- **Decision:** The fixed part serves one page, on the local network only, on which a human follows Daniel: the state of the moment, seven days of acting and waiting, today in detail, four measures of what Daniel can do, the machine, the train of thought, the latest actions, the places that keep it busy and its strongest memories. There is no gauge per instinct. Everything is on one screen. The page only shows: it has no button and accepts nothing.
+- **Reason:** Ruben asked on 28 November 2026 for a simple interface, reachable from outside the robot, to follow Daniel's state with graphs; then chose the local network only, asked for visuals of its thoughts, of what it feels and of what it can do, dropped the gauges per instinct when told that they would be invented, asked for everything on one page after a first mock-up in two long screens, and said to build the real page after seeing the second mock-up.
+- **How:** One program, under the mind account, reads the mind's records every two seconds and writes one file in a folder of its own; another, under an account that cannot read the mind's folder, serves that file and the page. The loop notes its starts, its wakings, their end, and each time the mind or the body cannot be reached, so that the page does not depend on the exchanges stored by the official tool for the state of the moment.
+- **Observed:** On 28 November 2026 the page was drawn by a browser from a week of invented records, in both languages, and the unit tests cover what is collected and what is served. The system test serves it on a real installation, reads the state while the loop runs and after it has stopped, and checks that the account that serves the page can neither read the mind's folder nor change what the page shows.
+- **Interpretation:** These choices are mine and await Ruben's confirmation: two accounts; port 8642; words in English, and in French for a browser that asks for French, since D-03 wants the repository in English and Ruben reads French; nothing said to Daniel of the page, which it can open since it shares the robot's network (D-50); the four measures of what Daniel can do and the way each is counted.
+- **Not verified:** The page on a real waking of Daniel with real exchanges of the official tool, at the time of this entry. The page on a phone: it was looked at no narrower than 500 pixels.
 
 ### Terminology
 

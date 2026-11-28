@@ -15,6 +15,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "fixed"))
@@ -69,6 +70,12 @@ def calls(tmp):
 def received(tmp):
     """The message given to the mind at each waking, in order."""
     return [call["stdin"] for call in calls(tmp)]
+
+
+def noted(tmp):
+    """What the loop has noted of its wakings, in order."""
+    with open(os.path.join(tmp, "mind", "wakings")) as f:
+        return [json.loads(line) for line in f]
 
 
 def put(folder, name, content, program=False):
@@ -159,6 +166,48 @@ class Loop(unittest.TestCase):
         # neither the words of an older waking nor an event already given are passed off as new
         self.assertNotIn("words from an earlier waking", after)
         self.assertNotIn("an event", after)
+
+    def test_the_loop_notes_when_the_mind_is_woken_and_when_it_stops(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "hello")
+        before = time.time()
+        daniel_loop.one_waking(config(tmp), "I", {})
+        self.assertEqual([entry["what"] for entry in noted(tmp)], ["woken", "stopped"])
+        self.assertTrue(before <= noted(tmp)[0]["at"] <= noted(tmp)[1]["at"] <= time.time())
+
+    def test_the_loop_notes_a_waking_that_was_cut(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "HANG")
+        with mock.patch.object(daniel_loop, "SESSION_TIME_LIMIT", 1):
+            daniel_loop.one_waking(config(tmp), "I", {})
+        self.assertEqual([entry["what"] for entry in noted(tmp)], ["woken", "cut"])
+
+    def test_the_loop_notes_why_the_mind_could_not_be_reached(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "FAIL")
+        with self.assertRaises(RuntimeError):
+            daniel_loop.one_waking(config(tmp), "I", {})
+        last = noted(tmp)[-1]
+        self.assertEqual(last["what"], "unreachable")
+        self.assertIn("usage limit reached", last["why"])
+
+    def test_the_loop_notes_that_the_body_could_not_be_reached(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "hello")
+        cfg = config(tmp, DANIEL_DOCKER="/nonexistent/docker")
+        with self.assertRaises(RuntimeError):
+            daniel_loop.one_waking(cfg, "I", {})
+        self.assertEqual([entry["what"] for entry in noted(tmp)], ["unreachable"])
+
+    def test_the_loop_notes_each_of_its_starts(self):
+        tmp = tempfile.mkdtemp()
+        fake_body(tmp)
+        env = {"DANIEL_MODEL": "test-model-version", "DANIEL_STATE_DIR": os.path.join(tmp, "mind")}
+        with mock.patch.dict(os.environ, env), \
+                mock.patch.object(daniel_loop, "one_waking", side_effect=KeyboardInterrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                daniel_loop.main()
+        self.assertEqual([entry["what"] for entry in noted(tmp)], ["started"])
 
     def test_model_must_be_pinned(self):
         with self.assertRaises(SystemExit):

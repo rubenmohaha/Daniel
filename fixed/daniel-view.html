@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daniel</title>
+<!--
+The page on which a human follows Daniel. It is served by daniel_view.py, reads
+state.json every few seconds and draws it. It only shows: there is no button.
+Everything Daniel wrote is put on the page as text, never as markup. Nothing is
+fetched from outside the robot. The words are in English, or in French for a
+reader whose browser asks for French.
+-->
+<style>
+:root {
+  --ground: #EEF2F6; --paper: #FFFFFF; --ink: #101B2D; --soft: #4D5B72; --hair: #E3E8EE; --base: #B8C2CF;
+  --acting: #257de0; --waiting: #84b9f3; --pale: #cce3fd; --unreachable: #fbb315; --failed: #dc3c3d; --fine: #006c10;
+  --text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Arial Narrow", "Roboto Condensed", "Helvetica Neue", system-ui, sans-serif;
+  --mono: ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 14px/1.4 var(--text); }
+#page { max-width: 1400px; margin: 0 auto; padding: 14px clamp(14px, 2.6vw, 40px) 22px; display: flex; flex-direction: column; gap: 16px; }
+header, .who, .lights, main, .row, .legend, .head, .ranked > div, .line, .doing, .acted, .meter div:first-child { display: flex; }
+header { flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 32px; }
+.who { flex-wrap: wrap; align-items: center; gap: 4px 28px; }
+.name { font: 700 22px var(--display); }
+.lights { flex-wrap: wrap; gap: 4px 20px; }
+.light { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.clock { font-size: 13px; color: var(--soft); font-variant-numeric: tabular-nums; }
+.late { color: var(--ink); font-weight: 600; }
+main { flex-wrap: wrap; align-items: flex-start; gap: 22px 36px; }
+.trace { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.sheet { flex: 1 1 400px; min-width: 0; background: var(--paper); border-radius: 6px; padding: 18px 22px 20px; display: flex; flex-direction: column; gap: 20px; }
+h1 { margin: 0; font: 700 clamp(40px, 4.8vw, 68px)/0.98 var(--display); font-stretch: condensed; letter-spacing: -0.02em; }
+.hero p { margin: 6px 0 0; font-size: 15px; }
+section { display: flex; flex-direction: column; gap: 9px; }
+.head { flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 20px; }
+h2 { margin: 0; font: 700 18px/1.15 var(--display); }
+.aside, .value, .empty { font-size: 12.5px; color: var(--soft); }
+.legend { flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 11px; height: 11px; border-radius: 2px; }
+.rows { display: flex; flex-direction: column; gap: 6px; }
+.rows.past { gap: 2px; }
+.row { flex-wrap: wrap; align-items: center; gap: 2px 14px; }
+.label { flex: 0 0 132px; font-size: 13px; line-height: 1.15; }
+.past .label { font-size: 12.5px; }
+.label.today { font-weight: 600; }
+.track { flex: 999 1 300px; min-width: 0; }
+.value { flex: 0 0 112px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.strip { position: relative; background: var(--paper); border-radius: 3px; overflow: hidden; }
+.strip > * { position: absolute; }
+.hour { top: 0; bottom: 0; width: 1px; background: var(--hair); }
+.now { top: 0; bottom: 0; width: 1px; background: var(--ink); }
+.span { top: 0; bottom: 0; border-radius: 2px; }
+.bar { bottom: 0; background: var(--acting); border-radius: 3px 3px 0 0; }
+.area { bottom: 0; background: rgba(37, 125, 224, 0.16); border-top: 2px solid var(--acting); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--acting); box-shadow: 0 0 0 2px var(--paper); transform: translate(-50%, 50%); }
+.dot.event { top: 50%; transform: translate(-50%, -50%); }
+.dot.bad { background: var(--failed); }
+.limit { left: 0; right: 0; height: 1px; background: var(--soft); }
+.limit-name { left: 4px; padding: 1px 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.85); font-size: 11px; line-height: 1; color: var(--soft); }
+.axis { position: relative; height: 16px; font-size: 12px; color: var(--soft); font-variant-numeric: tabular-nums; }
+.axis span { position: absolute; top: 0; white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px 44px; }
+.lines { display: flex; flex-direction: column; gap: 7px; }
+.line { align-items: center; gap: 12px; font-size: 13px; }
+.line > :first-child { flex: 1 1 0; min-width: 0; }
+.figure { flex: 0 0 70px; text-align: right; font: 700 20px/1 var(--display); }
+.spark { position: relative; flex: 0 0 80px; height: 24px; border-bottom: 1px solid var(--base); }
+.spark i { position: absolute; bottom: 0; width: 8px; background: var(--acting); border-radius: 2px 2px 0 0; }
+.meter { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.meter div:first-child { justify-content: space-between; }
+.meter .rail { height: 6px; border-radius: 3px; background: var(--pale); }
+.meter .rail i { display: block; height: 6px; border-radius: 3px; background: var(--acting); }
+blockquote { margin: 0; font: 600 20px/1.2 var(--display); overflow-wrap: anywhere; }
+.earlier, .acted { gap: 10px; font-size: 12.5px; line-height: 1.35; padding: 5px 0; border-top: 1px solid var(--hair); }
+.earlier { display: flex; }
+.when { flex: 0 0 50px; color: var(--soft); font-variant-numeric: tabular-nums; }
+.grow { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+.doing { align-items: center; gap: 10px; padding: 2px 0 7px; }
+.tool { font-size: 12.5px; font-weight: 600; }
+.doing .tool { background: var(--pale); border-radius: 4px; padding: 1px 7px; }
+.acted { align-items: center; }
+.acted .tool { flex: 0 0 62px; }
+.code { font-family: var(--mono); }
+.one-line { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ranked { display: flex; flex-direction: column; gap: 5px; }
+.ranked > div { align-items: center; gap: 12px; }
+.ranked .place { flex: 0 0 132px; font: 12.5px var(--mono); }
+.ranked .length { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--base); padding: 2px 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.ranked .length i { height: 10px; background: var(--acting); border-radius: 0 4px 4px 0; }
+footer { font-size: 12.5px; color: var(--soft); }
+svg { flex: 0 0 16px; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 640px) {  /* on a phone: the name and the figure on one line, the strip below */
+  .label { flex: 1 1 auto; }
+  .value { flex: 0 1 auto; text-align: right; }
+  .track { order: 3; flex-basis: 100%; }
+  .sheet { padding: 16px 14px; }
+}
+</style>
+</head>
+<body>
+<div id="page"></div>
+<script>
+"use strict";
+
+const FRENCH = (navigator.language || "").toLowerCase().startsWith("fr");
+const WORDS = {
+  "Loop running": "Boucle en marche", "Loop stopped": "Boucle arrêtée",
+  "Container running": "Conteneur en marche", "Container stopped": "Conteneur arrêté",
+  "Mind within reach": "Esprit joignable", "Mind out of reach": "Esprit injoignable",
+  "No news from the robot for {time}": "Aucune nouvelle du robot depuis {time}",
+  "The robot has not said anything yet.": "Le robot n'a encore rien dit.",
+  "Awake for {time}.": "Éveillé depuis {time}.", "Waiting for {time}.": "Attend depuis {time}.",
+  "Mind out of reach for {time}.": "Esprit injoignable depuis {time}.",
+  "Stopped for {time}.": "Arrêté depuis {time}.", "Stopped.": "Arrêté.", "Not woken yet.": "Pas encore réveillé.",
+  "Waking no. {count} of the day, begun at {clock}.": "Réveil n° {count} de la journée, commencé à {clock}.",
+  "{count} wakings today.": "{count} réveils aujourd'hui.",
+  "Last action {time} ago.": "Dernière action il y a {time}.",
+  "Seven days, then today in detail": "Sept jours, puis aujourd'hui en détail",
+  "Acting": "Agit", "Waiting": "Attend", "Out of reach": "Injoignable", "Stopped": "Arrêté",
+  "acting {time}": "agit {time}",
+  "Actions per minute": "Actions par minute", "Time to decide": "Temps de décision",
+  "Thread of the waking": "Fil du réveil", "Feelings reported": "Ressentis signalés",
+  "Failed actions": "Actions en échec",
+  "{count} right now": "{count} en ce moment", "median {seconds} s": "médiane {seconds} s",
+  "{count} tokens": "{count} jetons", "summed up at {count} tokens": "résumé à {count} jetons",
+  "{count} today": "{count} aujourd'hui", "{count} of {all}": "{count} sur {all}", "it is {clock}": "il est {clock}",
+  "Ability": "Capacité", "day by day, over seven days": "jour par jour, sur sept jours",
+  "Programs written, then used again": "Programmes écrits puis réutilisés",
+  "Actions that succeeded": "Actions réussies", "Share of new in its actions": "Part de nouveau dans ses actions",
+  "Machine": "Machine", "Processor": "Processeur", "Memory": "Mémoire", "Disk": "Disque",
+  "Train of thought": "Fil de pensée",
+  "summary of its reasoning, at {clock}": "résumé de son raisonnement, à {clock}",
+  "its own words, at {clock}": "ses propres mots, à {clock}",
+  "Nothing recorded yet.": "Rien d'enregistré pour l'instant.",
+  "Right now": "En ce moment", "then its latest actions": "puis ses dernières actions",
+  "for {time}": "depuis {time}", "No action under way.": "Aucune action en cours.",
+  "Succeeded": "Réussie", "Failed": "Échec",
+  "What keeps it busy": "Ce qui l'occupe",
+  "actions per place, over the last hour": "actions par endroit, depuis une heure",
+  "No action in the last hour.": "Aucune action depuis une heure.",
+  "Memories": "Souvenirs", "the {count} strongest of {all}": "les {count} plus forts sur {all}",
+  "No memory kept yet.": "Aucun souvenir pour l'instant.",
+  "Read-only page, served by the robot on the local network.": "Page en lecture seule, servie par le robot sur le réseau local.",
+};
+const COLOURS = { acting: "var(--acting)", waiting: "var(--waiting)", unreachable: "var(--unreachable)" };
+const figures = new Intl.NumberFormat(FRENCH ? "fr-FR" : "en-US", { maximumFractionDigits: 1 });
+const strengths = new Intl.NumberFormat(FRENCH ? "fr-FR" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+let state = null, misses = 0;
+
+function say(text, values) {
+  let said = (FRENCH && WORDS[text]) || text;
+  for (const [name, value] of Object.entries(values || {})) said = said.replace("{" + name + "}", value);
+  return said;
+}
+function el(tag, name, text, ...children) {
+  const made = document.createElement(tag);
+  if (name) made.className = name;
+  if (text !== null && text !== undefined) made.textContent = text;
+  made.append(...children.filter(Boolean));
+  return made;
+}
+function placed(made, styles, hint) {
+  Object.assign(made.style, styles);
+  if (hint) made.title = hint;
+  return made;
+}
+function robot(at) { return new Date((at + state.offset) * 1000); }
+function clock(at) {
+  const hour = robot(at).getUTCHours(), minute = String(robot(at).getUTCMinutes()).padStart(2, "0");
+  return FRENCH ? hour + " h " + minute : String(hour).padStart(2, "0") + ":" + minute;
+}
+function dayName(at) {
+  return new Intl.DateTimeFormat(FRENCH ? "fr-FR" : "en-GB", { weekday: "short", day: "numeric", timeZone: "UTC" }).format(robot(at));
+}
+function fullDate(at) {
+  return new Intl.DateTimeFormat(FRENCH ? "fr-FR" : "en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(robot(at));
+}
+function lasting(seconds) {
+  seconds = Math.max(0, Math.round(seconds));
+  if (seconds < 90) return seconds + " s";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return minutes + " min";
+  const hours = Math.floor(minutes / 60), rest = String(minutes % 60).padStart(2, "0");
+  if (hours < 48) return hours + " h " + rest;
+  return Math.floor(hours / 24) + (FRENCH ? " j" : " d");
+}
+function part(value) { return (100 * value).toFixed(3) + "%"; }
+function icon(ok, label) {
+  const space = "http://www.w3.org/2000/svg", drawn = document.createElementNS(space, "svg");
+  drawn.setAttribute("width", "16"); drawn.setAttribute("height", "16");
+  drawn.style.stroke = ok ? "var(--fine)" : "var(--failed)";
+  if (label) { drawn.setAttribute("role", "img"); drawn.setAttribute("aria-label", label); } else drawn.setAttribute("aria-hidden", "true");
+  const ring = document.createElementNS(space, "circle"), mark = document.createElementNS(space, "path");
+  ring.setAttribute("cx", "8"); ring.setAttribute("cy", "8"); ring.setAttribute("r", "6.2");
+  mark.setAttribute("d", ok ? "M5.2 8.3l1.9 1.9 3.7-4" : "M5.7 5.7l4.6 4.6M10.3 5.7l-4.6 4.6");
+  drawn.append(ring, mark);
+  return drawn;
+}
+function head(title, aside) { return el("div", "head", null, el("h2", "", title), aside ? el("div", "aside", aside) : null); }
+function row(label, track, value, today) {
+  return el("div", "row", null, el("div", "label" + (today ? " today" : ""), label), el("div", "track", null, track), el("div", "value", value || ""));
+}
+
+function header() {
+  const light = (ok, yes, no) => el("div", "light", null, icon(ok), el("span", "", say(ok ? yes : no)));
+  const age = Date.now() / 1000 - state.at;
+  const late = misses > 2 || age > 30;
+  return el("header", "", null,
+    el("div", "who", null, el("div", "name", "Daniel"),
+      el("div", "lights", null,
+        light(state.loop === "active", "Loop running", "Loop stopped"),
+        light(state.body === "active", "Container running", "Container stopped"),
+        light(state.now.state !== "unreachable", "Mind within reach", "Mind out of reach"))),
+    el("div", "clock" + (late ? " late" : ""), late ? say("No news from the robot for {time}", { time: lasting(age) })
+      : fullDate(state.at) + ", " + clock(state.at)));
+}
+
+function hero() {
+  const now = state.now, since = now.since === null ? null : lasting(state.at - now.since);
+  const sentences = { acting: "Awake for {time}.", waiting: "Waiting for {time}.", unreachable: "Mind out of reach for {time}.",
+                      stopped: since ? "Stopped for {time}." : "Stopped.", never: "Not woken yet." };
+  const more = [];
+  if (now.state === "acting") more.push(say("Waking no. {count} of the day, begun at {clock}.", { count: now.wakings_today, clock: clock(now.since) }));
+  else if (now.wakings_today) more.push(say("{count} wakings today.", { count: now.wakings_today }));
+  if (now.last_action_at) more.push(say("Last action {time} ago.", { time: lasting(state.at - now.last_action_at) }));
+  if (now.why) more.push(now.why);
+  return el("section", "hero", null, el("h1", "", say(sentences[now.state] || "Stopped.", { time: since })), el("p", "", more.join(" ")));
+}
+
+function strip(height, label, day, now, ...marks) {
+  const made = placed(el("div", "strip"), { height: height + "px" });
+  made.setAttribute("role", "img"); made.setAttribute("aria-label", label);
+  for (const hour of [6, 12, 18]) made.append(placed(el("div", "hour"), { left: part(hour / 24) }));
+  made.append(...marks.flat());
+  if (now) made.append(placed(el("div", "now"), { left: part((state.at - day.start) / (day.end - day.start)) }));
+  return made;
+}
+function band(day) {
+  const whole = day.end - day.start;
+  return day.segments.map(([start, end, kind]) => placed(el("div", "span"), {
+    left: part((start - day.start) / whole), width: "calc(" + part((end - start) / whole) + " - 2px)", background: COLOURS[kind],
+  }, say({ acting: "Acting", waiting: "Waiting", unreachable: "Out of reach" }[kind]) + ", " + clock(start) + " – " + clock(end)));
+}
+
+function trace() {
+  const days = state.days, today = days[days.length - 1], whole = today.end - today.start, measured = state.today;
+  const at = (moment) => part((moment - today.start) / whole), quarter = 900 / whole;
+  const past = days.slice(0, -1).map((day) => row(dayName(day.start), strip(9, dayName(day.start), day, false, band(day)),
+    day.acting ? say("acting {time}", { time: lasting(day.acting) }) : ""));
+  const highest = (pairs, floor) => Math.max(floor, ...pairs.map((pair) => pair[1]));
+  const rateTop = highest(measured.rate, 4), decideTop = highest(measured.decision, 10), threadTop = measured.thread_limit * 1.25;
+  const rate = measured.rate.map(([start, value]) => placed(el("div", "bar"), {
+    left: at(start), width: "calc(" + part(quarter) + " - 2px)", height: part(value / rateTop) }, clock(start) + " : " + figures.format(value)));
+  const decide = measured.decision.map(([start, value]) => placed(el("div", "dot"), {
+    left: at(start + 450), bottom: (8 + 78 * value / decideTop).toFixed(1) + "%" }, clock(start) + " : " + figures.format(value) + " s"));
+  const thread = measured.thread.map(([start, value]) => placed(el("div", "area"), {
+    left: at(start), width: part(quarter), height: part(Math.min(value, threadTop) / threadTop) }, clock(start) + " : " + say("{count} tokens", { count: figures.format(value) })));
+  const limit = [placed(el("div", "limit"), { bottom: "80%" }),
+    placed(el("div", "limit-name", say("summed up at {count} tokens", { count: figures.format(measured.thread_limit) })), { bottom: "calc(80% - 16px)" })];
+  const events = (pairs, name) => pairs.map(([moment, text]) => placed(el("div", "dot event " + name), { left: at(moment) }, clock(moment) + " : " + text));
+  const axis = el("div", "axis", null, ...[0, 6, 12, 18, 24].map((hour) => placed(el("span", "", hour + " h"), {
+    left: part(hour / 24), transform: "translateX(" + (hour === 0 ? "0" : hour === 24 ? "-100%" : "-50%") + ")" })));
+  const name = (kind, text) => el("span", "", null, placed(el("i"), { background: kind, boxShadow: "inset 0 0 0 1px " + (kind === "var(--paper)" ? "var(--base)" : kind) }), el("span", "", say(text)));
+  return el("section", "", null,
+    el("div", "head", null, el("h2", "", say("Seven days, then today in detail")),
+      el("div", "legend", null, name(COLOURS.acting, "Acting"), name(COLOURS.waiting, "Waiting"), name(COLOURS.unreachable, "Out of reach"), name("var(--paper)", "Stopped"))),
+    el("div", "rows past", null, ...past),
+    el("div", "rows", null,
+      row(dayName(today.start), strip(16, dayName(today.start), today, true, band(today)), today.acting ? say("acting {time}", { time: lasting(today.acting) }) : "", true),
+      row(say("Actions per minute"), strip(38, say("Actions per minute"), today, true, rate),
+        state.now.state === "acting" ? say("{count} right now", { count: figures.format(measured.rate_now) }) : ""),
+      row(say("Time to decide"), strip(38, say("Time to decide"), today, true, decide),
+        measured.decision_median === null ? "" : say("median {seconds} s", { seconds: figures.format(measured.decision_median) })),
+      row(say("Thread of the waking"), strip(46, say("Thread of the waking"), today, true, limit, thread),
+        measured.thread_now === null ? "" : say("{count} tokens", { count: figures.format(measured.thread_now) })),
+      row(say("Feelings reported"), strip(16, say("Feelings reported"), today, true, events(measured.feelings, "")),
+        say("{count} today", { count: measured.feelings.length })),
+      row(say("Failed actions"), strip(16, say("Failed actions"), today, true, events(measured.failures, "bad")),
+        say("{count} of {all}", { count: measured.failed, all: measured.actions })),
+      row("", axis, say("it is {clock}", { clock: clock(state.at) }))));
+}
+
+function ability() {
+  const line = (name, values, unit, top) => {
+    const known = values.filter((value) => value !== null), latest = known.length ? known[known.length - 1] : null;
+    const scale = top || Math.max(1, ...known), spark = el("div", "spark");
+    spark.setAttribute("aria-hidden", "true");
+    values.forEach((value, index) => { if (value !== null) spark.append(placed(el("i"), { left: 12 * index + "px", height: part(Math.max(value, scale / 24) / scale) })); });
+    return el("div", "line", null, el("div", "", say(name)), el("div", "figure", latest === null ? "–" : figures.format(latest) + unit), spark);
+  };
+  const told = state.capacity;
+  return el("section", "", null, head(say("Ability"), say("day by day, over seven days")),
+    el("div", "lines", null, line("Programs written, then used again", told.reused, ""), line("Actions that succeeded", told.success, " %", 100),
+      line("Share of new in its actions", told.new, " %", 100), line("Time to decide", told.decision, " s")));
+}
+
+function machine() {
+  const meter = (name, value) => {
+    const rail = el("div", "rail", null, placed(el("i"), { width: (value || 0) + "%" }));
+    rail.setAttribute("role", "img"); rail.setAttribute("aria-label", say(name) + " : " + (value === null ? "–" : value + " %"));
+    return el("div", "meter", null, el("div", "", null, el("span", "", say(name)), el("span", "", value === null ? "–" : value + " %")), rail);
+  };
+  return el("section", "", null, head(say("Machine")),
+    el("div", "lines", null, meter("Processor", state.machine.cpu), meter("Memory", state.machine.memory), meter("Disk", state.machine.disk)));
+}
+
+function thoughts() {
+  const all = state.thoughts, latest = all[all.length - 1];
+  if (!latest) return el("section", "", null, head(say("Train of thought")), el("div", "empty", say("Nothing recorded yet.")));
+  const told = latest.kind === "reasoning" ? "summary of its reasoning, at {clock}" : "its own words, at {clock}";
+  return el("section", "", null, head(say("Train of thought"), say(told, { clock: clock(latest.at) })), el("blockquote", "", latest.text),
+    el("div", "", null, ...all.slice(0, -1).reverse().map((thought) => el("div", "earlier", null, el("div", "when", clock(thought.at)), el("div", "grow", thought.text)))));
+}
+
+function doing() {
+  const under = state.doing;
+  const first = under ? el("div", "doing", null, el("div", "tool", under.tool), el("div", "grow code one-line", under.text), el("div", "aside", say("for {time}", { time: lasting(state.at - under.at) })))
+    : el("div", "empty", say("No action under way."));
+  if (under) first.children[1].title = under.text;
+  return el("section", "", null, head(say("Right now"), say("then its latest actions")),
+    el("div", "", null, first, ...state.actions.map((action) => {
+      const text = placed(el("div", "grow code one-line", action.text), {}, action.text);
+      return el("div", "acted", null, el("div", "when", clock(action.at)), el("div", "tool", action.tool), text, icon(action.ok, say(action.ok ? "Succeeded" : "Failed")));
+    })));
+}
+
+function ranked(pairs, empty, shown) {
+  if (!pairs.length) return el("div", "empty", say(empty));
+  const top = Math.max(...pairs.map((pair) => pair[1]));
+  return el("div", "ranked", null, ...pairs.map(([name, value]) => el("div", "", null, placed(el("div", "place one-line", name), {}, name),
+    el("div", "length", null, placed(el("i"), { width: (78 * value / top).toFixed(1) + "%" }), el("span", "", shown(value))))));
+}
+
+function render() {
+  const page = document.getElementById("page");
+  if (!state) return page.replaceChildren(el("p", "", say("The robot has not said anything yet.")));
+  if (document.querySelector(".strip:hover, .one-line:hover")) return;  // a hint is being read
+  document.documentElement.lang = FRENCH ? "fr" : "en";
+  const kept = state.memories;
+  page.replaceChildren(header(),
+    el("main", "", null,
+      el("div", "trace", null, hero(), trace(), el("div", "pair", null, ability(), machine())),
+      el("aside", "sheet", null, thoughts(), doing(),
+        el("section", "", null, head(say("What keeps it busy"), say("actions per place, over the last hour")), ranked(state.busy, "No action in the last hour.", (value) => String(value))),
+        el("section", "", null, head(say("Memories"), kept.count ? say("the {count} strongest of {all}", { count: kept.strongest.length, all: kept.count }) : ""),
+          ranked(kept.strongest, "No memory kept yet.", (value) => strengths.format(value))))),
+    el("footer", "", say("Read-only page, served by the robot on the local network.")));
+}
+
+async function refresh() {
+  try {
+    const answer = await fetch("state.json", { cache: "no-store" });
+    if (!answer.ok) throw new Error(answer.status);
+    state = await answer.json();
+    misses = 0;
+  } catch (error) {
+    misses += 1;
+  }
+  render();
+}
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>

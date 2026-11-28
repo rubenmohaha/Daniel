@@ -69,6 +69,13 @@ ssh -t USER@ROBOT "curl -fsSLo daniel.sh github.com/rubenmohaha/Daniel/raw/main/
 
 The script installs what is missing, sets Daniel up, pauses while you sign in to your Anthropic account, checks that Daniel cannot get out of its container, asks you to confirm that the robot is in a safe place, and starts Daniel. It then shows Daniel's first thought, and you can leave.
 
+From then on, any browser on the local network follows Daniel at `http://ROBOT:8642`: one page with what it is doing, its train of thought, and how it is getting on, day after day. The page only shows; it has no button.
+
+<p align="center">
+  <img src="docs/assets/page.png" alt="The page on which a human follows Daniel: its state, seven days of acting and waiting, today in detail, its train of thought, its latest actions and its strongest memories" width="860">
+  <br><em>The page, here with sample data.</em>
+</p>
+
 To stop Daniel: `sudo systemctl disable --now daniel-loop`.
 
 > [!WARNING]
@@ -104,7 +111,7 @@ flowchart LR
 - **Eight instincts.** Protections (pain, fear, health), needs (hunger, sleep) and growth (curiosity, mastery, bond). They tell Daniel what to attend to, and are never a reason to think less carefully.
 - **A wall.** Daniel cannot change the system that hosts it, the loop that runs it, or its own instruction. The installer tries to break through the wall from the inside, and refuses to start Daniel if it gives way.
 
-The part that the project writes is under a thousand lines of Python and shell, with no dependency beyond Docker and the standard library. Everything else, Daniel writes.
+The part that the project writes is under two thousand lines of Python, shell and one web page, with no dependency beyond Docker and the standard library. Everything else, Daniel writes.
 
 ## Status
 
@@ -116,6 +123,7 @@ Daniel is a research prototype. What follows separates what has been observed fr
 | The installation script is run end to end, as its owner would run it, on two versions of Ubuntu, with a stand-in for the mind | That Daniel carries out a request spoken by a human |
 | On a virtual machine, a real mind found its screen, speaker and microphone and tried to reach a human, in about five minutes | That it stops what it is doing when told to cease |
 | The wall holds against every attempt listed in [`check-wall.sh`](fixed/check-wall.sh) | The same code on two very different bodies, and recovery after motor cables are swapped |
+| The page is served at every pull request on a real installation, and the account that serves it can read nothing of the mind | |
 
 The [decision log](docs/decisions/decision-log.md) records every choice made so far, with its date, its reason and what has not been verified.
 
