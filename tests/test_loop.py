@@ -96,6 +96,13 @@ class Loop(unittest.TestCase):
         self.assertEqual(os.path.realpath(calls(tmp)[0]["cwd"]),
                          os.path.realpath(os.path.join(tmp, "mind", "workdir")))
 
+    def test_the_official_tool_is_asked_to_summarise_the_thread_of_a_long_waking(self):
+        tmp = tempfile.mkdtemp()
+        fake_mind(tmp, "hello")
+        daniel_loop.one_waking(config(tmp), "INSTRUCTION", {})
+        argv = calls(tmp)[0]["argv"]
+        self.assertEqual(argv[argv.index("--autocompact") + 1], "200000")
+
     def test_last_words_are_given_back(self):
         tmp = tempfile.mkdtemp()
         fake_mind(tmp, "first words", "second words")
