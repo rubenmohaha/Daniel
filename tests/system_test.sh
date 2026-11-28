@@ -121,10 +121,7 @@ cp -r "$HERE/.." /tmp/daniel-origin && rm -rf /tmp/daniel-origin/.git
 git -C /tmp/daniel-origin init -q -b main && git -C /tmp/daniel-origin add -A && git -C /tmp/daniel-origin \
     -c user.name=test -c user.email=test@example.invalid commit -q -m "The version under test"
 git clone -q /tmp/daniel-origin /opt/daniel-source
-# On an Ubuntu as it is installed, sudo opens a terminal of its own for what it starts.
-# The machines of the workflow are not set that way: the setting is added here.
-echo "sudo: $(sudo --version 2>&1 | head -1); use_pty already set: $(grep -rqs '^Defaults.*use_pty' /etc/sudoers /etc/sudoers.d && echo yes || echo no)"
-echo 'Defaults use_pty' > /etc/sudoers.d/daniel-test && chmod 440 /etc/sudoers.d/daniel-test
+echo "sudo: $(sudo --version 2>&1 | head -1)"
 check "the script asks for the sign-in, then whether to start, and ends well" python3 "$HERE/at_a_terminal.py" \
     "Paste code here=the-code-typed-by-the-owner" "Type yes to start=yes" -- sudo bash "$HERE/../install.sh"
 check "the code typed at the terminal reached the official tool" same \

@@ -22,8 +22,8 @@ jobs:
       - name: Run the tests
         run: sudo python3 -m unittest discover -v tests
 
-  # On two versions of Ubuntu: their sudo does not hand the terminal to a
-  # program in the same way, which the installation script depends on.
+  # On two versions of Ubuntu, whose sudo is not the same program: the
+  # installation script depends on how sudo hands the terminal to what it starts.
   system:
     strategy:
       fail-fast: false

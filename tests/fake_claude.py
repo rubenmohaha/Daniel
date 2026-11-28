@@ -12,21 +12,31 @@ final text.
 
 It also stands in for the sign-in, as far as the installation script uses it:
 `auth status` says whether a code has been received, and `auth login` asks for
-a code and reads it from where a person would type it.
+a code. Like the official tool, it asks on its own terminal, whatever it is
+given as input, and is not stopped when that terminal is not handed to it: it
+then waits for a code that never comes. This was observed with the official
+tool (version 2.1.332) started by sudo on Ubuntu 24.04.
 """
-import json, os, subprocess, sys, time
+import json, os, signal, subprocess, sys, time
 
 argv = sys.argv[1:]
 if argv[:1] == ["auth"]:
     signed_in = os.path.expanduser("~/.fake-claude-signed-in")
     if argv[1] == "login":
-        sys.stdout.write("Paste code here if prompted > ")
-        sys.stdout.flush()
-        code = sys.stdin.readline().strip()
-        if not code:
-            sys.exit(1)
-        with open(signed_in, "w") as f:
-            f.write(code)
+        signal.signal(signal.SIGTTIN, signal.SIG_IGN)
+        signal.signal(signal.SIGTTOU, signal.SIG_IGN)
+        terminal = os.open("/dev/tty", os.O_RDWR)
+        os.write(terminal, b"Paste code here if prompted > ")
+        code, limit = b"", time.time() + 60
+        while not code.endswith(b"\n"):
+            if time.time() > limit:
+                sys.exit(1)
+            try:
+                code += os.read(terminal, 1024)
+            except OSError:  # the terminal is not handed to this program
+                time.sleep(0.2)
+        with open(signed_in, "wb") as f:
+            f.write(code.strip())
     else:
         print(json.dumps({"loggedIn": os.path.exists(signed_in)}, indent=2))
     sys.exit(0)
